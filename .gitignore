@@ -1,0 +1,9 @@
+.vscode
+build
+dist
+.ipynb_checkpoints/
+*.so
+*.pyc
+files.txt
+wbaa_utils/sparse.cpp
+wbaa_utils.egg-info
