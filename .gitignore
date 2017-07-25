@@ -5,5 +5,9 @@ dist
 *.so
 *.pyc
 files.txt
-wbaa_utils/sparse.cpp
-wbaa_utils.egg-info
+cossim_topn/sparse.cpp
+cossim_topn.egg-info
+dependency_links.txt
+PKG-INFO
+SOURCES.txt
+top_level.txt
