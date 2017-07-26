@@ -5,8 +5,8 @@ dist
 *.so
 *.pyc
 files.txt
-cossim_topn/sparse.cpp
-cossim_topn.egg-info
+sparse_dot_topn/sparse.cpp
+sparse_dot_topn.egg-info
 dependency_links.txt
 PKG-INFO
 SOURCES.txt

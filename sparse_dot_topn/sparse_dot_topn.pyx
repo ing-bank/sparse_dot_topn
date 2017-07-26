@@ -20,9 +20,9 @@
 import numpy as np
 cimport numpy as np
 
-cdef extern from "cossim_topn_source.h":
+cdef extern from "sparse_dot_topn_source.h":
 
-    cdef void cossim_topn_source(
+    cdef void sparse_dot_topn_source(
                         int n_row,
                         int n_col,
                         int Ap[],
@@ -37,7 +37,7 @@ cdef extern from "cossim_topn_source.h":
                         int Cj[],
                         double Cx[]);
 
-cpdef cossim_topn(
+cpdef sparse_dot_topn(
         int n_row,
         int n_col,
         np.ndarray[int, ndim=1] a_indptr,
@@ -53,7 +53,7 @@ cpdef cossim_topn(
         np.ndarray[double, ndim=1] c_data
     ):
     """
-    Cython glue function to call cossim_topn C++ implementation
+    Cython glue function to call sparse_dot_topn C++ implementation
     This function will return a matrxi C in CSR format, where
     C = [sorted top n results and results > lower_bound for each row of A * B]
 
@@ -84,5 +84,5 @@ cpdef cossim_topn(
     cdef int* Cj = &c_indices[0]
     cdef double* Cx = &c_data[0]
 
-    cossim_topn_source(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx)
+    sparse_dot_topn_source(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx)
     return

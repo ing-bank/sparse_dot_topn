@@ -1,4 +1,4 @@
-# cossim_topn
+# sparse\_dot\_topn
 Comparing very large feature vectors and picking the best matches, in practice often results in performing a sparse matrix multiplication followed by selecting the top-n multiplication results. In this package, we implement a customized Cython function for this purpose. When comparing our Cythonic approach to doing the same use with SciPy and NumPy functions, our approach improves the speed by about 40% and reduces memory consumption. The GitHub code of our approach is available here.
 
 This package is made by ING Wholesale Banking Advanced Analytics team. This [blog](https://medium.com/@ingwbaa/https-medium-com-ingwbaa-boosting-selection-of-the-most-similar-entities-in-large-scale-datasets-450b3242e618) explains how we implement it.
@@ -8,7 +8,7 @@ This package is made by ING Wholesale Banking Advanced Analytics team. This [blo
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import rand
-import cossim_topn.cossim_topn as ct
+import sparse_dot_topn.sparse_dot_topn as ct
 
 def awesome_cossim_top(A, B, ntop, lower_bound=0):
     B = B.tocsr()
@@ -24,7 +24,7 @@ def awesome_cossim_top(A, B, ntop, lower_bound=0):
     indices = np.empty(nnz_max, dtype=idx_dtype)
     data = np.empty(nnz_max, dtype=A.dtype)
 
-    ct.cossim_topn(
+    ct.sparse_dot_topn(
         M, N, np.asarray(A.indptr, dtype=idx_dtype),
         np.asarray(A.indices, dtype=idx_dtype),
         A.data,

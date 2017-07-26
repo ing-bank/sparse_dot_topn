@@ -18,7 +18,7 @@
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
 
-extern void cossim_topn_source(int n_row,
+extern void sparse_dot_topn_source(int n_row,
       	              int n_col,
       	              int Ap[],
       	              int Aj[],

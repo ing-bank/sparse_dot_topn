@@ -19,14 +19,14 @@
 #include <limits>
 #include <algorithm>
 
-#include "./cossim_topn_source.h"
+#include "./sparse_dot_topn_source.h"
 
 struct candidate {int index; double value;};
 
 bool candidate_cmp(candidate c_i, candidate c_j) { return (c_i.value > c_j.value); }
 
 /*
-    C++ implementation of cossim_topn
+    C++ implementation of sparse_dot_topn
 
     This function will return a matrxi C in CSR format, where
     C = [sorted top n results and results > lower_bound for each row of A * B]
@@ -46,7 +46,7 @@ bool candidate_cmp(candidate c_i, candidate c_j) { return (c_i.value > c_j.value
 
     N.B. A and B must be CSR format!!!
 */
-void cossim_topn_source(int n_row,
+void sparse_dot_topn_source(int n_row,
                         int n_col,
                         int Ap[],
                         int Aj[],
