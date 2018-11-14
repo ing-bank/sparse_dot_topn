@@ -20,14 +20,16 @@ b = rand(1000000, 200, density=0.005, format='csr')
 c = awesome_cossim_topn(a, b, 5, 0.01)
 ```
 
-## Install
+You can also find 
+
+## Dependency and Install
+Install `numpy` and `cython` first before installing this package. Then,
 ``` sh
-python setup.py install
+pip install git+https://github.com/ing-bank/sparse_dot_topn
 ```
+
 
 ## Uninstall
 ``` sh
 pip uninstall sparse_dot_topn
 ```
-
-## 
