@@ -1,1 +1,2 @@
-__version__ = "0.1"
+
+from sparse_dot_topn.awesome_cossim_topn import awesome_cossim_topn

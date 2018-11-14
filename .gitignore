@@ -4,7 +4,7 @@ dist
 .ipynb_checkpoints/
 *.so
 *.pyc
-files.txt
+*.txt
 sparse_dot_topn/sparse.cpp
 sparse_dot_topn.egg-info
 dependency_links.txt

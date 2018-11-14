@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+// Author: Zhe Sun, Ahmet Erdem
+// April 20, 2017
+
 #include <vector>
 #include <limits>
 #include <algorithm>

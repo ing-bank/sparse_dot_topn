@@ -1,9 +1,7 @@
 import numpy
-from Cython.Build import cythonize
-from Cython.Distutils import build_ext
 from setuptools import setup, Extension
-
-from sparse_dot_topn import __version__
+from Cython.Distutils import build_ext
+from Cython.Build import cythonize
 
 ext_utils = Extension('sparse_dot_topn.sparse_dot_topn',
                       sources=['./sparse_dot_topn/sparse_dot_topn.pyx', './sparse_dot_topn/sparse_dot_topn_source.cpp'],
@@ -14,13 +12,18 @@ ext_utils = Extension('sparse_dot_topn.sparse_dot_topn',
                      )
 
 setup(name='sparse_dot_topn',
-      version=__version__,
+      version='0.2',
+      description='This package boosts a sparse matrix multiplication '\
+                  'followed by selecting the top-n multiplication',
+      keywords='cosine-similarity sparse-matrix scipy cython',
       setup_requires=[
           # Setuptools 18.0 properly handles Cython extensions.
           'setuptools>=18.0',
           'cython',
+          'numpy'
       ],
       packages=['sparse_dot_topn'],
       cmdclass={'build_ext': build_ext},
       ext_modules=cythonize([ext_utils]),
      )
+

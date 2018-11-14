@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Created by Cool Kids in EM
+# Author: Zhe Sun, Ahmet Erdem
 # April 20, 2017
 
 # distutils: language = c++
