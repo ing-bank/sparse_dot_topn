@@ -25,7 +25,7 @@ You can also find
 ## Dependency and Install
 Install `numpy` and `cython` first before installing this package. Then,
 ``` sh
-pip install git+https://github.com/ing-bank/sparse_dot_topn
+pip install sparse_dot_topn
 ```
 
 
