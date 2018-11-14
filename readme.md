@@ -20,7 +20,7 @@ b = rand(1000000, 200, density=0.005, format='csr')
 c = awesome_cossim_topn(a, b, 5, 0.01)
 ```
 
-You can also find 
+You can also find code which compares our boosting method with calling scipy+numpy function directly in example/comparison.py
 
 ## Dependency and Install
 Install `numpy` and `cython` first before installing this package. Then,
