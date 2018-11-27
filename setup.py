@@ -21,7 +21,7 @@ ext_utils = Extension('sparse_dot_topn.sparse_dot_topn',
 
 setup(
     name='sparse_dot_topn',
-    version='0.2.1',
+    version='0.2.2',
     description='This package boosts a sparse matrix multiplication '\
                 'followed by selecting the top-n multiplication',
     keywords='cosine-similarity sparse-matrix scipy cython',
