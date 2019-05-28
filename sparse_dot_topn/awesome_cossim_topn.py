@@ -1,8 +1,13 @@
+import sys
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import isspmatrix_csr
 from scipy.sparse import rand
-from sparse_dot_topn import sparse_dot_topn as ct 
+
+if sys.version_info[0] >= 3:
+    from sparse_dot_topn import sparse_dot_topn as ct
+else:
+    import sparse_dot_topn as ct
 
 def awesome_cossim_topn(A, B, ntop, lower_bound=0):
     """

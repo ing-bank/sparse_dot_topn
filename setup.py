@@ -7,7 +7,7 @@ from Cython.Build import cythonize
 
 here = path.abspath(path.dirname(__file__))
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 
@@ -21,11 +21,12 @@ ext_utils = Extension('sparse_dot_topn.sparse_dot_topn',
 
 setup(
     name='sparse_dot_topn',
-    version='0.2.2',
+    version='0.2.5',
     description='This package boosts a sparse matrix multiplication '\
                 'followed by selecting the top-n multiplication',
     keywords='cosine-similarity sparse-matrix scipy cython',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/ing-bank/sparse_dot_topn',
     author='Zhe Sun',
     author_email='ymwdalex@gmail.com',
