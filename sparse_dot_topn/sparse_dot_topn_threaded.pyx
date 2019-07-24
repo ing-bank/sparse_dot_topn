@@ -20,9 +20,9 @@
 import numpy as np
 cimport numpy as np
 
-cdef extern from "sparse_dot_topn_source.h":
+cdef extern from "sparse_dot_topn_parallel.h":
 
-    cdef void sparse_dot_topn_source(
+    cdef void sparse_dot_topn_parallel(
                         int n_row,
                         int n_col,
                         int Ap[],
@@ -35,9 +35,10 @@ cdef extern from "sparse_dot_topn_source.h":
                         double lower_bound,
                         int Cp[],
                         int Cj[],
-                        double Cx[]);
+                        double Cx[],
+                        int n_jobs);
 
-cpdef sparse_dot_topn(
+cpdef sparse_dot_topn_threaded(
         int n_row,
         int n_col,
         np.ndarray[int, ndim=1] a_indptr,
@@ -50,29 +51,9 @@ cpdef sparse_dot_topn(
         double lower_bound,
         np.ndarray[int, ndim=1] c_indptr,
         np.ndarray[int, ndim=1] c_indices,
-        np.ndarray[double, ndim=1] c_data
+        np.ndarray[double, ndim=1] c_data,
+        int n_jobs
     ):
-    """
-    Cython glue function to call sparse_dot_topn C++ implementation
-    This function will return a matrxi C in CSR format, where
-    C = [sorted top n results and results > lower_bound for each row of A * B]
-
-    Input:
-        n_row: number of rows of A matrix
-        n_col: number of columns of B matrix
-
-        a_indptr, a_indices, a_data: CSR expression of A matrix
-        b_indptr, b_indices, b_data: CSR expression of B matrix
-
-        ntop: n top results
-        lower_bound: a threshold that the element of A*B must greater than
-
-    Output by reference:
-        c_indptr, c_indices, c_data: CSR expression of C matrix
-
-    N.B. A and B must be CSR format!!!
-         The type of input numpy array must be aligned with types of C++ function aguments!
-    """
 
     cdef int* Ap = &a_indptr[0]
     cdef int* Aj = &a_indices[0]
@@ -84,5 +65,6 @@ cpdef sparse_dot_topn(
     cdef int* Cj = &c_indices[0]
     cdef double* Cx = &c_data[0]
 
-    sparse_dot_topn_source(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx)
+    sparse_dot_topn_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop,
+                             lower_bound, Cp, Cj, Cx, n_jobs)
     return

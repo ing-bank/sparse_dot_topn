@@ -24,8 +24,6 @@
 
 #include "./sparse_dot_topn_source.h"
 
-struct candidate {int index; double value;};
-
 bool candidate_cmp(candidate c_i, candidate c_j) { return (c_i.value > c_j.value); }
 
 /*
