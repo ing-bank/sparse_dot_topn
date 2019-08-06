@@ -2,14 +2,16 @@ import sys
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import isspmatrix_csr
-from scipy.sparse import rand
 
 if sys.version_info[0] >= 3:
     from sparse_dot_topn import sparse_dot_topn as ct
+    from sparse_dot_topn import sparse_dot_topn_threaded as ct_thread
 else:
     import sparse_dot_topn as ct
+    import sparse_dot_topn_threaded as ct_thread
 
-def awesome_cossim_topn(A, B, ntop, lower_bound=0):
+
+def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
     """
     This function will return a matrxi C in CSR format, where
     C = [sorted top n results and results > lower_bound for each row of A * B]
@@ -41,15 +43,30 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0):
     indices = np.empty(nnz_max, dtype=idx_dtype)
     data = np.empty(nnz_max, dtype=A.dtype)
 
-    ct.sparse_dot_topn(
-        M, N, np.asarray(A.indptr, dtype=idx_dtype),
-        np.asarray(A.indices, dtype=idx_dtype),
-        A.data,
-        np.asarray(B.indptr, dtype=idx_dtype),
-        np.asarray(B.indices, dtype=idx_dtype),
-        B.data,
-        ntop,
-        lower_bound,
-        indptr, indices, data)
+    if not use_threads:
+
+        ct.sparse_dot_topn(
+            M, N, np.asarray(A.indptr, dtype=idx_dtype),
+            np.asarray(A.indices, dtype=idx_dtype),
+            A.data,
+            np.asarray(B.indptr, dtype=idx_dtype),
+            np.asarray(B.indices, dtype=idx_dtype),
+            B.data,
+            ntop,
+            lower_bound,
+            indptr, indices, data)
+
+    else:
+
+        ct_thread.sparse_dot_topn_threaded(
+            M, N, np.asarray(A.indptr, dtype=idx_dtype),
+            np.asarray(A.indices, dtype=idx_dtype),
+            A.data,
+            np.asarray(B.indptr, dtype=idx_dtype),
+            np.asarray(B.indices, dtype=idx_dtype),
+            B.data,
+            ntop,
+            lower_bound,
+            indptr, indices, data, n_jobs)
 
     return csr_matrix((data,indices,indptr),shape=(M,N))

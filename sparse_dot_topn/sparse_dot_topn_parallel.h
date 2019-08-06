@@ -21,11 +21,7 @@
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
 
-struct candidate {int index; double value;};
-
-extern bool candidate_cmp(candidate c_i, candidate c_j);
-
-extern void sparse_dot_topn_source(int n_row,
+extern void sparse_dot_topn_parallel(int n_row,
       	              int n_col,
       	              int Ap[],
       	              int Aj[],
@@ -37,6 +33,7 @@ extern void sparse_dot_topn_source(int n_row,
                       double lower_bound,
       	                    int Cp[],
       	                    int Cj[],
-      	                    double Cx[]);
+      	                    double Cx[],
+      	                    int n_jobs);
 
 #endif //UTILS_CPPCLASS_H
