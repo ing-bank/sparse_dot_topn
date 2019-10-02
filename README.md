@@ -19,11 +19,11 @@ This package is made by ING Wholesale Banking Advanced Analytics team. This [blo
     
     # Use standard implementation
     
-    c = awesome_cossim_topn(a, b, 5, 0.01)
+    c = awesome_cossim_topn(a, b, N, 0.01)
     
     # Use parallel implementation with 4 threads
     
-    d = awesome_cossim_topn(a, b, 5, 0.01, use_threads=True, n_jobs=4)
+    d = awesome_cossim_topn(a, b, N, 0.01, use_threads=True, n_jobs=4)
 ```
 
 You can also find code which compares our boosting method with calling scipy+numpy function directly in example/comparison.py
