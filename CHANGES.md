@@ -1,5 +1,11 @@
 # Release history:
 
+## for next version:
+- add n_jobs value validation
+
+## v0.2.6
+- import parallel implementation
+
 ## v0.2.5
 - fix python 2 install problem
 

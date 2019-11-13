@@ -20,6 +20,8 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
         A and B: two CSR matrix
         ntop: n top results
         lower_bound: a threshold that the element of A*B must greater than
+        use_threads: use multi-thread or not
+        n_jobs: number of thread, must be >= 1
 
     Output:
         C: result matrix
@@ -57,6 +59,9 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
             indptr, indices, data)
 
     else:
+        if n_jobs < 1:
+            err_str = 'You select the multi-thread mode and n_job must be a value greater equal than 1!'
+            raise ValueError(err_str)
 
         ct_thread.sparse_dot_topn_threaded(
             M, N, np.asarray(A.indptr, dtype=idx_dtype),
