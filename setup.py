@@ -12,7 +12,12 @@ with open(os.path.join(here, 'README.md')) as f:
 
 
 if os.name == 'nt':
-    extra_compile_args = ["-Ox"]
+    if os.compiler['CC'] != 'mingw32':
+        extra_compile_args = ["-Ox"]
+    else:
+        # When windows with a mingw32 compiler, see issue 19
+        # https://github.com/ing-bank/sparse_dot_topn/issues/19
+        extra_compile_args = ['-std=c++0x', '-pthread', '-O3']
 else:
     extra_compile_args = ['-std=c++0x', '-pthread', '-O3']
 
