@@ -37,6 +37,10 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
     M, K1 = A.shape
     K2, N = B.shape
 
+    if K1 != K2:
+        err_str = 'A matrix multiplication will be operated. A.shape[1] must be equal to B.shape[0]!'
+        raise ValueError(err_str)        
+
     idx_dtype = np.int32
 
     nnz_max = M*ntop
