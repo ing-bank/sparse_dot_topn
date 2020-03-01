@@ -1,7 +1,10 @@
 # Release history:
 
-## for next version:
+## v0.2.7
 - add n_jobs value validation
+- matrix dimension validation
+- change windows mingw32 compiler
+- fix numpy and Cython install dependency
 
 ## v0.2.6
 - import parallel implementation

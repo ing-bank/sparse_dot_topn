@@ -1,8 +1,21 @@
 import os
-import numpy
 from setuptools import setup, Extension
-from Cython.Distutils import build_ext
-from Cython.Build import cythonize
+
+# workaround for numpy and Cython install dependency
+# the solution is from https://stackoverflow.com/a/54138355
+def my_build_ext(pars):
+    # import delayed:
+    from setuptools.command.build_ext import build_ext as _build_ext
+    class build_ext(_build_ext):
+        def finalize_options(self):
+            _build_ext.finalize_options(self)
+            # Prevent numpy from thinking it is still in its setup process:
+            __builtins__.__NUMPY_SETUP__ = False
+            import numpy
+            self.include_dirs.append(numpy.get_include())
+
+    #object returned:
+    return build_ext(pars)
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -24,7 +37,6 @@ else:
 original_ext = Extension('sparse_dot_topn.sparse_dot_topn',
                          sources=['./sparse_dot_topn/sparse_dot_topn.pyx',
                                   './sparse_dot_topn/sparse_dot_topn_source.cpp'],
-                         include_dirs=[numpy.get_include()],
                          extra_compile_args=extra_compile_args,
                          language='c++')
 
@@ -33,14 +45,13 @@ threaded_ext = Extension('sparse_dot_topn.sparse_dot_topn_threaded',
                              './sparse_dot_topn/sparse_dot_topn_threaded.pyx',
                              './sparse_dot_topn/sparse_dot_topn_source.cpp',
                              './sparse_dot_topn/sparse_dot_topn_parallel.cpp'],
-                         include_dirs=[numpy.get_include()],
                          extra_compile_args=extra_compile_args,
                          language='c++')
 
 
 setup(
     name='sparse_dot_topn',
-    version='0.2.6',
+    version='0.2.7',
     description='This package boosts a sparse matrix multiplication '\
                 'followed by selecting the top-n multiplication',
     keywords='cosine-similarity sparse-matrix scipy cython',
@@ -52,11 +63,18 @@ setup(
     setup_requires=[
         # Setuptools 18.0 properly handles Cython extensions.
         'setuptools>=18.0',
-        'cython',
-        'numpy'
+        'cython>=0.29.15',
+        'numpy>=1.16.6', # select this version for Py2/3 compatible
+        'scipy>=1.2.3'   # select this version for Py2/3 compatible
+    ],
+    install_requires=[
+        # Setuptools 18.0 properly handles Cython extensions.
+        'setuptools>=18.0',
+        'cython>=0.29.15',
+        'numpy>=1.16.6', # select this version for Py2/3 compatible
+        'scipy>=1.2.3'   # select this version for Py2/3 compatible
     ],
     packages=['sparse_dot_topn'],
-    cmdclass={'build_ext': build_ext},
-    ext_modules=cythonize([original_ext, threaded_ext]),
+    cmdclass={'build_ext': my_build_ext},
+    ext_modules=[original_ext, threaded_ext],
 )
-

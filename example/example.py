@@ -14,5 +14,3 @@ c = awesome_cossim_topn(a, b, 5, 0.01)
 # Use parallel implementation with 4 threads
 
 d = awesome_cossim_topn(a, b, 5, 0.01, use_threads=True, n_jobs=4)
-
-
