@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 # workaround for numpy and Cython install dependency
 # the solution is from https://stackoverflow.com/a/54138355
@@ -25,12 +25,7 @@ with open(os.path.join(here, 'README.md')) as f:
 
 
 if os.name == 'nt':
-    if os.compiler['CC'] != 'mingw32':
-        extra_compile_args = ["-Ox"]
-    else:
-        # When windows with a mingw32 compiler, see issue 19
-        # https://github.com/ing-bank/sparse_dot_topn/issues/19
-        extra_compile_args = ['-std=c++0x', '-pthread', '-O3']
+    extra_compile_args = ["-Ox"]
 else:
     extra_compile_args = ['-std=c++0x', '-pthread', '-O3']
 
@@ -51,7 +46,7 @@ threaded_ext = Extension('sparse_dot_topn.sparse_dot_topn_threaded',
 
 setup(
     name='sparse_dot_topn',
-    version='0.2.7',
+    version='0.2.8',
     description='This package boosts a sparse matrix multiplication '\
                 'followed by selecting the top-n multiplication',
     keywords='cosine-similarity sparse-matrix scipy cython',
@@ -74,7 +69,7 @@ setup(
         'numpy>=1.16.6', # select this version for Py2/3 compatible
         'scipy>=1.2.3'   # select this version for Py2/3 compatible
     ],
-    packages=['sparse_dot_topn'],
+    packages=find_packages(),
     cmdclass={'build_ext': my_build_ext},
     ext_modules=[original_ext, threaded_ext],
 )

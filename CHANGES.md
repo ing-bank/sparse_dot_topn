@@ -1,5 +1,8 @@
 # Release history:
 
+## v0.2.8
+- quick fix for nt installation problem [ISSUE-26]
+
 ## v0.2.7
 - add n_jobs value validation
 - matrix dimension validation
