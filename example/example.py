@@ -1,5 +1,3 @@
-import numpy as np
-from scipy.sparse import csr_matrix
 from scipy.sparse import rand
 from sparse_dot_topn import awesome_cossim_topn
 

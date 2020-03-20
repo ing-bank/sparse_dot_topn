@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 from setuptools import setup, Extension, find_packages
 
@@ -46,7 +47,7 @@ threaded_ext = Extension('sparse_dot_topn.sparse_dot_topn_threaded',
 
 setup(
     name='sparse_dot_topn',
-    version='0.2.8',
+    version='0.2.9',
     description='This package boosts a sparse matrix multiplication '\
                 'followed by selecting the top-n multiplication',
     keywords='cosine-similarity sparse-matrix scipy cython',

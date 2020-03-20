@@ -30,7 +30,7 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
     """
     if not isspmatrix_csr(A):
         A = A.tocsr()
-    
+
     if not isspmatrix_csr(B):
         B = B.tocsr()
 
@@ -39,12 +39,20 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
 
     if K1 != K2:
         err_str = 'A matrix multiplication will be operated. A.shape[1] must be equal to B.shape[0]!'
-        raise ValueError(err_str)        
+        raise ValueError(err_str)
 
     idx_dtype = np.int32
 
     nnz_max = M*ntop
 
+    # basic check. if A or B are all zeros matrix, return all zero matrix directly
+    if len(A.indices) == 0 or len(B.indices) == 0:
+        indptr = np.zeros(M + 1, dtype=idx_dtype)
+        indices = np.zeros(nnz_max, dtype=idx_dtype)
+        data = np.zeros(nnz_max, dtype=A.dtype)
+        return csr_matrix((data, indices, indptr), shape=(M, N))
+
+    # filled matrices from here on
     indptr = np.empty(M+1, dtype=idx_dtype)
     indices = np.empty(nnz_max, dtype=idx_dtype)
     data = np.empty(nnz_max, dtype=A.dtype)
@@ -78,4 +86,4 @@ def awesome_cossim_topn(A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1):
             lower_bound,
             indptr, indices, data, n_jobs)
 
-    return csr_matrix((data,indices,indptr),shape=(M,N))
+    return csr_matrix((data, indices, indptr), shape=(M, N))
