@@ -5,9 +5,8 @@ This file compare our boosting method with calling scipy+numpy function directly
 from __future__ import print_function
 import timeit
 import numpy as np
-from scipy.sparse import csr_matrix
 from scipy.sparse import rand
-from sparse_dot_topn import awesome_cossim_topn
+from sparse_dot_topn import awesome_cossim_topn  # noqa: F401
 
 N = 10
 thresh = 0.01

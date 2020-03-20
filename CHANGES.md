@@ -1,5 +1,10 @@
 # Release history:
 
+## v0.2.9
+- added unit tests. 
+- awesome_cossim_topn checks for zero input matrices.
+- fix flake8 warnings.
+
 ## v0.2.8
 - quick fix for nt installation problem [ISSUE-26]
 
