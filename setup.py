@@ -56,6 +56,7 @@ setup(
     url='https://github.com/ing-bank/sparse_dot_topn',
     author='Zhe Sun',
     author_email='ymwdalex@gmail.com',
+    license='Apache 2.0',
     setup_requires=[
         # Setuptools 18.0 properly handles Cython extensions.
         'setuptools>=18.0',
