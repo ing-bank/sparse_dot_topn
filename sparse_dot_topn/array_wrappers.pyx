@@ -1,5 +1,4 @@
 from cpython cimport Py_buffer
-from cpython.pycapsule cimport PyCapsule_New, PyCapsule_IsValid, PyCapsule_GetPointer, PyCapsule_GetName
 from libcpp.vector cimport vector
 
 # define a Cython array wrapper class to hold a C++ vector of ints, adhering to numpy's buffer protocol:

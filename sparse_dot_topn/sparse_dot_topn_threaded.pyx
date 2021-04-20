@@ -49,22 +49,22 @@ cdef extern from "sparse_dot_topn_parallel.h":
                                     );
 
     cdef void sparse_dot_topn_extd_parallel(
-                                        int n_row,
-                                        int n_col,
-                                        int Ap[],
-                                        int Aj[],
-                                        double Ax[],
-                                        int Bp[],
-                                        int Bj[],
-                                        double Bx[],
-                                        int topn,
-                                        double lower_bound,
-                                        int Cp[],
-                                        int Cj[],
-                                        double Cx[],
-                                        int* n_minmax,
-                                        int n_jobs
-                                    );
+                                                int n_row,
+                                                int n_col,
+                                                int Ap[],
+                                                int Aj[],
+                                                double Ax[],
+                                                int Bp[],
+                                                int Bj[],
+                                                double Bx[],
+                                                int topn,
+                                                double lower_bound,
+                                                int Cp[],
+                                                int Cj[],
+                                                double Cx[],
+                                                int* n_minmax,
+                                                int n_jobs
+                                            );
 
     cdef void sparse_dot_free_parallel(
                                         int n_row,

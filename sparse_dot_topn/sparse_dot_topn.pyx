@@ -123,7 +123,7 @@ cpdef sparse_dot_topn(
         c_indptr, c_indices, c_data: CSR expression of C matrix
 
     N.B. A and B must be CSR format!!!
-         The type of input numpy array must be aligned with types of C++ function aguments!
+         The type of input numpy array must be aligned with types of C++ function arguments!
     """
 
     cdef int* Ap = &a_indptr[0]
