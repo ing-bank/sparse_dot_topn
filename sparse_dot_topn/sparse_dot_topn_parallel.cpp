@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *	http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,20 +37,20 @@ void distribute_load(
 		std::vector<std::vector<int>> &ranges
 )
 {
-    // share the load among jobs:
-    int equal_job_load_sz = load_sz/n_jobs;
+	// share the load among jobs:
+	int equal_job_load_sz = load_sz/n_jobs;
 	int rem = load_sz % n_jobs;
 	ranges.resize(n_jobs);
 
-    int start = 0;
+	int start = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
-	    std::vector<int> temp_vector(2, 0);
+		std::vector<int> temp_vector(2, 0);
 
-	    temp_vector[0] = start;
-	    temp_vector[1] = start + equal_job_load_sz + ((job_nr < rem)? 1 : 0);
-	    start = temp_vector[1];
+		temp_vector[0] = start;
+		temp_vector[1] = start + equal_job_load_sz + ((job_nr < rem)? 1 : 0);
+		start = temp_vector[1];
 
-	    ranges[job_nr] = temp_vector;
+		ranges[job_nr] = temp_vector;
 	}
 }
 
@@ -84,14 +84,14 @@ void inner_sparse_dot_topn(
 		int start_row,
 		int end_row,
 		int n_col_inner,
-        int ntop_inner,
+		int ntop_inner,
 		double lower_bound_inner,
 		int Ap_copy[],
-        int Aj_copy[],
+		int Aj_copy[],
 		double Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-        double Bx_copy[],
+		double Bx_copy[],
 		std::vector<candidate> real_candidates[],
 		int* total
 )
@@ -187,7 +187,7 @@ void sparse_dot_topn_parallel(
 
 
 	std::vector<std::vector<int>> split_row_vector(n_jobs);
-    distribute_load(n_row, n_jobs, split_row_vector);
+	distribute_load(n_row, n_jobs, split_row_vector);
 
 	// initialize aggregate:
 	std::vector<int> sub_total(n_jobs, 0);
@@ -195,11 +195,11 @@ void sparse_dot_topn_parallel(
 	std::vector<std::thread> thread_list(n_jobs);
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread(
-	    		inner_sparse_dot_topn,
+		thread_list[job_nr] = std::thread(
+				inner_sparse_dot_topn,
 				start_row, end_row,
 				n_col, ntop,
 				lower_bound,
@@ -207,35 +207,35 @@ void sparse_dot_topn_parallel(
 				real_cand_pointer,
 				&sub_total[job_nr]
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
-    // gather the results:
-    std::vector<int> start_points(n_jobs + 1);
-    start_points[0] = 0;
-    std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
+	// gather the results:
+	std::vector<int> start_points(n_jobs + 1);
+	start_points[0] = 0;
+	std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
 
-    Cp[0] = 0;
+	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread(
-	    		inner_gather_function,
-	    		start_row, end_row,
-	    		Cp,
+		thread_list[job_nr] = std::thread(
+				inner_gather_function,
+				start_row, end_row,
+				Cp,
 				start_points[job_nr],
 				Cj,
 				Cx,
 				real_cand_pointer
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
 }
 
@@ -311,6 +311,7 @@ void inner_sparse_dot_topn_extd(
 
 		int len = (int)temp_candidates.size();
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
+
 		if (len > ntop_inner){
 			std::partial_sort(temp_candidates.begin(),
 								temp_candidates.begin()+ntop_inner,
@@ -349,7 +350,7 @@ void sparse_dot_topn_extd_parallel(
 )
 {
 	std::vector<std::vector<int>> split_row_vector(n_jobs);
-    distribute_load(n_row, n_jobs, split_row_vector);
+	distribute_load(n_row, n_jobs, split_row_vector);
 
 	std::vector<std::vector<candidate>> real_candidates(n_row);
 	std::vector<candidate> *real_cand_pointer;
@@ -357,17 +358,17 @@ void sparse_dot_topn_extd_parallel(
 
 	// initialize aggregates:
 	std::vector<int> sub_total(n_jobs, 0);
-    std::vector<int> split_n_minmax(n_jobs, 0);
+	std::vector<int> split_n_minmax(n_jobs, 0);
 
-    std::vector<std::thread> thread_list(n_jobs);
+	std::vector<std::thread> thread_list(n_jobs);
 
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread(
-	    		inner_sparse_dot_topn_extd,
+		thread_list[job_nr] = std::thread(
+				inner_sparse_dot_topn_extd,
 				start_row, end_row,
 				n_col, ntop,
 				lower_bound,
@@ -376,37 +377,37 @@ void sparse_dot_topn_extd_parallel(
 				&sub_total[job_nr],
 				&split_n_minmax[job_nr]
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
-    // gather the results:
-    *n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
+	// gather the results:
+	*n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
 
-    std::vector<int> start_points(n_jobs + 1);
-    start_points[0] = 0;
-    std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
+	std::vector<int> start_points(n_jobs + 1);
+	start_points[0] = 0;
+	std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
 
-    Cp[0] = 0;
+	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread(
-	    		inner_gather_function,
-	    		start_row, end_row,
-	    		Cp,
+		thread_list[job_nr] = std::thread(
+				inner_gather_function,
+				start_row, end_row,
+				Cp,
 				start_points[job_nr],
 				Cj,
 				Cx,
 				real_cand_pointer
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
 }
 
@@ -414,13 +415,13 @@ void inner_sparse_dot_free(
 		int start_row,
 		int end_row,
 		int n_col_inner,
-        double lower_bound_inner,
+		double lower_bound_inner,
 		int Ap_copy[],
-        int Aj_copy[],
+		int Aj_copy[],
 		double Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-        double Bx_copy[],
+		double Bx_copy[],
 		std::vector<candidate> real_candidates[],
 		int* total,
 		int* n_minmax
@@ -505,7 +506,7 @@ void sparse_dot_free_parallel(
 )
 {
 	std::vector<std::vector<int>> split_row_vector(n_jobs);
-    distribute_load(n_row, n_jobs, split_row_vector);
+	distribute_load(n_row, n_jobs, split_row_vector);
 
 	std::vector<std::vector<candidate>> real_candidates(n_row);
 	std::vector<candidate> *real_cand_pointer;
@@ -513,60 +514,60 @@ void sparse_dot_free_parallel(
 
 	// initialize aggregates:
 	std::vector<int> sub_total(n_jobs, 0);
-    std::vector<int> split_n_minmax(n_jobs, 0);
+	std::vector<int> split_n_minmax(n_jobs, 0);
 
-    // execute the jobs:
+	// execute the jobs:
 	std::vector<std::thread> thread_list(n_jobs);
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread (
-	    		inner_sparse_dot_free,
-	    		start_row, end_row,
+		thread_list[job_nr] = std::thread (
+				inner_sparse_dot_free,
+				start_row, end_row,
 				n_col,
 				lower_bound,
-	            Ap, Aj, Ax, Bp, Bj, Bx,
-	            real_cand_pointer,
+				Ap, Aj, Ax, Bp, Bj, Bx,
+				real_cand_pointer,
 				&sub_total[job_nr],
 				&split_n_minmax[job_nr]
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
-    // gather the results (in parallel):
-    *n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
+	// gather the results (in parallel):
+	*n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
 
-    std::vector<int> start_points(n_jobs + 1);
-    start_points[0] = 0;
-    std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
+	std::vector<int> start_points(n_jobs + 1);
+	start_points[0] = 0;
+	std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
 
-    int total = start_points.back();
-    vCj->resize(total);
-    vCx->resize(total);
+	int total = start_points.back();
+	vCj->resize(total);
+	vCx->resize(total);
 
-    Cp[0] = 0;
+	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread(
-	    		inner_gather_function,
-	    		start_row, end_row,
-	    		Cp,
+		thread_list[job_nr] = std::thread(
+				inner_gather_function,
+				start_row, end_row,
+				Cp,
 				start_points[job_nr],
 				&((*vCj)[0]),
 				&((*vCx)[0]),
 				real_cand_pointer
 		);
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
 }
 
@@ -620,28 +621,28 @@ void sparse_dot_only_max_nnz_col_parallel(
 )
 {
 	std::vector<std::vector<int>> split_row_vector(n_jobs);
-    distribute_load(n_row, n_jobs, split_row_vector);
+	distribute_load(n_row, n_jobs, split_row_vector);
 
-    std::vector<int> split_max_nnz_col(n_jobs, 0);
-    std::vector<std::thread> thread_list(n_jobs);
+	std::vector<int> split_max_nnz_col(n_jobs, 0);
+	std::vector<std::thread> thread_list(n_jobs);
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
-	    int start_row = split_row_vector[job_nr][0];
-	    int end_row = split_row_vector[job_nr][1];
+		int start_row = split_row_vector[job_nr][0];
+		int end_row = split_row_vector[job_nr][1];
 
-	    thread_list[job_nr] = std::thread (
-	    		inner_sparse_only_max_nnz_col,
-	    		start_row, end_row,
+		thread_list[job_nr] = std::thread (
+				inner_sparse_only_max_nnz_col,
+				start_row, end_row,
 				n_col,
 				Ap, Aj, Bp, Bj,
 				&split_max_nnz_col[job_nr]
 		);
 
-    }
+	}
 
-    for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-    	thread_list[job_nr].join();
+	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
+		thread_list[job_nr].join();
 
-    *max_nnz_col = *std::max_element(split_max_nnz_col.begin(), split_max_nnz_col.end());
+	*max_nnz_col = *std::max_element(split_max_nnz_col.begin(), split_max_nnz_col.end());
 }
 

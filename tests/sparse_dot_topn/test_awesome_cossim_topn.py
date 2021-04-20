@@ -55,19 +55,19 @@ def helper_awesome_cossim_topn_dense(
     a_csr = csr_matrix(a_dense)
     b_csr_t = csr_matrix(b_dense).T
 
-    awesome_result, _ = awesome_cossim_topn(
+    awesome_result = awesome_cossim_topn(
         a_csr, b_csr_t, len(b_dense),
         0.0,
         mem_manager_is_C=mem_manager_is_C, 
         use_threads=use_threads,
         n_jobs=n_jobs
     )
-    awesome_result_top3, _ = \
+    awesome_result_top3 = \
         awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0, use_threads=use_threads, n_jobs=n_jobs)
     awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in awesome_result_top3]  # make comparable, normally not needed
 
-    pruned_awesome_result, _ = awesome_cossim_topn(
+    pruned_awesome_result = awesome_cossim_topn(
         a_csr,
         b_csr_t,
         len(b_dense),
@@ -76,7 +76,7 @@ def helper_awesome_cossim_topn_dense(
         use_threads=use_threads,
         n_jobs=n_jobs
     )
-    pruned_awesome_result_top3, _ = \
+    pruned_awesome_result_top3 = \
         awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD, use_threads=use_threads, n_jobs=n_jobs)
     pruned_awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in pruned_awesome_result_top3]
@@ -122,7 +122,7 @@ def helper_awesome_cossim_topn_sparse(
     a_csr = csr_matrix(a_sparse)
     b_csr_t = csr_matrix(b_sparse).T
 
-    awesome_result, _ = awesome_cossim_topn(
+    awesome_result = awesome_cossim_topn(
         a_csr,
         b_csr_t,
         b_sparse.shape[0],
@@ -131,12 +131,12 @@ def helper_awesome_cossim_topn_sparse(
         use_threads=use_threads,
         n_jobs=n_jobs
     )
-    awesome_result_top3, _ = \
+    awesome_result_top3 = \
         awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0, use_threads=use_threads, n_jobs=n_jobs)
     awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in awesome_result_top3]  # make comparable, normally not needed
 
-    pruned_awesome_result, _ = awesome_cossim_topn(
+    pruned_awesome_result = awesome_cossim_topn(
         a_csr,
         b_csr_t,
         b_sparse.shape[0],
@@ -145,7 +145,7 @@ def helper_awesome_cossim_topn_sparse(
         use_threads=use_threads,
         n_jobs=n_jobs
     )
-    pruned_awesome_result_top3, _ = \
+    pruned_awesome_result_top3 = \
         awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD, use_threads=use_threads, n_jobs=n_jobs)
     pruned_awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in pruned_awesome_result_top3]
