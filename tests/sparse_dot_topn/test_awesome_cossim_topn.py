@@ -6,10 +6,14 @@ from scipy.sparse import coo_matrix
 from scipy.sparse import rand
 import numpy as np
 import pandas as pd
+import multiprocessing
 import pytest
 
 PRUNE_THRESHOLD = 0.1
 NUM_CANDIDATES = 3
+MEM_MANAGER_IS_C = True
+USE_THREADS = True
+MAX_N_PROCESSES = min(8, multiprocessing.cpu_count()) - 1
 
 
 def get_n_top_sparse(mat, n_top=10):
@@ -31,7 +35,13 @@ def get_n_top_sparse(mat, n_top=10):
     return sorted(result, key=lambda x: -x[1])
 
 
-def helper_awesome_cossim_topn_dense(a_dense, b_dense):
+def helper_awesome_cossim_topn_dense(
+        a_dense,
+        b_dense,
+        mem_manager_is_C=False,
+        use_threads=False,
+        n_jobs=1
+    ):
     dense_result = np.dot(a_dense, np.transpose(b_dense))  # dot product
     sparse_result = csr_matrix(dense_result)
     sparse_result_top3 = [get_n_top_sparse(row, NUM_CANDIDATES)
@@ -45,13 +55,29 @@ def helper_awesome_cossim_topn_dense(a_dense, b_dense):
     a_csr = csr_matrix(a_dense)
     b_csr_t = csr_matrix(b_dense).T
 
-    awesome_result = awesome_cossim_topn(a_csr, b_csr_t, len(b_dense), 0.0)
-    awesome_result_top3 = awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0)
+    awesome_result, _ = awesome_cossim_topn(
+        a_csr, b_csr_t, len(b_dense),
+        0.0,
+        mem_manager_is_C=mem_manager_is_C, 
+        use_threads=use_threads,
+        n_jobs=n_jobs
+    )
+    awesome_result_top3, _ = \
+        awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0, use_threads=use_threads, n_jobs=n_jobs)
     awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in awesome_result_top3]  # make comparable, normally not needed
 
-    pruned_awesome_result = awesome_cossim_topn(a_csr, b_csr_t, len(b_dense), PRUNE_THRESHOLD)
-    pruned_awesome_result_top3 = awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD)
+    pruned_awesome_result, _ = awesome_cossim_topn(
+        a_csr,
+        b_csr_t,
+        len(b_dense),
+        PRUNE_THRESHOLD,
+        mem_manager_is_C=mem_manager_is_C,
+        use_threads=use_threads,
+        n_jobs=n_jobs
+    )
+    pruned_awesome_result_top3, _ = \
+        awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD, use_threads=use_threads, n_jobs=n_jobs)
     pruned_awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in pruned_awesome_result_top3]
 
@@ -72,10 +98,17 @@ def helper_awesome_cossim_topn_dense(a_dense, b_dense):
     if not all_none2:
         np.testing.assert_array_almost_equal(pruned_awesome_result_top3, pruned_sparse_result_top3)
     else:
-        len(pruned_awesome_result_top3) == len(pruned_sparse_result_top3)
+        assert len(pruned_awesome_result_top3) == len(pruned_sparse_result_top3)
 
 
-def helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, flag=True):
+def helper_awesome_cossim_topn_sparse(
+        a_sparse,
+        b_sparse,
+        flag=True,
+        mem_manager_is_C=False,
+        use_threads=False,
+        n_jobs=1
+    ):
     # Note: helper function using awesome_cossim_topn
     sparse_result = a_sparse.dot(b_sparse.T)  # dot product
     sparse_result_top3 = [get_n_top_sparse(row, NUM_CANDIDATES)
@@ -89,13 +122,31 @@ def helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, flag=True):
     a_csr = csr_matrix(a_sparse)
     b_csr_t = csr_matrix(b_sparse).T
 
-    awesome_result = awesome_cossim_topn(a_csr, b_csr_t, b_sparse.shape[0], 0.0)
-    awesome_result_top3 = awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0)
+    awesome_result, _ = awesome_cossim_topn(
+        a_csr,
+        b_csr_t,
+        b_sparse.shape[0],
+        0.0,
+        mem_manager_is_C=mem_manager_is_C,
+        use_threads=use_threads,
+        n_jobs=n_jobs
+    )
+    awesome_result_top3, _ = \
+        awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, 0.0, use_threads=use_threads, n_jobs=n_jobs)
     awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in awesome_result_top3]  # make comparable, normally not needed
 
-    pruned_awesome_result = awesome_cossim_topn(a_csr, b_csr_t, b_sparse.shape[0], PRUNE_THRESHOLD)
-    pruned_awesome_result_top3 = awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD)
+    pruned_awesome_result, _ = awesome_cossim_topn(
+        a_csr,
+        b_csr_t,
+        b_sparse.shape[0],
+        PRUNE_THRESHOLD,
+        mem_manager_is_C=mem_manager_is_C,
+        use_threads=use_threads,
+        n_jobs=n_jobs
+    )
+    pruned_awesome_result_top3, _ = \
+        awesome_cossim_topn(a_csr, b_csr_t, NUM_CANDIDATES, PRUNE_THRESHOLD, use_threads=use_threads, n_jobs=n_jobs)
     pruned_awesome_result_top3 = [list(zip(row.indices, row.data)) if len(
         row.data) > 0 else None for row in pruned_awesome_result_top3]
 
@@ -137,6 +188,17 @@ def test_awesome_cossim_topn_manually():
                [0.6, 0.1, 0.2, 0.8, 0.1],
                [0.9, 0.1, 0.6, 0.4, 0.3]]
     helper_awesome_cossim_topn_dense(a_dense, b_dense)
+    helper_awesome_cossim_topn_dense(a_dense, b_dense, mem_manager_is_C=MEM_MANAGER_IS_C)
+    for process in range(MAX_N_PROCESSES):
+        n_jobs = process + 1
+        helper_awesome_cossim_topn_dense(a_dense, b_dense, use_threads=USE_THREADS, n_jobs=n_jobs)
+        helper_awesome_cossim_topn_dense(
+            a_dense,
+            b_dense,
+            mem_manager_is_C=MEM_MANAGER_IS_C,
+            use_threads=USE_THREADS,
+            n_jobs=n_jobs
+        )
 
     # boundary checking, there is no matching at all in this case
     c_dense = [[0.2, 0.1, 0.3, 0, 0],
@@ -150,6 +212,17 @@ def test_awesome_cossim_topn_manually():
                [0, 0, 0, 0.1, 0.3],
                [0, 0, 0, 0.7, 0.5]]
     helper_awesome_cossim_topn_dense(c_dense, d_dense)
+    helper_awesome_cossim_topn_dense(c_dense, d_dense, mem_manager_is_C=MEM_MANAGER_IS_C)
+    for process in range(MAX_N_PROCESSES):
+        n_jobs = process + 1
+        helper_awesome_cossim_topn_dense(c_dense, d_dense, use_threads=USE_THREADS, n_jobs=n_jobs)
+        helper_awesome_cossim_topn_dense(
+            c_dense,
+            d_dense,
+            mem_manager_is_C=MEM_MANAGER_IS_C,
+            use_threads=USE_THREADS,
+            n_jobs=n_jobs
+        )
 
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
@@ -163,6 +236,17 @@ def test_awesome_cossim_top_one_zeros():
         a_sparse = csr_matrix(np.zeros((1, nr_vocab)))
         b_sparse = rand(800, nr_vocab, density=density, format='csr')
         helper_awesome_cossim_topn_sparse(a_sparse, b_sparse)
+        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, mem_manager_is_C=MEM_MANAGER_IS_C)
+        for process in range(MAX_N_PROCESSES):
+            n_jobs = process + 1
+            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, use_threads=USE_THREADS, n_jobs=n_jobs)
+            helper_awesome_cossim_topn_sparse(
+                a_sparse,
+                b_sparse,
+                mem_manager_is_C=MEM_MANAGER_IS_C,
+                use_threads=USE_THREADS,
+                n_jobs=n_jobs
+            )
 
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
@@ -176,6 +260,17 @@ def test_awesome_cossim_top_all_zeros():
         a_sparse = csr_matrix(np.zeros((2, nr_vocab)))
         b_sparse = rand(800, nr_vocab, density=density, format='csr')
         helper_awesome_cossim_topn_sparse(a_sparse, b_sparse)
+        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, mem_manager_is_C=MEM_MANAGER_IS_C)
+        for process in range(MAX_N_PROCESSES):
+            n_jobs = process + 1
+            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, use_threads=USE_THREADS, n_jobs=n_jobs)
+            helper_awesome_cossim_topn_sparse(
+                a_sparse,
+                b_sparse,
+                mem_manager_is_C=MEM_MANAGER_IS_C,
+                use_threads=USE_THREADS,
+                n_jobs=n_jobs
+            )
 
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
@@ -188,6 +283,18 @@ def test_awesome_cossim_top_small_matrix():
         a_sparse = rand(300, nr_vocab, density=density, format='csr')
         b_sparse = rand(800, nr_vocab, density=density, format='csr')
         helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False)
+        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, mem_manager_is_C=MEM_MANAGER_IS_C)
+        for process in range(MAX_N_PROCESSES):
+            n_jobs = process + 1
+            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, use_threads=USE_THREADS, n_jobs=n_jobs)
+            helper_awesome_cossim_topn_sparse(
+                a_sparse,
+                b_sparse,
+                False,
+                mem_manager_is_C=MEM_MANAGER_IS_C,
+                use_threads=USE_THREADS,
+                n_jobs=n_jobs
+            )
 
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
@@ -225,3 +332,15 @@ def test_awesome_cossim_top_large_matrix():
         b_sparse = b_sparse.tocsr()
 
         helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False)
+        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, mem_manager_is_C=MEM_MANAGER_IS_C)
+        for process in range(MAX_N_PROCESSES):
+            n_jobs = process + 1
+            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, use_threads=USE_THREADS, n_jobs=n_jobs)
+            helper_awesome_cossim_topn_sparse(
+                a_sparse,
+                b_sparse,
+                False,
+                mem_manager_is_C=MEM_MANAGER_IS_C,
+                use_threads=USE_THREADS,
+                n_jobs=n_jobs
+            )
