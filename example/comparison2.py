@@ -8,7 +8,7 @@ import numpy as np
 from scipy.sparse import coo_matrix
 from sparse_dot_topn import awesome_cossim_topn  # noqa: F401
 
-N = 1000
+N = 1000000
 thresh = 0.01
 
 nr_vocab = 2 << 24
@@ -18,6 +18,8 @@ n_duplicates = N
 nnz_a = int(n_samples * nr_vocab * density)
 nnz_b = int(n_duplicates * nr_vocab * density)
 
+print(f'ntop = {N}', flush=True)
+print(f'threshold = {thresh}', flush=True)
 print(f'density = {density}', flush=True)
 print(f'nr_vocab = {nr_vocab}', flush=True)
 print(f'n_samples = {n_samples}', flush=True)
