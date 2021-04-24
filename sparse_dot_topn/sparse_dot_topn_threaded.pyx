@@ -75,6 +75,7 @@ cdef extern from "sparse_dot_topn_parallel.h":
 										int Bp[],
 										int Bj[],
 										double Bx[],
+										int ntop,
 										double lower_bound,
 										int Cp[],
 										vector[int]* Cj,
@@ -167,6 +168,7 @@ cpdef sparse_dot_free_threaded(
 								np.ndarray[int, ndim=1] b_indptr,
 								np.ndarray[int, ndim=1] b_indices,
 								np.ndarray[double, ndim=1] b_data,
+								int ntop,
 								double lower_bound,
 								np.ndarray[int, ndim=1] c_indptr,
 								int n_jobs
@@ -185,7 +187,7 @@ cpdef sparse_dot_free_threaded(
 	cdef vector[int] vCj;
 	cdef vector[double] vCx;
 
-	sparse_dot_free_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, lower_bound, Cp, &vCj, &vCx, n_minmax, n_jobs)
+	sparse_dot_free_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, &vCj, &vCx, n_minmax, n_jobs)
 	
 	c_indices = np.asarray(ArrayWrapper_int(vCj)).squeeze(axis=0)
 	c_data = np.asarray(ArrayWrapper_double(vCx)).squeeze(axis=0)

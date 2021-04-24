@@ -18,7 +18,6 @@ def awesome_cossim_topn(
 		lower_bound=0,
 		use_threads=False,
 		n_jobs=1,
-		ntop_is_flexible=False,
 		mem_manager_is_C=False,
 		return_best_topn=False
 	):
@@ -35,13 +34,9 @@ def awesome_cossim_topn(
 		lower_bound: a threshold that the element of A*B must be greater than
 		use_threads: use multi-thread or not
 		n_jobs: number of thread, must be >= 1
-		ntop_is_flexible: (default: False) if True, memory management will be handed 
-						  over to C/C++ whenever python's attempt at allocating
-						  memory fails.
 		mem_manager_is_C: (default: False) this is mainly for testing purposes. if 
 						  True, will force memory management to be handed over to
-						  C/C++. Should be used only when ntop >= number of columns 
-						  of B or ntop_is_flexible=True.
+						  C/C++.
 		return_best_topn: (default: False) if True, will return best_topn together 
 						  with C as a tuple: (C, best_topn)
 
@@ -89,51 +84,39 @@ def awesome_cossim_topn(
 		if mem_manager_is_C: raise MemoryError	# This is mainly for testing purposes
 	except MemoryError:
 		# if mem_manager_is_C: print('Exception raised! Continuing ...', flush=True)
-		if ntop_is_flexible or ntop >= N:
 		# It is likely you are here because nnz_max is too large. But don't give up just yet! 
 		# sparse_dot_topn will hand over the memory allocation/management to C++.  C++ will
 		# grow the memory allocations for these arrays as needed without any need for nnz_max.
 		# Note that reallocations could occur causing data to be copied to other locations 
 		# in memory thus impacting performance
-			indices = np.empty(0, dtype=idx_dtype)
-			data = np.empty(0, dtype=A.dtype)
-			if not use_threads:
-	
-				indices, data, best_topn = ct.sparse_dot_free(
-					M, N, np.asarray(A.indptr, dtype=idx_dtype),
-					np.asarray(A.indices, dtype=idx_dtype),
-					A.data,
-					np.asarray(B.indptr, dtype=idx_dtype),
-					np.asarray(B.indices, dtype=idx_dtype),
-					B.data,
-					lower_bound,
-					indptr
-				)
-				
-			else:
-	
-				indices, data, best_topn = ct_thread.sparse_dot_free_threaded(
-					M, N, np.asarray(A.indptr, dtype=idx_dtype),
-					np.asarray(A.indices, dtype=idx_dtype),
-					A.data,
-					np.asarray(B.indptr, dtype=idx_dtype),
-					np.asarray(B.indices, dtype=idx_dtype),
-					B.data,
-					lower_bound,
-					indptr, n_jobs
-				)
+		indices = np.empty(0, dtype=idx_dtype)
+		data = np.empty(0, dtype=A.dtype)
+		if not use_threads:
 
-		else:
-			if mem_manager_is_C:
-				raise Exception(
-					'When mem_manager_is_C=True, set ntop >= B.shape[1], or set ntop_is_flexible=True'
-				)
-			else:
-				raise Exception(
-					'Not enough memory!  Data array is too large. Try reducing the value of ntop.'
-					'or set ntop_is_flexible=True'
-				)
+			indices, data, best_topn = ct.sparse_dot_free(
+				M, N, np.asarray(A.indptr, dtype=idx_dtype),
+				np.asarray(A.indices, dtype=idx_dtype),
+				A.data,
+				np.asarray(B.indptr, dtype=idx_dtype),
+				np.asarray(B.indices, dtype=idx_dtype),
+				B.data,
+				ntop, lower_bound,
+				indptr
+			)
 			
+		else:
+
+			indices, data, best_topn = ct_thread.sparse_dot_free_threaded(
+				M, N, np.asarray(A.indptr, dtype=idx_dtype),
+				np.asarray(A.indices, dtype=idx_dtype),
+				A.data,
+				np.asarray(B.indptr, dtype=idx_dtype),
+				np.asarray(B.indices, dtype=idx_dtype),
+				B.data,
+				ntop, lower_bound,
+				indptr, n_jobs
+			)
+
 	else:
 		# no exception was raised; then use old function (as it is expected to be the fastest)
 		
