@@ -67,6 +67,7 @@ extern void sparse_dot_free_parallel(
 		int Bp[],
 		int Bj[],
 		double Bx[], //data of B
+		int ntop,
 		double lower_bound,
 		int Cp[],
 		std::vector<int>* Cj,

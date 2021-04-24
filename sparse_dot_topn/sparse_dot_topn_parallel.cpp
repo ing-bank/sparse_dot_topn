@@ -419,6 +419,7 @@ void sparse_dot_topn_extd_parallel(
 void inner_sparse_dot_free(
 		job_range_type job_range,
 		int n_col_inner,
+		int ntop_inner,
 		double lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
@@ -485,18 +486,29 @@ void inner_sparse_dot_free(
 		}
 
 		int len = (int) (real_candidates->size() - sz);
+		*n_minmax = (len > *n_minmax)? len : *n_minmax;
 
 		candidate* candidate_arr_begin = real_candidates->data() + sz;
-		std::sort(
-				candidate_arr_begin,
-				candidate_arr_begin + len,
-				candidate_cmp
-		);
+		if (len > ntop_inner){
+			std::partial_sort(
+					candidate_arr_begin,
+					candidate_arr_begin + ntop_inner,
+					candidate_arr_begin + len,
+					candidate_cmp
+			);
+			len = ntop_inner;
+		}
+		else {
+			std::sort(
+					candidate_arr_begin,
+					candidate_arr_begin + len,
+					candidate_cmp
+			);
+		}
 
 		real_candidates->resize(sz + (size_t) len);
 		*(row_sizes_ptr++) = len;
 		(*total) += len;
-		*n_minmax = (len > *n_minmax)? len : *n_minmax;
 	}
 	real_candidates->shrink_to_fit();
 }
@@ -510,6 +522,7 @@ void sparse_dot_free_parallel(
 		int Bp[],
 		int Bj[],
 		double Bx[], //data of B
+		int ntop,
 		double lower_bound,
 		int Cp[],
 		std::vector<int>* vCj,
@@ -536,7 +549,7 @@ void sparse_dot_free_parallel(
 				inner_sparse_dot_free,
 				job_ranges[job_nr],
 				n_col,
-				lower_bound,
+				ntop, lower_bound,
 				Ap, Aj, Ax, Bp, Bj, Bx,
 				&real_candidates[job_nr],
 				&row_sizes[job_nr],
