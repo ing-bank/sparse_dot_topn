@@ -280,6 +280,7 @@ void sparse_dot_free_source(
 		int Bp[],
 		int Bj[],
 		double Bx[], //data of B
+		int ntop,
 		double lower_bound,
 		int Cp[],
 		std::vector<int>* Cj,
@@ -342,7 +343,13 @@ void sparse_dot_free_source(
 
 		int len = (int)candidates.size();
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
-		std::sort(candidates.begin(), candidates.end(), candidate_cmp);
+
+		if (len > ntop){
+			std::partial_sort(candidates.begin(), candidates.begin()+ntop, candidates.end(), candidate_cmp);
+			len = ntop;
+		} else {
+			std::sort(candidates.begin(), candidates.end(), candidate_cmp);
+		}
 
 		for(int a=0; a < len; a++){
 			Cj->push_back(candidates[a].index);

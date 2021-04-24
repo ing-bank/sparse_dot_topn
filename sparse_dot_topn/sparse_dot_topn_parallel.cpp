@@ -146,19 +146,24 @@ void inner_sparse_dot_topn(
 
 		int len = (int)temp_candidates.size();
 		if (len > ntop_inner){
-			std::partial_sort(temp_candidates.begin(),
-								temp_candidates.begin()+ntop_inner,
-								temp_candidates.end(),
-								candidate_cmp);
+			std::partial_sort(
+					temp_candidates.begin(),
+					temp_candidates.begin()+ntop_inner,
+					temp_candidates.end(),
+					candidate_cmp
+			);
 			len = ntop_inner;
 		}
 		else {
-			std::sort(temp_candidates.begin(),
-						temp_candidates.end(), candidate_cmp);
+			std::sort(
+					temp_candidates.begin(),
+					temp_candidates.end(),
+					candidate_cmp
+			);
 		}
+		temp_candidates.resize(len);
 
 		(*total) += len;
-		temp_candidates.resize(len);
 		real_candidates[i].swap(temp_candidates);
 		real_candidates[i].shrink_to_fit();
 	}
@@ -313,19 +318,24 @@ void inner_sparse_dot_topn_extd(
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
 
 		if (len > ntop_inner){
-			std::partial_sort(temp_candidates.begin(),
-								temp_candidates.begin()+ntop_inner,
-								temp_candidates.end(),
-								candidate_cmp);
+			std::partial_sort(
+					temp_candidates.begin(),
+					temp_candidates.begin()+ntop_inner,
+					temp_candidates.end(),
+					candidate_cmp
+			);
 			len = ntop_inner;
 		}
 		else {
-			std::sort(temp_candidates.begin(),
-						temp_candidates.end(), candidate_cmp);
+			std::sort(
+					temp_candidates.begin(),
+					temp_candidates.end(),
+					candidate_cmp
+			);
 		}
+		temp_candidates.resize(len);
 
 		(*total) += len;
-		temp_candidates.resize(len);
 		real_candidates[i].swap(temp_candidates);
 		real_candidates[i].shrink_to_fit();
 	}
@@ -415,6 +425,7 @@ void inner_sparse_dot_free(
 		int start_row,
 		int end_row,
 		int n_col_inner,
+		int ntop_inner,
 		double lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
@@ -476,13 +487,28 @@ void inner_sparse_dot_free(
 			sums[temp] =  0; //clear arrays
 		}
 
-
-		std::sort(temp_candidates.begin(),
-					temp_candidates.end(), candidate_cmp);
-
 		int len = (int) temp_candidates.size();
-		(*total) += len;
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
+
+		if (len > ntop_inner){
+			std::partial_sort(
+					temp_candidates.begin(),
+					temp_candidates.begin()+ntop_inner,
+					temp_candidates.end(),
+					candidate_cmp
+			);
+			len = ntop_inner;
+		}
+		else {
+			std::sort(
+					temp_candidates.begin(),
+					temp_candidates.end(),
+					candidate_cmp
+			);
+		}
+		temp_candidates.resize(len);
+
+		(*total) += len;
 		real_candidates[i].swap(temp_candidates);
 		real_candidates[i].shrink_to_fit();
 	}
@@ -497,6 +523,7 @@ void sparse_dot_free_parallel(
 		int Bp[],
 		int Bj[],
 		double Bx[], //data of B
+		int ntop,
 		double lower_bound,
 		int Cp[],
 		std::vector<int>* vCj,
@@ -527,7 +554,7 @@ void sparse_dot_free_parallel(
 				inner_sparse_dot_free,
 				start_row, end_row,
 				n_col,
-				lower_bound,
+				ntop, lower_bound,
 				Ap, Aj, Ax, Bp, Bj, Bx,
 				real_cand_pointer,
 				&sub_total[job_nr],
