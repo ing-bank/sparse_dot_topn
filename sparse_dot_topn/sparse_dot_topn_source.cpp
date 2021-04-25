@@ -250,8 +250,9 @@ void sparse_dot_topn_extd_source(
 	C++ implementation of sparse_dot_free_source
 
 	This function will return a matrix C in CSR format, where
-	C = [all results > lower_bound sorted for each row of A * B].
-	It also returns the maximum number of elements per row of C.
+	C = [sorted top n results > lower_bound for each row of A * B].
+	The maximum number n_minmax of elements per row of C (assuming ntop = n_col)
+	is also returned.
 
 	Input:
 		n_row: number of rows of A matrix
@@ -260,7 +261,7 @@ void sparse_dot_topn_extd_source(
 		Ap, Aj, Ax: CSR expression of A matrix
 		Bp, Bj, Bx: CSR expression of B matrix
 
-		memory_bound: the maximum number of elements per row of C
+		ntop: n top results
 		lower_bound: a threshold that the element of A*B must greater than
 
 	Output by reference:

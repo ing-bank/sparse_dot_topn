@@ -157,10 +157,12 @@ cpdef sparse_dot_topn_extd(
 						np.ndarray[int, ndim=1] nminmax,
 					):
 	"""
-	Cython glue function to call sparse_dot_topn C++ implementation
-	This function will return a matrix C in CSR format, where
+	Cython glue function to call sparse_dot_topn_extd C++
+	implementation.  This function will return a matrix C in CSR
+	format, where
 	C = [sorted top n results > lower_bound for each row of A * B]
-	The maximum number of elements per row of C nminmax is also returned.
+	The maximum number nminmax of elements per row of C (assuming 
+	n = number of columns of B) is also returned.
 
 	Input:
 		n_row: number of rows of A matrix
@@ -169,15 +171,19 @@ cpdef sparse_dot_topn_extd(
 		a_indptr, a_indices, a_data: CSR expression of A matrix
 		b_indptr, b_indices, b_data: CSR expression of B matrix
 
-		ntop: n top results
-		lower_bound: a threshold that the element of A*B must greater than
+		ntop: n, the number of topmost results > lower_bound for
+			  each row of C
+		lower_bound: a threshold that the element of A*B must
+					 greater than
 
 	Output by reference:
-		c_indptr, c_indices, c_data: CSR expression of C matrix
-		nminmax: The maximum number of elements per row of C
+		c_indptr, c_indices, c_data: CSR expression of matrix C
+		nminmax: The maximum number of elements per row of C 
+				 (assuming ntop = n_col)
 
 	N.B. A and B must be CSR format!!!
-		 The type of input numpy array must be aligned with types of C++ function arguments!
+		 The type of input numpy array must be aligned with types
+		 of C++ function arguments!
 	"""
 
 	cdef int* Ap = &a_indptr[0]
@@ -203,17 +209,16 @@ cpdef sparse_dot_free(
 						np.ndarray[int, ndim=1] b_indptr,
 						np.ndarray[int, ndim=1] b_indices,
 						np.ndarray[double, ndim=1] b_data,
-                        int ntop,
-                        double lower_bound,
+						int ntop,
+						double lower_bound,
 						np.ndarray[int, ndim=1] c_indptr
 					):
 	"""
 	Cython glue function to call sparse_dot_free C++ implementation
 	This function will return a matrix C in CSR format, where
-	C = [all results > lower_bound for each row of A * B]
-	This function lets C++ decide how to manage (grow/allocate/reallocate) memory for the 
-	storage of these results as needed during the computation; then hands over to numpy
-	a pointer to the memory location where the data resides  
+	C = [sorted top n results > lower_bound for each row of A * B]
+	The maximum number nminmax of elements per row of C (assuming 
+	n = number of columns of B) is also returned.
 
 	Input:
 		n_row: number of rows of A matrix
@@ -222,13 +227,23 @@ cpdef sparse_dot_free(
 		a_indptr, a_indices, a_data: CSR expression of A matrix
 		b_indptr, b_indices, b_data: CSR expression of B matrix
 
-		lower_bound: a threshold that the element of A*B must greater than
+		ntop: n, the number of topmost results > lower_bound for 
+			  each row of C
+		lower_bound: a threshold that the element of A*B must 
+					 greater than
 
 	Output by reference:
-		c_indptr, c_indices, c_data: CSR expression of C matrix
+		c_indptr: index-pointer of the CSR expression of matrix C
+
+	Returned Output:
+		c_indices, c_data: indices and data of the CSR expression
+						   of matrix C
+		nminmax: The maximum number of elements per row of C
+				 (assuming ntop = n_col)
 
 	N.B. A and B must be CSR format!!!
-		 The type of input numpy array must be aligned with types of C++ function arguments!
+		 The type of input numpy array must be aligned with types
+		 of C++ function arguments!
 	"""
 
 	cdef int* Ap = &a_indptr[0]
