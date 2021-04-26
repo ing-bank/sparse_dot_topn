@@ -32,85 +32,85 @@ np.import_array()
 cdef extern from "sparse_dot_topn_parallel.h":
 
 	cdef void sparse_dot_topn_parallel(
-										int n_row,
-										int n_col,
-										int Ap[],
-										int Aj[],
-										double Ax[],
-										int Bp[],
-										int Bj[],
-										double Bx[],
-										int topn,
-										double lower_bound,
-										int Cp[],
-										int Cj[],
-										double Cx[],
-										int n_jobs
-									);
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],
+		int Bp[],
+		int Bj[],
+		double Bx[],
+		int topn,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[],
+		int n_jobs
+	);
 
 	cdef void sparse_dot_topn_extd_parallel(
-												int n_row,
-												int n_col,
-												int Ap[],
-												int Aj[],
-												double Ax[],
-												int Bp[],
-												int Bj[],
-												double Bx[],
-												int topn,
-												double lower_bound,
-												int Cp[],
-												int Cj[],
-												double Cx[],
-												int* n_minmax,
-												int n_jobs
-											);
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],
+		int Bp[],
+		int Bj[],
+		double Bx[],
+		int topn,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[],
+		int* n_minmax,
+		int n_jobs
+	);
 
 	cdef void sparse_dot_free_parallel(
-										int n_row,
-										int n_col,
-										int Ap[],
-										int Aj[],
-										double Ax[],
-										int Bp[],
-										int Bj[],
-										double Bx[],
-										int ntop,
-										double lower_bound,
-										int Cp[],
-										vector[int]* Cj,
-										vector[double]* Cx,
-										int* n_minmax,
-										int n_jobs
-									);
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],
+		int Bp[],
+		int Bj[],
+		double Bx[],
+		int ntop,
+		double lower_bound,
+		int Cp[],
+		vector[int]* Cj,
+		vector[double]* Cx,
+		int* n_minmax,
+		int n_jobs
+	);
 
 	cdef void sparse_dot_only_max_nnz_col_parallel(
-													int n_row,
-													int n_col,
-													int Ap[],
-													int Aj[],
-													int Bp[],
-													int Bj[],
-													int* max_nnz_col,
-													int n_jobs
-												);
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		int Bp[],
+		int Bj[],
+		int* max_nnz_col,
+		int n_jobs
+	);
 
 cpdef sparse_dot_topn_threaded(
-								int n_row,
-								int n_col,
-								np.ndarray[int, ndim=1] a_indptr,
-								np.ndarray[int, ndim=1] a_indices,
-								np.ndarray[double, ndim=1] a_data,
-								np.ndarray[int, ndim=1] b_indptr,
-								np.ndarray[int, ndim=1] b_indices,
-								np.ndarray[double, ndim=1] b_data,
-								int ntop,
-								double lower_bound,
-								np.ndarray[int, ndim=1] c_indptr,
-								np.ndarray[int, ndim=1] c_indices,
-								np.ndarray[double, ndim=1] c_data,
-								int n_jobs
-							):
+	int n_row,
+	int n_col,
+	np.ndarray[int, ndim=1] a_indptr,
+	np.ndarray[int, ndim=1] a_indices,
+	np.ndarray[double, ndim=1] a_data,
+	np.ndarray[int, ndim=1] b_indptr,
+	np.ndarray[int, ndim=1] b_indices,
+	np.ndarray[double, ndim=1] b_data,
+	int ntop,
+	double lower_bound,
+	np.ndarray[int, ndim=1] c_indptr,
+	np.ndarray[int, ndim=1] c_indices,
+	np.ndarray[double, ndim=1] c_data,
+	int n_jobs
+):
 
 	cdef int* Ap = &a_indptr[0]
 	cdef int* Aj = &a_indices[0]
@@ -122,27 +122,28 @@ cpdef sparse_dot_topn_threaded(
 	cdef int* Cj = &c_indices[0]
 	cdef double* Cx = &c_data[0]
 
-	sparse_dot_topn_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop,
-							 lower_bound, Cp, Cj, Cx, n_jobs)
+	sparse_dot_topn_parallel(
+		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, n_jobs
+	)
 	return
 
 cpdef sparse_dot_topn_extd_threaded(
-								int n_row,
-								int n_col,
-								np.ndarray[int, ndim=1] a_indptr,
-								np.ndarray[int, ndim=1] a_indices,
-								np.ndarray[double, ndim=1] a_data,
-								np.ndarray[int, ndim=1] b_indptr,
-								np.ndarray[int, ndim=1] b_indices,
-								np.ndarray[double, ndim=1] b_data,
-								int ntop,
-								double lower_bound,
-								np.ndarray[int, ndim=1] c_indptr,
-								np.ndarray[int, ndim=1] c_indices,
-								np.ndarray[double, ndim=1] c_data,
-								np.ndarray[int, ndim=1] nminmax,
-								int n_jobs
-							):
+	int n_row,
+	int n_col,
+	np.ndarray[int, ndim=1] a_indptr,
+	np.ndarray[int, ndim=1] a_indices,
+	np.ndarray[double, ndim=1] a_data,
+	np.ndarray[int, ndim=1] b_indptr,
+	np.ndarray[int, ndim=1] b_indices,
+	np.ndarray[double, ndim=1] b_data,
+	int ntop,
+	double lower_bound,
+	np.ndarray[int, ndim=1] c_indptr,
+	np.ndarray[int, ndim=1] c_indices,
+	np.ndarray[double, ndim=1] c_data,
+	np.ndarray[int, ndim=1] nminmax,
+	int n_jobs
+):
 
 	cdef int* Ap = &a_indptr[0]
 	cdef int* Aj = &a_indices[0]
@@ -155,24 +156,25 @@ cpdef sparse_dot_topn_extd_threaded(
 	cdef double* Cx = &c_data[0]
 	cdef int* n_minmax = &nminmax[0]
 
-	sparse_dot_topn_extd_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop,
-							 lower_bound, Cp, Cj, Cx, n_minmax, n_jobs)
+	sparse_dot_topn_extd_parallel(
+		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, n_minmax, n_jobs
+	)
 	return
 
 cpdef sparse_dot_free_threaded(
-								int n_row,
-								int n_col,
-								np.ndarray[int, ndim=1] a_indptr,
-								np.ndarray[int, ndim=1] a_indices,
-								np.ndarray[double, ndim=1] a_data,
-								np.ndarray[int, ndim=1] b_indptr,
-								np.ndarray[int, ndim=1] b_indices,
-								np.ndarray[double, ndim=1] b_data,
-								int ntop,
-								double lower_bound,
-								np.ndarray[int, ndim=1] c_indptr,
-								int n_jobs
-							):
+	int n_row,
+	int n_col,
+	np.ndarray[int, ndim=1] a_indptr,
+	np.ndarray[int, ndim=1] a_indices,
+	np.ndarray[double, ndim=1] a_data,
+	np.ndarray[int, ndim=1] b_indptr,
+	np.ndarray[int, ndim=1] b_indices,
+	np.ndarray[double, ndim=1] b_data,
+	int ntop,
+	double lower_bound,
+	np.ndarray[int, ndim=1] c_indptr,
+	int n_jobs
+):
 
 	cdef int* Ap = &a_indptr[0]
 	cdef int* Aj = &a_indices[0]
@@ -187,7 +189,9 @@ cpdef sparse_dot_free_threaded(
 	cdef vector[int] vCj;
 	cdef vector[double] vCx;
 
-	sparse_dot_free_parallel(n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, &vCj, &vCx, n_minmax, n_jobs)
+	sparse_dot_free_parallel(
+		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, &vCj, &vCx, n_minmax, n_jobs
+	)
 	
 	c_indices = np.asarray(ArrayWrapper_int(vCj)).squeeze(axis=0)
 	c_data = np.asarray(ArrayWrapper_double(vCx)).squeeze(axis=0)
@@ -195,15 +199,15 @@ cpdef sparse_dot_free_threaded(
 	return c_indices, c_data, nminmax[0]
 
 cpdef sparse_dot_only_max_nnz_col_threaded(
-											int n_row,
-											int n_col,
-											np.ndarray[int, ndim=1] a_indptr,
-											np.ndarray[int, ndim=1] a_indices,
-											np.ndarray[int, ndim=1] b_indptr,
-											np.ndarray[int, ndim=1] b_indices,
-											np.ndarray[int, ndim=1] max_nnz_col,
-											int n_jobs
-										):
+	int n_row,
+	int n_col,
+	np.ndarray[int, ndim=1] a_indptr,
+	np.ndarray[int, ndim=1] a_indices,
+	np.ndarray[int, ndim=1] b_indptr,
+	np.ndarray[int, ndim=1] b_indices,
+	np.ndarray[int, ndim=1] max_nnz_col,
+	int n_jobs
+):
 
 	cdef int* Ap = &a_indptr[0]
 	cdef int* Aj = &a_indices[0]

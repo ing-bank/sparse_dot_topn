@@ -21,11 +21,9 @@
 // April 14, 2021
 
 #include <vector>
-#include <limits>
 #include <algorithm>
 #include <numeric>
 #include <thread>
-#include <iostream>
 
 #include "./sparse_dot_topn_source.h"
 #include "./sparse_dot_topn_parallel.h"
@@ -74,7 +72,6 @@ void inner_gather_function(
 			*(vCj_cursor++) = c.index;
 			*(vCx_cursor++) = c.value;
 		}
-		real_candidates[i].clear();
 	}
 }
 
@@ -409,98 +406,6 @@ void sparse_dot_topn_extd_parallel(
 
 }
 
-void inner_sparse_dot_free(
-		job_range_type job_range,
-		int n_col_inner,
-		int ntop_inner,
-		double lower_bound_inner,
-		int Ap_copy[],
-		int Aj_copy[],
-		double Ax_copy[],
-		int Bp_copy[],
-		int Bj_copy[],
-		double Bx_copy[],
-		std::vector<candidate> real_candidates[],
-		int* total,
-		int* n_minmax
-)
-{
-
-	std::vector<int> next(n_col_inner,-1);
-	std::vector<double> sums(n_col_inner, 0);
-
-	std::vector<candidate> temp_candidates;
-
-	for(int i = job_range.begin; i < job_range.end; i++){
-
-		int head   = -2;
-		int length =  0;
-
-		int jj_start = Ap_copy[i];
-		int jj_end   = Ap_copy[i + 1];
-
-		for(int jj = jj_start; jj < jj_end; jj++){
-			int j = Aj_copy[jj];
-			double v = Ax_copy[jj]; //value of A in (i,j)
-
-			int kk_start = Bp_copy[j];
-			int kk_end   = Bp_copy[j + 1];
-			for(int kk = kk_start; kk < kk_end; kk++){
-				int k = Bj_copy[kk]; //kth column of B in row j
-
-				sums[k] += v*Bx_copy[kk]; //multiply with value of B in (j,k) and accumulate to the result for kth column of row i
-
-				if(next[k] == -1){
-					next[k] = head; //keep a linked list, every element points to the next column index
-					head  = k;
-					length++;
-				}
-			}
-		}
-
-		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
-
-			if(sums[head] > lower_bound_inner){ //append the nonzero elements
-				candidate c;
-				c.index = head;
-				c.value = sums[head];
-				temp_candidates.push_back(c);
-			}
-
-			int temp = head;
-			head = next[head]; //iterate over columns
-
-			next[temp] = -1; //clear arrays
-			sums[temp] =  0; //clear arrays
-		}
-
-		int len = (int) temp_candidates.size();
-		*n_minmax = (len > *n_minmax)? len : *n_minmax;
-
-		if (len > ntop_inner){
-			std::partial_sort(
-					temp_candidates.begin(),
-					temp_candidates.begin()+ntop_inner,
-					temp_candidates.end(),
-					candidate_cmp
-			);
-			len = ntop_inner;
-		}
-		else {
-			std::sort(
-					temp_candidates.begin(),
-					temp_candidates.end(),
-					candidate_cmp
-			);
-		}
-		temp_candidates.resize(len);
-
-		(*total) += len;
-		real_candidates[i].swap(temp_candidates);
-		real_candidates[i].shrink_to_fit();
-	}
-}
-
 void sparse_dot_free_parallel(
 		int n_row,
 		int n_col,
@@ -535,7 +440,7 @@ void sparse_dot_free_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread (
-				inner_sparse_dot_free,
+				inner_sparse_dot_topn_extd,
 				job_row_ranges[job_nr],
 				n_col,
 				ntop, lower_bound,
