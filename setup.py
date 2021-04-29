@@ -30,15 +30,6 @@ if os.name == 'nt':
 else:
     extra_compile_args = ['-std=c++0x', '-pthread', '-O3']
 
-array_wrappers_ext = Extension('sparse_dot_topn.array_wrappers',
-                         sources=[
-                                    './sparse_dot_topn/array_wrappers.pyx',
-                                    './sparse_dot_topn/sparse_dot_topn_source.cpp'
-                                ],
-                         extra_compile_args=extra_compile_args,
-                         define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
-                         language='c++')
-
 original_ext = Extension('sparse_dot_topn.sparse_dot_topn',
                          sources=[
                                     './sparse_dot_topn/sparse_dot_topn.pyx',
@@ -84,8 +75,7 @@ setup(
         'numpy>=1.16.6', # select this version for Py2/3 compatible
         'scipy>=1.2.3'   # select this version for Py2/3 compatible
     ],
-    zip_safe=False,
     packages=find_packages(),
     cmdclass={'build_ext': my_build_ext},
-    ext_modules=[array_wrappers_ext, original_ext, threaded_ext]
+    ext_modules=[original_ext, threaded_ext]
 )

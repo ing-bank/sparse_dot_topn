@@ -61,7 +61,7 @@ extern void sparse_dot_topn_extd_source(
 		int* n_minmax
 );
 
-extern void sparse_dot_free_source(
+extern int sparse_dot_only_nnz_source(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -71,21 +71,7 @@ extern void sparse_dot_free_source(
 		int Bj[],
 		double Bx[], //data of B
 		int ntop,
-		double lower_bound,
-		int Cp[],
-		std::vector<int>* Cj,
-		std::vector<double>* Cx,
-		int* n_minmax
-);
-
-extern void sparse_dot_only_max_nnz_col_source(
-		int n_row,
-		int n_col,
-		int Ap[],
-		int Aj[],
-		int Bp[],
-		int Bj[],
-		int *max_nnz_col
+		double lower_bound
 );
 
 #endif //UTILS_CPPCLASS_H

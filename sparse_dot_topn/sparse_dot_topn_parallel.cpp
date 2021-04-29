@@ -412,147 +412,98 @@ void sparse_dot_topn_extd_parallel(
 		thread_list[job_nr].join();
 }
 
-void sparse_dot_free_parallel(
-		int n_row,
-		int n_col,
-		int Ap[],
-		int Aj[],
-		double Ax[], //data of A
-		int Bp[],
-		int Bj[],
-		double Bx[], //data of B
-		int ntop,
-		double lower_bound,
-		int Cp[],
-		std::vector<int>* vCj,
-		std::vector<double>* vCx,
-		int* n_minmax,
-		int n_jobs
-)
-{
-	std::vector<job_range_type> job_ranges(n_jobs);
-	distribute_load(n_row, n_jobs, job_ranges);
-
-	std::vector<std::vector<candidate>> real_candidates(n_jobs);
-	std::vector<std::vector<int>> row_nnz(n_jobs);
-
-	// initialize aggregates:
-	std::vector<int> sub_total(n_jobs, 0);
-	std::vector<int> split_n_minmax(n_jobs, 0);
-
-	// execute the jobs:
-	std::vector<std::thread> thread_list(n_jobs);
-	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
-
-		thread_list[job_nr] = std::thread (
-				inner_sparse_dot_topn_extd,
-				job_ranges[job_nr],
-				n_col,
-				ntop, lower_bound,
-				Ap, Aj, Ax, Bp, Bj, Bx,
-				&real_candidates[job_nr],
-				&row_nnz[job_nr],
-				&sub_total[job_nr],
-				&split_n_minmax[job_nr]
-		);
-	}
-
-	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-		thread_list[job_nr].join();
-
-	// gather the results (in parallel):
-	*n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
-
-	std::vector<int> start_points(n_jobs + 1);
-	start_points[0] = 0;
-	std::partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
-
-	int total = start_points.back();
-	vCj->resize(total);
-	vCj->shrink_to_fit();
-	vCx->resize(total);
-	vCx->shrink_to_fit();
-
-	Cp[0] = 0;
-	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
-
-		thread_list[job_nr] = std::thread(
-				inner_gather_function,
-				job_ranges[job_nr],
-				Cp,
-				start_points[job_nr],
-				&((*vCj)[0]),
-				&((*vCx)[0]),
-				&real_candidates[job_nr],
-				&row_nnz[job_nr]
-		);
-	}
-
-	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
-		thread_list[job_nr].join();
-}
-
-void inner_sparse_only_max_nnz_col(
+void inner_sparse_nnz_only(
 		job_range_type job_range,
 		int n_col_inner,
+		int ntop_inner,
+		double lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
+		double Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-		int *max_nnz_col	// already initialized to 0
+		double Bx_copy[],
+		int* nnz
 )
 {
-	std::vector<bool> unmarked(n_col_inner, true);
+
+	std::vector<int> next(n_col_inner,-1);
+	std::vector<double> sums(n_col_inner, 0);
 
 	for(int i = job_range.begin; i < job_range.end; i++){
 
+		int head   = -2;
 		int length =  0;
+		int candidates_sz = 0;
 
 		int jj_start = Ap_copy[i];
-		int jj_end   = Ap_copy[i+1];
+		int jj_end   = Ap_copy[i + 1];
 
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj_copy[jj];
+			double v = Ax_copy[jj]; //value of A in (i,j)
 
 			int kk_start = Bp_copy[j];
-			int kk_end   = Bp_copy[j+1];
+			int kk_end   = Bp_copy[j + 1];
 			for(int kk = kk_start; kk < kk_end; kk++){
 				int k = Bj_copy[kk]; //kth column of B in row j
 
-				if(unmarked[k]){	// if this k is not already marked then ...
-					unmarked[k] = false;	// keep a record of column k
+				sums[k] += v*Bx_copy[kk]; //multiply with value of B in (j,k) and accumulate to the result for kth column of row i
+
+				if(next[k] == -1){
+					next[k] = head; //keep a linked list, every element points to the next column index
+					head  = k;
 					length++;
 				}
 			}
 		}
-		*max_nnz_col = (length > *max_nnz_col)? length : *max_nnz_col;
+
+		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
+
+			if(sums[head] > lower_bound_inner) candidates_sz++;
+
+			int temp = head;
+			head = next[head]; //iterate over columns
+
+			next[temp] = -1; //clear arrays
+			sums[temp] =  0; //clear arrays
+		}
+
+		if (candidates_sz > ntop_inner) candidates_sz = ntop_inner;
+
+		(*nnz) += candidates_sz;
 	}
 }
 
-void sparse_dot_only_max_nnz_col_parallel(
-		int n_row,
-		int n_col,
-		int Ap[],
-		int Aj[],
-		int Bp[],
-		int Bj[],
-		int *max_nnz_col,
-		int n_jobs
+int sparse_dot_only_nnz_parallel(
+	int n_row,
+	int n_col,
+	int Ap[],
+	int Aj[],
+	double Ax[],
+	int Bp[],
+	int Bj[],
+	double Bx[],
+	int ntop,
+	double lower_bound,
+	int n_jobs
 )
 {
-	std::vector<job_range_type> job_ranges(n_jobs);
-	distribute_load(n_row, n_jobs, job_ranges);
+	std::vector<job_range_type> job_row_ranges(n_jobs);
+	distribute_load(n_row, n_jobs, job_row_ranges);
 
-	std::vector<int> split_max_nnz_col(n_jobs, 0);
+	std::vector<int> split_nnz(n_jobs, 0);
 	std::vector<std::thread> thread_list(n_jobs);
+
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread (
-				inner_sparse_only_max_nnz_col,
-				job_ranges[job_nr],
+				inner_sparse_nnz_only,
+				job_row_ranges[job_nr],
 				n_col,
-				Ap, Aj, Bp, Bj,
-				&split_max_nnz_col[job_nr]
+				ntop, lower_bound,
+				Ap, Aj, Ax, Bp, Bj, Bx,
+				&split_nnz[job_nr]
 		);
 
 	}
@@ -560,5 +511,6 @@ void sparse_dot_only_max_nnz_col_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
 		thread_list[job_nr].join();
 
-	*max_nnz_col = *max_element(split_max_nnz_col.begin(), split_max_nnz_col.end());
+	return std::accumulate(split_nnz.begin(), split_nnz.end(), (int) 0);
 }
+

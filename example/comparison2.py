@@ -9,7 +9,7 @@ import pandas as pd
 from scipy.sparse import coo_matrix
 from sparse_dot_topn import awesome_cossim_topn  # noqa: F401
 
-df = pd.DataFrame(columns=['sample', '#threads', 'python', 'C/C++'])
+df = pd.DataFrame(columns=['sample', '#threads', 'python', '+scout'])
 
 N = 1000
 thresh = 0.01
@@ -69,12 +69,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 0, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 1 thread")
@@ -82,12 +82,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 1)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 1, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 1, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 1, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 2 threads")
@@ -95,12 +95,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 2)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 2, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 2, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 2, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 3 threads")
@@ -108,12 +108,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 3)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 3, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 3, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 3, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 4 threads")
@@ -121,12 +121,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 4)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 4, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 4, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 4, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 5 threads")
@@ -134,12 +134,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 5)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 5, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 5, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 5, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 6 threads")
@@ -147,12 +147,12 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 6)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 6, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 6, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 6, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print("Threaded function with 7 threads")
@@ -160,20 +160,20 @@ for it in range(n_matrix_pairs):
     rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 7)',
                         number=3,
                         globals=globals())
-    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 7, mem_manager_is_C=True)',
+    rtv2 = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 7, scout_nnz=True)',
                         number=3,
                         globals=globals())
     df.loc[r] = [it, 7, rtv, rtv2]
     r += 1
-    print('sample\t\tpython\t\tC/C++', flush=True)
+    print('sample\t\tpython\t\t+scout', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
     print('')
     print(f'nnz(A*B) = {nnz_arr[:(it + 1)].mean()} +/- {nnz_arr[:(it + 1)].std()}')
     print(f'ntop(A*B) = {ntop_arr[:(it + 1)].mean()} +/- {ntop_arr[:(it + 1)].std()}')
     print('')
-    df = df.astype({'sample': np.int64, '#threads': np.int64, 'python': np.float64, 'C/C++': np.float64})
-    results = df.groupby('#threads', as_index=True, sort=True)[['python', 'C/C++']].mean()
+    df = df.astype({'sample': np.int64, '#threads': np.int64, 'python': np.float64, '+scout': np.float64})
+    results = df.groupby('#threads', as_index=True, sort=True)[['python', '+scout']].mean()
     
     print(results)
     print('')
