@@ -14,8 +14,8 @@ df = pd.DataFrame(columns=['sample', '#threads', 'python', 'C/C++'])
 N = 1000
 thresh = 0.01
 
-nr_vocab = 2 << 24
-density = 1e-6
+nr_vocab = int(26**3)
+density = 30/nr_vocab
 n_samples = 1000000
 n_duplicates = N
 nnz_a = int(n_samples * nr_vocab * density)
@@ -27,15 +27,18 @@ print(f'density = {density}', flush=True)
 print(f'nr_vocab = {nr_vocab}', flush=True)
 print(f'n_samples = {n_samples}', flush=True)
 print(f'n_duplicates = {n_duplicates}', flush=True)
-print(f'nnz_a = {nnz_a}', flush=True)
-print(f'nnz_b = {nnz_b}', flush=True)
+print(f'nnz_A = {nnz_a}', flush=True)
+print(f'nnz_B = {nnz_b}', flush=True)
 print('', flush=True)
 
 rng1 = np.random.RandomState(42)
 rng2 = np.random.RandomState(43)
 
+n_matrix_pairs = 2**4
+nnz_arr = np.full(n_matrix_pairs, 0)
+ntop_arr = np.full(n_matrix_pairs, 0)
 r = 0
-for it in range(2**6):
+for it in range(n_matrix_pairs):
     
     row = rng1.randint(n_samples, size=nnz_a)
     cols = rng2.randint(nr_vocab, size=nnz_a)
@@ -50,6 +53,13 @@ for it in range(2**6):
     
     b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab))
     b = b_sparse.T.tocsr()
+    
+    C, C_ntop = awesome_cossim_topn(a, b, N, thresh, return_best_ntop=True)
+    print(f'nnz(A*B) = {len(C.data)}', flush=True)
+    print(f'ntop(A*B) = {C_ntop}', flush=True)
+    print('', flush=True)
+    nnz_arr[it] = len(C.data)
+    ntop_arr[it] = C_ntop
     
     
     # top 5 results per row
@@ -158,6 +168,13 @@ for it in range(2**6):
     print('sample\t\tpython\t\tC/C++', flush=True)
     print(f'{it}\t\t{rtv:7.4f}\t\t{rtv2:7.4f}', flush=True)
     
+    print('')
+    print(f'nnz(A*B) = {nnz_arr[:(it + 1)].mean()} +/- {nnz_arr[:(it + 1)].std()}')
+    print(f'ntop(A*B) = {ntop_arr[:(it + 1)].mean()} +/- {ntop_arr[:(it + 1)].std()}')
+    print('')
     df = df.astype({'sample': np.int64, '#threads': np.int64, 'python': np.float64, 'C/C++': np.float64})
     results = df.groupby('#threads', as_index=True, sort=True)[['python', 'C/C++']].mean()
+    
     print(results)
+    print('')
+    print('')

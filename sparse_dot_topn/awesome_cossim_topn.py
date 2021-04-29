@@ -19,14 +19,14 @@ def awesome_cossim_topn(
         use_threads=False,
         n_jobs=1,
         mem_manager_is_C=False,
-        return_best_topn=False
+        return_best_ntop=False
     ):
     """
     This function will return a matrix C in CSR format, where
     C = [sorted top n results > lower_bound for each row of A * B].
-    If return_best_topn=True then best_topn
+    If return_best_ntop=True then best_ntop
     (the true maximum number of elements > lower_bound per row of A * B)
-    will also be returned in a tuple together with C as (C, best_topn).
+    will also be returned in a tuple together with C as (C, best_ntop).
 
     Input:
         A and B: two CSR matrices
@@ -37,14 +37,14 @@ def awesome_cossim_topn(
         mem_manager_is_C: (default: False) this is mainly for testing purposes. if 
                           True, will force memory management to be handed over to
                           C/C++.
-        return_best_topn: (default: False) if True, will return best_topn together 
-                          with C as a tuple: (C, best_topn)
+        return_best_ntop: (default: False) if True, will return best_ntop together 
+                          with C as a tuple: (C, best_ntop)
 
     Output:
-        C: result matrix (returned alone, if return_best_topn=False)
-        best_topn: The true maximum number of elements > lower_bound per row of 
-                   A * B returned together with C as a tuple: (C, best_topn). It is 
-                   returned only if return_best_topn=True.
+        C: result matrix (returned alone, if return_best_ntop=False)
+        best_ntop: The true maximum number of elements > lower_bound per row of 
+                   A * B returned together with C as a tuple: (C, best_ntop). It is 
+                   returned only if return_best_ntop=True.
 
     N.B. if A and B are not in CSR format, they will be converted to CSR
     """
@@ -71,7 +71,7 @@ def awesome_cossim_topn(
         indices = np.zeros(nnz_max, dtype=idx_dtype)
         data = np.zeros(nnz_max, dtype=A.dtype)
         output = csr_matrix((data, indices, indptr), shape=(M, N))
-        if return_best_topn:
+        if return_best_ntop:
             return output, 0
         else:
             return output
@@ -93,7 +93,7 @@ def awesome_cossim_topn(
         data = np.empty(0, dtype=A.dtype)
         if not use_threads:
 
-            indices, data, best_topn = ct.sparse_dot_free(
+            indices, data, best_ntop = ct.sparse_dot_free(
                 M, N, np.asarray(A.indptr, dtype=idx_dtype),
                 np.asarray(A.indices, dtype=idx_dtype),
                 A.data,
@@ -106,7 +106,7 @@ def awesome_cossim_topn(
             
         else:
 
-            indices, data, best_topn = ct_thread.sparse_dot_free_threaded(
+            indices, data, best_ntop = ct_thread.sparse_dot_free_threaded(
                 M, N, np.asarray(A.indptr, dtype=idx_dtype),
                 np.asarray(A.indices, dtype=idx_dtype),
                 A.data,
@@ -120,7 +120,7 @@ def awesome_cossim_topn(
     else:
         # no exception was raised; then use old function (as it is expected to be the fastest)
         
-        best_topn_arr = np.full(1, 0, dtype=idx_dtype)
+        best_ntop_arr = np.full(1, 0, dtype=idx_dtype)
         
         if not use_threads:
         
@@ -133,7 +133,7 @@ def awesome_cossim_topn(
                 B.data,
                 ntop,
                 lower_bound,
-                indptr, indices, data, best_topn_arr
+                indptr, indices, data, best_ntop_arr
             )
     
         else:
@@ -150,15 +150,15 @@ def awesome_cossim_topn(
                 B.data,
                 ntop,
                 lower_bound,
-                indptr, indices, data, best_topn_arr, n_jobs
+                indptr, indices, data, best_ntop_arr, n_jobs
             )
         
-        best_topn = best_topn_arr[0]
+        best_ntop = best_ntop_arr[0]
     
     # prepare and return the output:
     output = csr_matrix((data, indices, indptr), shape=(M, N))
-    if return_best_topn:
-        return output, best_topn
+    if return_best_ntop:
+        return output, best_ntop
     else:
         return output
 
