@@ -170,7 +170,6 @@ void inner_sparse_dot_topn(
 		*(row_nnz_ptr++) = len;
 		(*total) += len;
 	}
-	real_candidates->shrink_to_fit();
 }
 
 void sparse_dot_topn_parallel(
@@ -335,7 +334,6 @@ void inner_sparse_dot_topn_extd(
 		*(row_nnz_ptr++) = len;
 		(*total) += len;
 	}
-	real_candidates->shrink_to_fit();
 }
 
 void sparse_dot_topn_extd_parallel(

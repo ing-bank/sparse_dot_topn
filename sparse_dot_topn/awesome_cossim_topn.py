@@ -139,12 +139,10 @@ def awesome_cossim_topn(
             indptr, indices, data, best_ntop_arr, n_jobs
         )
     
-    best_ntop = best_ntop_arr[0]
-    
     # prepare and return the output:
     output = csr_matrix((data, indices, indptr), shape=(M, N))
     if return_best_ntop:
-        return output, best_ntop
+        return output, best_ntop_arr[0]
     else:
         return output
 
