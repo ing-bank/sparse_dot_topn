@@ -11,7 +11,7 @@ from sparse_dot_topn import awesome_cossim_topn  # noqa: F401
 
 df = pd.DataFrame(columns=['sample', '#threads', 'python', '+scout', '%inc'])
 
-N = 1000
+N = 4000
 thresh = 0.01
 
 nr_vocab = int(26**3)
@@ -32,7 +32,6 @@ print(f'nnz_B = {nnz_b}', flush=True)
 print('', flush=True)
 
 rng1 = np.random.RandomState(42)
-rng2 = np.random.RandomState(43)
 
 n_matrix_pairs = 2**4
 nnz_arr = np.full(n_matrix_pairs, 0)
@@ -41,14 +40,14 @@ r = 0
 for it in range(n_matrix_pairs):
     
     row = rng1.randint(n_samples, size=nnz_a)
-    cols = rng2.randint(nr_vocab, size=nnz_a)
+    cols = rng1.randint(nr_vocab, size=nnz_a)
     data = rng1.rand(nnz_a)
     
     a_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab))
     a = a_sparse.tocsr()
     
     row = rng1.randint(n_duplicates, size=nnz_b)
-    cols = rng2.randint(nr_vocab, size=nnz_b)
+    cols = rng1.randint(nr_vocab, size=nnz_b)
     data = rng1.rand(nnz_b)
     
     b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab))
@@ -60,7 +59,8 @@ for it in range(n_matrix_pairs):
     print('', flush=True)
     nnz_arr[it] = len(C.data)
     ntop_arr[it] = C_ntop
-    
+    del C
+    del C_ntop
     
     # top 5 results per row
     
