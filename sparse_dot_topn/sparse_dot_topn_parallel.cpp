@@ -336,7 +336,7 @@ void inner_sparse_dot_topn_extd(
 	}
 }
 
-void sparse_dot_topn_extd_parallel(
+int sparse_dot_topn_extd_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -350,6 +350,9 @@ void sparse_dot_topn_extd_parallel(
 		int Cp[],
 		int Cj[],
 		double Cx[],
+		std::vector<int>* alt_Cj,
+		std::vector<double>* alt_Cx,
+		int nnz_max,
 		int *n_minmax,
 		int n_jobs
 )
@@ -391,6 +394,23 @@ void sparse_dot_topn_extd_parallel(
 	start_points[0] = 0;
 	partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
 
+	int* Cj_container;
+	double* Cx_container;
+
+	int total = start_points.back();
+	int nnz_max_is_too_small = (nnz_max < total);
+
+	if (nnz_max_is_too_small) {
+		alt_Cj->resize(total);
+		alt_Cx->resize(total);
+		Cj_container = &((*alt_Cj)[0]);
+		Cx_container = &((*alt_Cx)[0]);
+	}
+	else {
+		Cj_container = Cj;
+		Cx_container = Cx;
+	}
+
 	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
@@ -399,8 +419,8 @@ void sparse_dot_topn_extd_parallel(
 				job_ranges[job_nr],
 				Cp,
 				start_points[job_nr],
-				Cj,
-				Cx,
+				Cj_container,
+				Cx_container,
 				&real_candidates[job_nr],
 				&row_nnz[job_nr]
 		);
@@ -408,6 +428,8 @@ void sparse_dot_topn_extd_parallel(
 
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
 		thread_list[job_nr].join();
+
+	return nnz_max_is_too_small;
 }
 
 void inner_sparse_nnz_only(

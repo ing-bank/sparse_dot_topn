@@ -40,7 +40,7 @@ extern void sparse_dot_topn_parallel(
 		int n_jobs
 );
 
-extern void sparse_dot_topn_extd_parallel(
+extern int sparse_dot_topn_extd_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -54,6 +54,9 @@ extern void sparse_dot_topn_extd_parallel(
 		int Cp[],
 		int Cj[],
 		double Cx[],
+		std::vector<int>* alt_Cj,
+		std::vector<double>* alt_Cx,
+		int nnz_max,
 		int* n_minmax,
 		int n_jobs
 );

@@ -44,7 +44,7 @@ extern void sparse_dot_topn_source(
 		double Cx[]		//data of C
 );
 
-extern void sparse_dot_topn_extd_source(
+extern int sparse_dot_topn_extd_source(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -58,6 +58,9 @@ extern void sparse_dot_topn_extd_source(
 		int Cp[],
 		int Cj[],
 		double Cx[], 	//data of C
+		std::vector<int>* alt_Cj,
+		std::vector<double>* alt_Cx,
+		int nnz_max,
 		int* n_minmax
 );
 

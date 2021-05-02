@@ -20,6 +20,7 @@
 # distutils: language = c++
 
 from libcpp.vector cimport vector
+from array_wrappers cimport ArrayWrapper_int, ArrayWrapper_double
 
 cimport numpy as np
 import numpy as np
@@ -47,7 +48,7 @@ cdef extern from "sparse_dot_topn_parallel.h":
 		int n_jobs
 	);
 
-	cdef void sparse_dot_topn_extd_parallel(
+	cdef int sparse_dot_topn_extd_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -61,6 +62,9 @@ cdef extern from "sparse_dot_topn_parallel.h":
 		int Cp[],
 		int Cj[],
 		double Cx[],
+		vector[int]* alt_Cj,
+		vector[double]* alt_Cx,
+		int nnz_max,
 		int* n_minmax,
 		int n_jobs
 	);
@@ -139,11 +143,26 @@ cpdef sparse_dot_topn_extd_threaded(
 	cdef int* Cj = &c_indices[0]
 	cdef double* Cx = &c_data[0]
 	cdef int* n_minmax = &nminmax[0]
+	
+	cdef nnz_max = len(c_indices)
+	
+	cdef vector[int] vCj;
+	cdef vector[double] vCx;
 
-	sparse_dot_topn_extd_parallel(
-		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, n_minmax, n_jobs
+	cdef int nnz_max_is_too_small = sparse_dot_topn_extd_parallel(
+		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, &vCj, &vCx, nnz_max, n_minmax, n_jobs
 	)
-	return
+	
+	if nnz_max_is_too_small:
+		
+		c_indices = np.asarray(ArrayWrapper_int(vCj)).squeeze(axis=0)
+		c_data = np.asarray(ArrayWrapper_double(vCx)).squeeze(axis=0)
+	
+		return c_indices, c_data
+	
+	else:
+		
+		return None, None
 
 cpdef sparse_dot_only_nnz_threaded(
 	int n_row,

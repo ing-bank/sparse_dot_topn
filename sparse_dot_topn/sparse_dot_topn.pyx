@@ -20,6 +20,7 @@
 # distutils: language = c++
 
 from libcpp.vector cimport vector
+from array_wrappers cimport ArrayWrapper_int, ArrayWrapper_double
 
 cimport numpy as np
 import numpy as np
@@ -45,7 +46,7 @@ cdef extern from "sparse_dot_topn_source.h":
 		double Cx[]
 	);
 
-	cdef void sparse_dot_topn_extd_source(
+	cdef int sparse_dot_topn_extd_source(
 		int n_row,
 		int n_col,
 		int Ap[],
@@ -59,24 +60,10 @@ cdef extern from "sparse_dot_topn_source.h":
 		int Cp[],
 		int Cj[],
 		double Cx[],
+		vector[int]* alt_Cj,
+		vector[double]* alt_Cx,
+		int nnz_max,
 		int* nminmax
-	);
-
-	cdef void sparse_dot_free_source(
-		int n_row,
-		int n_col,
-		int Ap[],
-		int Aj[],
-		double Ax[],
-		int Bp[],
-		int Bj[],
-		double Bx[],
-		int ntop,
-		double lower_bound,
-		int Cp[],
-		vector[int]* Cj,
-		vector[double]* Cx,
-		int* n_minmax
 	);
 
 	cdef int sparse_dot_only_nnz_source(
@@ -158,7 +145,7 @@ cpdef sparse_dot_topn_extd(
 	np.ndarray[int, ndim=1] c_indptr,
 	np.ndarray[int, ndim=1] c_indices,
 	np.ndarray[double, ndim=1] c_data,
-	np.ndarray[int, ndim=1] nminmax,
+	np.ndarray[int, ndim=1] nminmax
 ):
 	"""
 	Cython glue function to call sparse_dot_topn_extd C++
@@ -200,12 +187,26 @@ cpdef sparse_dot_topn_extd(
 	cdef int* Cj = &c_indices[0]
 	cdef double* Cx = &c_data[0]
 	cdef int* n_minmax = &nminmax[0]
+	
+	cdef nnz_max = len(c_indices)
+	
+	cdef vector[int] vCj;
+	cdef vector[double] vCx;
 
-	sparse_dot_topn_extd_source(
-		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, n_minmax
+	cdef int nnz_max_is_too_small = sparse_dot_topn_extd_source(
+		n_row, n_col, Ap, Aj, Ax, Bp, Bj, Bx, ntop, lower_bound, Cp, Cj, Cx, &vCj, &vCx, nnz_max, n_minmax
 	)
-	return
-
+	
+	if nnz_max_is_too_small:
+		
+		c_indices = np.asarray(ArrayWrapper_int(vCj)).squeeze(axis=0)
+		c_data = np.asarray(ArrayWrapper_double(vCx)).squeeze(axis=0)
+	
+		return c_indices, c_data		
+	
+	else:
+		
+		return None, None
 
 cpdef sparse_dot_only_nnz(
 	int n_row,
