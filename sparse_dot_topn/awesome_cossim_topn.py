@@ -28,9 +28,6 @@ def awesome_cossim_topn(
         lower_bound: a threshold that the element of A*B must be greater than
         use_threads: use multi-thread or not
         n_jobs: number of thread, must be >= 1
-        scout_nnz: (default: False) this is mainly for testing purposes. if 
-                   True, will force a memory-size determination before computing
-                   the results.
         return_best_ntop: (default: False) if True, will return best_ntop together 
                           with C as a tuple: (C, best_ntop)
 

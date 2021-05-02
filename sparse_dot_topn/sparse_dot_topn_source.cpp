@@ -151,11 +151,19 @@ void sparse_dot_topn_source(
 
 		ntop: n top results
 		lower_bound: a threshold that the element of A*B must greater than
+		nnz_max: the size of the memory allocated for the results Cj and Cx.  If
+				nnz_max is found to be too small during the computation, then the
+				results will be placed in vectors alt_Cj and alt_Cx instead
 
 	Output by reference:
 		Cp, Cj, Cx: CSR expression of C matrix
 		n_minmax: The maximum number of elements per row of C (assuming ntop = n_col)
+				alt_Cj, alt_Cx: CSR expression of C matrix as vectors.  These will
+				contain the output only if nnz_max is found to be too small
 
+	Returned output:
+		nnz_max_is_too_small: int 1 or 0 depending on whether nnz_max was found to be
+							too small or not respectively
 	N.B. A and B must be CSR format!!!
 */
 int sparse_dot_topn_extd_source(

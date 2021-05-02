@@ -172,6 +172,13 @@ cpdef sparse_dot_topn_extd(
 		nminmax: The maximum number of elements per row of C 
 				 (assuming ntop = n_col)
 
+	Returned output:
+		c_indices, c_data: CSR expression of matrix C.  These will 
+						be returned instead of output by reference
+						if the preset sizes of c_indices and 
+						c_data are too small to hold all the 
+						results.
+
 	N.B. A and B must be CSR format!!!
 		 The type of input numpy array must be aligned with types
 		 of C++ function arguments!
