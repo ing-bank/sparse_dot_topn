@@ -51,7 +51,37 @@ void distribute_load(
 	}
 }
 
-void inner_gather_function(
+void inner_gather_v2(
+		job_range_type job_range,
+		int Cp[],
+		int Cp_start,
+		int Cj[],
+		double Cx[],
+		std::vector<candidate>* real_candidates,
+		std::vector<int>* row_nnz
+)
+{
+	if (job_range.begin >= job_range.end) return;
+
+	int* nnz_begin = row_nnz->data();
+	int* nnz_end = nnz_begin + row_nnz->size();
+
+	int* Cp_begin = &Cp[job_range.begin + 1];
+
+	(*nnz_begin) += Cp_start;
+	std::partial_sum(nnz_begin, nnz_end, Cp_begin);
+
+	candidate* c_begin = real_candidates->data();
+	candidate* c_end = c_begin + real_candidates->size();
+
+	int* Cj_begin = &Cj[Cp_start];
+	double* Cx_begin = &Cx[Cp_start];
+
+	std::transform(c_begin, c_end, Cj_begin, [](candidate c) -> int { return c.index; });
+	std::transform(c_begin, c_end, Cx_begin, [](candidate c) -> double { return c.value; });
+}
+
+void inner_gather_v1(
 		job_range_type job_range,
 		int Cp[],
 		int Cp_start,
@@ -217,18 +247,18 @@ void sparse_dot_topn_parallel(
 		thread_list[job_nr].join();
 
 	// gather the results:
-	std::vector<int> start_points(n_jobs + 1);
-	start_points[0] = 0;
-	partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
+	std::vector<int> nnz_job_starts(n_jobs + 1);
+	nnz_job_starts[0] = 0;
+	partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
 
 	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_gather_function,
+				inner_gather_v1,
 				job_ranges[job_nr],
 				Cp,
-				start_points[job_nr],
+				nnz_job_starts[job_nr],
 				Cj,
 				Cx,
 				&real_candidates[job_nr],
@@ -254,13 +284,14 @@ void inner_sparse_dot_topn_extd(
 		std::vector<candidate>* real_candidates,
 		std::vector<int>* row_nnz,
 		int* total,
-		int* n_minmax
+		int* n_minmax,
+		int mem_sz_per_row
 )
 {
 	std::vector<int> next(n_col_inner,-1);
 	std::vector<double> sums(n_col_inner, 0);
 
-	real_candidates->reserve(job_range.end - job_range.begin);
+	real_candidates->reserve(mem_sz_per_row*(job_range.end - job_range.begin));
 
 	row_nnz->resize(job_range.end - job_range.begin);
 	int* row_nnz_ptr = row_nnz->data();
@@ -367,6 +398,8 @@ int sparse_dot_topn_extd_parallel(
 	std::vector<int> sub_total(n_jobs, 0);
 	std::vector<int> split_n_minmax(n_jobs, 0);
 
+	int mem_sz_per_row = std::max(1, (int) ceil(((double) nnz_max)/((double) n_row)));
+
 	std::vector<std::thread> thread_list(n_jobs);
 
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
@@ -380,7 +413,8 @@ int sparse_dot_topn_extd_parallel(
 				&real_candidates[job_nr],
 				&row_nnz[job_nr],
 				&sub_total[job_nr],
-				&split_n_minmax[job_nr]
+				&split_n_minmax[job_nr],
+				mem_sz_per_row
 		);
 	}
 
@@ -390,14 +424,14 @@ int sparse_dot_topn_extd_parallel(
 	// gather the results:
 	*n_minmax = *max_element(split_n_minmax.begin(), split_n_minmax.end());
 
-	std::vector<int> start_points(n_jobs + 1);
-	start_points[0] = 0;
-	partial_sum(sub_total.begin(), sub_total.end(), start_points.begin() + 1);
+	std::vector<int> nnz_job_starts(n_jobs + 1);
+	nnz_job_starts[0] = 0;
+	partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
 
 	int* Cj_container;
 	double* Cx_container;
 
-	int total = start_points.back();
+	int total = nnz_job_starts.back();
 	int nnz_max_is_too_small = (nnz_max < total);
 
 	if (nnz_max_is_too_small) {
@@ -415,10 +449,10 @@ int sparse_dot_topn_extd_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_gather_function,
+				inner_gather_v1,
 				job_ranges[job_nr],
 				Cp,
-				start_points[job_nr],
+				nnz_job_starts[job_nr],
 				Cj_container,
 				Cx_container,
 				&real_candidates[job_nr],

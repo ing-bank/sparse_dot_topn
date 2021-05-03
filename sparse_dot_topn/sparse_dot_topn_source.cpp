@@ -190,6 +190,7 @@ int sparse_dot_topn_extd_source(
 	std::vector<double> sums(n_col, 0);
 
 	std::vector<candidate> candidates;
+	candidates.reserve(n_col);
 
 	int nnz = 0;
 	int nnz_max_is_too_small = 0;

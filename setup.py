@@ -32,8 +32,7 @@ else:
 
 array_wrappers_ext = Extension('sparse_dot_topn.array_wrappers',
                          sources=[
-                                    './sparse_dot_topn/array_wrappers.pyx',
-                                    './sparse_dot_topn/sparse_dot_topn_source.cpp'
+                                    './sparse_dot_topn/array_wrappers.pyx'
                                 ],
                          extra_compile_args=extra_compile_args,
                          language='c++')
