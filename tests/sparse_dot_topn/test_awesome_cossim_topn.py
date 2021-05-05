@@ -280,7 +280,7 @@ def test_awesome_cossim_top_large_matrix():
     # test with large matrix
     nr_vocab = 2 << 24
     density = 1e-6
-    n_samples = 10000
+    n_samples = 1000
     nnz = int(n_samples * nr_vocab * density)
 
     rng1 = np.random.RandomState(42)

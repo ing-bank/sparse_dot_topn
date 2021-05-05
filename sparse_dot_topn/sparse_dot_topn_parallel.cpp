@@ -20,6 +20,7 @@
 // Modified by: Particular Miner
 // April 14, 2021
 
+#include <cmath>
 #include <vector>
 #include <algorithm>
 #include <numeric>
@@ -398,7 +399,7 @@ int sparse_dot_topn_extd_parallel(
 	std::vector<int> sub_total(n_jobs, 0);
 	std::vector<int> split_n_minmax(n_jobs, 0);
 
-	int mem_sz_per_row = std::max(1, (int) ceil(((double) nnz_max)/((double) n_row)));
+	int mem_sz_per_row = std::max(1, (int) std::ceil(((double) nnz_max)/((double) n_row)));
 
 	std::vector<std::thread> thread_list(n_jobs);
 
