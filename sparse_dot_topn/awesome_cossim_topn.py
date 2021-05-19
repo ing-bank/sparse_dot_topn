@@ -2,8 +2,6 @@ import sys
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import isspmatrix_csr
-from _ast import Continue
-from numpy import indices
 
 if sys.version_info[0] >= 3:
     from sparse_dot_topn import sparse_dot_topn as ct
@@ -43,6 +41,7 @@ def awesome_cossim_topn(
         try:
             ind_arr = np.empty(sz, dtype=idx_dtype)
             dat_arr = np.empty(sz, dtype=data_dtype)
+            del ind_arr, dat_arr
             return True
         except MemoryError:
             return False
@@ -77,6 +76,7 @@ def awesome_cossim_topn(
     indptr = np.empty(M + 1, dtype=idx_dtype)
     
     # reduce nnz_max if too large to fit in available memory:
+    nnz_max = 16*nnz_max
     while (not try_malloc(nnz_max, idx_dtype, A.dtype)):
         nnz_max = nnz_max//2
 
