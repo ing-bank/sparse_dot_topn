@@ -44,7 +44,7 @@ cdef extern from "sparse_dot_topn_source.h":
 		int Cp[],
 		int Cj[],
 		double Cx[]
-	);
+	) except +;
 
 	cdef int sparse_dot_topn_extd_source(
 		int n_row,
@@ -64,7 +64,7 @@ cdef extern from "sparse_dot_topn_source.h":
 		vector[double]* alt_Cx,
 		int nnz_max,
 		int* nminmax
-	);
+	) except +;
 
 	cdef int sparse_dot_only_nnz_source(
 		int n_row,
@@ -77,7 +77,7 @@ cdef extern from "sparse_dot_topn_source.h":
 		double Bx[],
 		int ntop,
 		double lower_bound
-	);
+	) except +;
 
 cpdef sparse_dot_topn(
 	int n_row,

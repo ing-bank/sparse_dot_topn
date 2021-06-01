@@ -46,7 +46,7 @@ cdef extern from "sparse_dot_topn_parallel.h":
 		int Cj[],
 		double Cx[],
 		int n_jobs
-	);
+	) except +;
 
 	cdef int sparse_dot_topn_extd_parallel(
 		int n_row,
@@ -67,7 +67,7 @@ cdef extern from "sparse_dot_topn_parallel.h":
 		int nnz_max,
 		int* n_minmax,
 		int n_jobs
-	);
+	) except +;
 
 	cdef int sparse_dot_only_nnz_parallel(
 		int n_row,
@@ -81,7 +81,7 @@ cdef extern from "sparse_dot_topn_parallel.h":
 		int ntop,
 		double lower_bound,
 		int n_jobs
-	);
+	) except +;
 
 cpdef sparse_dot_topn_threaded(
 	int n_row,
