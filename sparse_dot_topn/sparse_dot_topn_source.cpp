@@ -26,7 +26,6 @@
 
 #include "./sparse_dot_topn_source.h"
 
-bool candidate_cmp(candidate c_i, candidate c_j) { return (c_i.value > c_j.value); }
 
 /*
 	C++ implementation of sparse_dot_topn
@@ -49,26 +48,27 @@ bool candidate_cmp(candidate c_i, candidate c_j) { return (c_i.value > c_j.value
 
 	N.B. A and B must be CSR format!!!
 */
+template<typename T>
 void sparse_dot_topn_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
+		T Bx[], //data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[]
+		T Cx[]
 )
 {
 	std::vector<int> next(n_col,-1);
-	std::vector<double> sums(n_col, 0);
+	std::vector<T> sums(n_col, 0);
 
-	std::vector<candidate> candidates;
+	std::vector<Candidate<T>> candidates;
 
 	int nnz = 0;
 
@@ -82,7 +82,7 @@ void sparse_dot_topn_source(
 		int jj_end   = Ap[i+1];
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj[jj];
-			double v = Ax[jj]; //value of A in (i,j)
+			T v = Ax[jj]; //value of A in (i,j)
 
 			int kk_start = Bp[j];
 			int kk_end   = Bp[j+1];
@@ -102,7 +102,7 @@ void sparse_dot_topn_source(
 		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
 
 			if(sums[head] > lower_bound){ //append the nonzero elements
-				candidate c;
+				Candidate<T> c;
 				c.index = head;
 				c.value = sums[head];
 				candidates.push_back(c);
@@ -117,10 +117,10 @@ void sparse_dot_topn_source(
 
 		int len = (int)candidates.size();
 		if (len > ntop){
-			std::partial_sort(candidates.begin(), candidates.begin()+ntop, candidates.end(), candidate_cmp);
+			std::partial_sort(candidates.begin(), candidates.begin()+ntop, candidates.end());
 			len = ntop;
 		} else {
-			std::sort(candidates.begin(), candidates.end(), candidate_cmp);
+			std::sort(candidates.begin(), candidates.end());
 		}
 
 		for(int a=0; a < len; a++){
@@ -133,6 +133,9 @@ void sparse_dot_topn_source(
 		Cp[i+1] = nnz;
 	}
 }
+
+template void sparse_dot_topn_source<float>(int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound, int Cp[], int Cj[], float Cx[]);
+template void sparse_dot_topn_source<double>(int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound, int Cp[], int Cj[], double Cx[]);
 
 /*
 	C++ implementation of sparse_dot_topn_extd_source
@@ -166,30 +169,31 @@ void sparse_dot_topn_source(
 							too small or not respectively
 	N.B. A and B must be CSR format!!!
 */
+template<typename T>
 int sparse_dot_topn_extd_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[],	//data of A
+		T Ax[],	//data of A
 		int Bp[],
 		int Bj[],
-		double Bx[],	//data of B
+		T Bx[],	//data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[], 	//data of C
+		T Cx[], 	//data of C
 		std::vector<int>* alt_Cj,
-		std::vector<double>* alt_Cx,
+		std::vector<T>* alt_Cx,
 		int nnz_max,
 		int* n_minmax
 )
 {
 	std::vector<int> next(n_col,-1);
-	std::vector<double> sums(n_col, 0);
+	std::vector<T> sums(n_col, 0);
 
-	std::vector<candidate> candidates;
+	std::vector<Candidate<T>> candidates;
 	candidates.reserve(n_col);
 
 	int nnz = 0;
@@ -206,7 +210,7 @@ int sparse_dot_topn_extd_source(
 		int jj_end   = Ap[i+1];
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj[jj];
-			double v = Ax[jj]; //value of A in (i,j)
+			T v = Ax[jj]; //value of A in (i,j)
 
 			int kk_start = Bp[j];
 			int kk_end   = Bp[j+1];
@@ -226,7 +230,7 @@ int sparse_dot_topn_extd_source(
 		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
 
 			if(sums[head] > lower_bound){ //append the nonzero elements
-				candidate c;
+				Candidate<T> c;
 				c.index = head;
 				c.value = sums[head];
 				candidates.push_back(c);
@@ -242,10 +246,10 @@ int sparse_dot_topn_extd_source(
 		int len = (int)candidates.size();
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
 		if (len > ntop){
-			std::partial_sort(candidates.begin(), candidates.begin()+ntop, candidates.end(), candidate_cmp);
+			std::partial_sort(candidates.begin(), candidates.begin()+ntop, candidates.end());
 			len = ntop;
 		} else {
-			std::sort(candidates.begin(), candidates.end(), candidate_cmp);
+			std::sort(candidates.begin(), candidates.end());
 		}
 		if (len + nnz > nnz_max){
 			if (!nnz_max_is_too_small){
@@ -274,6 +278,8 @@ int sparse_dot_topn_extd_source(
 	}
 	return nnz_max_is_too_small;
 }
+template int sparse_dot_topn_extd_source<float>(int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound, int Cp[], int Cj[], float Cx[], std::vector<int>* alt_Cj, std::vector<float>* alt_Cx, int nnz_max, int* n_minmax);
+template int sparse_dot_topn_extd_source<double>(int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound, int Cp[], int Cj[], double Cx[], std::vector<int>* alt_Cj, std::vector<double>* alt_Cx, int nnz_max, int* n_minmax);
 
 /*
 	C++ implementation of sparse_dot_nnz_source
@@ -300,22 +306,23 @@ int sparse_dot_topn_extd_source(
 
 	N.B. A and B must be CSR format!!!
 */
+template<typename T>
 void sparse_dot_nnz_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
-		double lower_bound,
+		T Bx[], //data of B
+		T lower_bound,
 		int* nnz,
 		int* ntop
 )
 {
 	std::vector<int> next(n_col,-1);
-	std::vector<double> sums(n_col, 0);
+	std::vector<T> sums(n_col, 0);
 
 	*nnz = 0;
 	*ntop = 0;
@@ -328,7 +335,7 @@ void sparse_dot_nnz_source(
 		int jj_end   = Ap[i+1];
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj[jj];
-			double v = Ax[jj]; //value of A in (i,j)
+			T v = Ax[jj]; //value of A in (i,j)
 
 			int kk_start = Bp[j];
 			int kk_end   = Bp[j+1];
@@ -360,6 +367,9 @@ void sparse_dot_nnz_source(
 		*nnz += nnz_k;
 	}
 }
+template void sparse_dot_nnz_source<float>(int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], float lower_bound, int* nnz, int* ntop);
+template void sparse_dot_nnz_source<double>(int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], double lower_bound, int* nnz, int* ntop);
+
 
 /*
 	C++ implementation of sparse_dot_only_max_nnz_col_source
@@ -383,21 +393,22 @@ void sparse_dot_nnz_source(
 
 	N.B. A and B must be CSR format!!!
 */
+template<typename T>
 int sparse_dot_only_nnz_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
+		T Bx[], //data of B
 		int ntop,
-		double lower_bound
+		T lower_bound
 )
 {
 	std::vector<int> next(n_col,-1);
-	std::vector<double> sums(n_col, 0);
+	std::vector<T> sums(n_col, 0);
 
 	int nnz = 0;
 
@@ -410,7 +421,7 @@ int sparse_dot_only_nnz_source(
 		int jj_end   = Ap[i+1];
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj[jj];
-			double v = Ax[jj]; //value of A in (i,j)
+			T v = Ax[jj]; //value of A in (i,j)
 
 			int kk_start = Bp[j];
 			int kk_end   = Bp[j+1];
@@ -444,3 +455,5 @@ int sparse_dot_only_nnz_source(
 	}
 	return nnz;
 }
+template int sparse_dot_only_nnz_source<float>(int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound);
+template int sparse_dot_only_nnz_source<double>(int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound);

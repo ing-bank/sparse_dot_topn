@@ -51,6 +51,10 @@ def awesome_cossim_topn(
     if not isspmatrix_csr(B):
         B = B.tocsr()
 
+    dtype = A.dtype
+    assert B.dtype == dtype
+    lower_bound = dtype.type(lower_bound)
+
     M, K1 = A.shape
     K2, N = B.shape
 
@@ -74,7 +78,7 @@ def awesome_cossim_topn(
             return output
 
     indptr = np.empty(M + 1, dtype=idx_dtype)
-    
+
     # reduce nnz_max if too large to fit in available memory:
     nnz_max = 16*nnz_max
     while (not try_malloc(nnz_max, idx_dtype, A.dtype)):
@@ -90,11 +94,11 @@ def awesome_cossim_topn(
     # filled matrices from here on
     indices = np.empty(nnz_max, dtype=idx_dtype)
     data = np.empty(nnz_max, dtype=A.dtype)
-    
+
     best_ntop_arr = np.full(1, 0, dtype=idx_dtype)
-    
+
     if not use_threads:
-    
+
         alt_indices, alt_data = ct.sparse_dot_topn_extd(
             M, N, np.asarray(A.indptr, dtype=idx_dtype),
             np.asarray(A.indices, dtype=idx_dtype),
@@ -123,15 +127,14 @@ def awesome_cossim_topn(
             lower_bound,
             indptr, indices, data, best_ntop_arr, n_jobs
         )
-    
+
     if alt_indices is not None:
         indices = alt_indices
         data = alt_data
-        
+
     # prepare and return the output:
     output = csr_matrix((data, indices, indptr), shape=(M, N))
     if return_best_ntop:
         return output, best_ntop_arr[0]
     else:
         return output
-

@@ -386,13 +386,14 @@ def test_awesome_cossim_top_all_zeros():
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
 @pytest.mark.filterwarnings("ignore:Changing the sparsity structure of a csr_matrix is expensive")
-def test_awesome_cossim_top_small_matrix():
+@pytest.mark.parametrize("dtype", [np.float64, np.float32])
+def test_awesome_cossim_top_small_matrix(dtype):
     # test with small matrix
     nr_vocab = 1000
     density = 0.1
     for _ in range(10):
-        a_sparse = rand(300, nr_vocab, density=density, format='csr')
-        b_sparse = rand(800, nr_vocab, density=density, format='csr')
+        a_sparse = rand(300, nr_vocab, density=density, format='csr').astype(dtype)
+        b_sparse = rand(800, nr_vocab, density=density, format='csr').astype(dtype)
         helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False)
         for process in range(MAX_N_PROCESSES):
             n_jobs = process + 1

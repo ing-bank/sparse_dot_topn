@@ -86,6 +86,7 @@ for it in range(n_matrix_pairs):
     
     a_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab))
     a = a_sparse.tocsr()
+    # a = a.astype(np.float32)
     
     row = rng1.randint(n_duplicates, size=nnz_b)
     cols = rng1.randint(nr_vocab, size=nnz_b)
@@ -93,6 +94,7 @@ for it in range(n_matrix_pairs):
     
     b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab))
     b = b_sparse.T.tocsr()
+    # b = b.astype(np.float32)
     
     # first run without profiling to bring the memory up to the same level
     # for all subsequent profiled runs:
