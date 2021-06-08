@@ -155,6 +155,8 @@ cpdef sparse_dot_topn_extd_threaded(
 	
 	if nnz_max_is_too_small:
 		
+		# raise Exception("In sparse_dot_topn_threaded.pyx")
+		
 		c_indices = np.asarray(ArrayWrapper_int(vCj)).squeeze(axis=0)
 		c_data = np.asarray(ArrayWrapper_double(vCx)).squeeze(axis=0)
 	

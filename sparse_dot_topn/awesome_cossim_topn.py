@@ -12,7 +12,7 @@ else:
 
 
 def awesome_cossim_topn(
-        A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1, return_best_ntop=False):
+        A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1, return_best_ntop=False, test_nnz_max=-1):
     """
     This function will return a matrix C in CSR format, where
     C = [sorted top n results > lower_bound for each row of A * B].
@@ -82,6 +82,10 @@ def awesome_cossim_topn(
 
     # take a chance on high matrix-sparsity and reduce further:
     nnz_max = max(M, nnz_max//16)
+    
+    # this line is only for testing purposes, designed to enable the user to 
+    # force C/C++ to reallocate memory during the matrix multiplication
+    nnz_max = test_nnz_max if test_nnz_max > 0 else nnz_max
     
     # filled matrices from here on
     indices = np.empty(nnz_max, dtype=idx_dtype)
