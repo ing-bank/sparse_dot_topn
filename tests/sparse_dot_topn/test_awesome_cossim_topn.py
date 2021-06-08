@@ -38,7 +38,8 @@ def helper_awesome_cossim_topn_dense(
         a_dense,
         b_dense,
         use_threads=False,
-        n_jobs=1
+        n_jobs=1,
+        return_best_ntop=False
     ):
     dense_result = np.dot(a_dense, np.transpose(b_dense))  # dot product
     max_ntop_dense = max(len(row[row > 0]) for row in dense_result)
@@ -178,7 +179,8 @@ def helper_awesome_cossim_topn_sparse(
         b_sparse,
         flag=True,
         use_threads=False,
-        n_jobs=1
+        n_jobs=1,
+        return_best_ntop=False
     ):
     # Note: helper function using awesome_cossim_topn
     sparse_result = a_sparse.dot(b_sparse.T)  # dot product
@@ -402,7 +404,8 @@ def test_awesome_cossim_top_small_matrix(dtype):
 
 @pytest.mark.filterwarnings("ignore:Comparing a sparse matrix with a scalar greater than zero")
 @pytest.mark.filterwarnings("ignore:Changing the sparsity structure of a csr_matrix is expensive")
-def test_awesome_cossim_top_large_matrix():
+@pytest.mark.parametrize("return_best_ntop", [False])
+def test_awesome_cossim_top_large_matrix(return_best_ntop):
     # MB: I reduced the size of the matrix so the test also runs in small memory.
     # test with large matrix
     nr_vocab = 2 << 24
@@ -434,7 +437,7 @@ def test_awesome_cossim_top_large_matrix():
         b_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab))
         b_sparse = b_sparse.tocsr()
 
-        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False)
+        helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, return_best_ntop=return_best_ntop)
         for process in range(MAX_N_PROCESSES):
             n_jobs = process + 1
-            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, use_threads=USE_THREADS, n_jobs=n_jobs)
+            helper_awesome_cossim_topn_sparse(a_sparse, b_sparse, False, use_threads=USE_THREADS, n_jobs=n_jobs, return_best_ntop=return_best_ntop)

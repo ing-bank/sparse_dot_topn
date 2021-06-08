@@ -86,6 +86,7 @@ cdef extern from "sparse_dot_topn_source.h":
 	) except +;
 
 cpdef ArrayWrapper_template(vector[decimal_t] vCx):
+	raise Exception("In sparse_dot_topn.pyx")
 	if decimal_t is float:
 		return ArrayWrapper_float(vCx)
 	elif decimal_t is double:

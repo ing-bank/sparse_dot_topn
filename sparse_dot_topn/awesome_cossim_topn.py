@@ -53,7 +53,7 @@ def awesome_cossim_topn(
 
     dtype = A.dtype
     assert B.dtype == dtype
-    lower_bound = dtype.type(lower_bound)
+    lower_bound = dtype.type(lower_bound)  # Casting this scalar to the same type
 
     M, K1 = A.shape
     K2, N = B.shape

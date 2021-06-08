@@ -122,6 +122,8 @@ cpdef sparse_dot_topn_threaded(
 	return
 
 cpdef ArrayWrapper_template(vector[decimal_t] vCx):
+	raise Exception("In sparse_dot_topn_threaded.pyx")
+	1/0
 	if decimal_t is float:
 		return ArrayWrapper_float(vCx)
 	elif decimal_t is double:
