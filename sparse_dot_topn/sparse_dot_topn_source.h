@@ -26,7 +26,7 @@
 template<typename T>
 struct Candidate {
 	int index;
-	double value;
+	T value;
 
 	bool operator<(const Candidate& a) const
     {
