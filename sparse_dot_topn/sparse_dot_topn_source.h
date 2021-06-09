@@ -17,26 +17,64 @@
 
 // Author: Zhe Sun, Ahmet Erdem
 // April 20, 2017
+// Modified by: Particular Miner
+// April 14, 2021
 
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
+
 
 struct candidate {int index; double value;};
 
 extern bool candidate_cmp(candidate c_i, candidate c_j);
 
-extern void sparse_dot_topn_source(int n_row,
-      	              int n_col,
-      	              int Ap[],
-      	              int Aj[],
-      	              double Ax[],
-      	              int Bp[],
-      	              int Bj[],
-      	              double Bx[],
-                      int ntop,
-                      double lower_bound,
-      	                    int Cp[],
-      	                    int Cj[],
-      	                    double Cx[]);
+extern void sparse_dot_topn_source(
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],	//data of A
+		int Bp[],
+		int Bj[],
+		double Bx[],	//data of B
+		int ntop,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[]		//data of C
+);
+
+extern int sparse_dot_topn_extd_source(
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],	//data of A
+		int Bp[],
+		int Bj[],
+		double Bx[],	//data of B
+		int ntop,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[], 	//data of C
+		std::vector<int>* alt_Cj,
+		std::vector<double>* alt_Cx,
+		int nnz_max,
+		int* n_minmax
+);
+
+extern int sparse_dot_only_nnz_source(
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[], //data of A
+		int Bp[],
+		int Bj[],
+		double Bx[], //data of B
+		int ntop,
+		double lower_bound
+);
 
 #endif //UTILS_CPPCLASS_H

@@ -5,14 +5,45 @@ This file compare our boosting method with calling scipy+numpy function directly
 from __future__ import print_function
 import timeit
 import numpy as np
-from scipy.sparse import rand
+from scipy.sparse import coo_matrix
 from sparse_dot_topn import awesome_cossim_topn  # noqa: F401
 
-N = 10
+N = 1000
 thresh = 0.01
 
-a = rand(100, 1000000, density=0.005, format='csr')
-b = rand(1000000, 200, density=0.005, format='csr')
+nr_vocab = 2 << 24
+density = 1e-6
+n_samples = 1000000
+n_duplicates = 1000000
+nnz_a = int(n_samples * nr_vocab * density)
+nnz_b = int(n_duplicates * nr_vocab * density)
+
+
+print(f'density = {density}', flush=True)
+print(f'nr_vocab = {nr_vocab}', flush=True)
+print(f'n_samples = {n_samples}', flush=True)
+print(f'n_duplicates = {n_duplicates}', flush=True)
+print(f'nnz_a = {nnz_a}', flush=True)
+print(f'nnz_b = {nnz_b}', flush=True)
+print('\n', flush=True)
+
+rng1 = np.random.RandomState(42)
+rng2 = np.random.RandomState(43)
+
+row = rng1.randint(n_samples, size=nnz_a)
+cols = rng2.randint(nr_vocab, size=nnz_a)
+data = rng1.rand(nnz_a)
+
+a_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab))
+a = a_sparse.tocsr()
+
+row = rng1.randint(n_duplicates, size=nnz_b)
+cols = rng2.randint(nr_vocab, size=nnz_b)
+data = rng1.rand(nnz_b)
+
+b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab))
+b = b_sparse.T.tocsr()
+
 
 # top 5 results per row
 
@@ -33,6 +64,41 @@ print(rtv)
 print("Threaded function with 2 threads")
 
 rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 2)',
+                    number=3,
+                    globals=globals())
+print(rtv)
+
+print("Threaded function with 3 threads")
+
+rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 3)',
+                    number=3,
+                    globals=globals())
+print(rtv)
+
+print("Threaded function with 4 threads")
+
+rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 4)',
+                    number=3,
+                    globals=globals())
+print(rtv)
+
+print("Threaded function with 5 threads")
+
+rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 5)',
+                    number=3,
+                    globals=globals())
+print(rtv)
+
+print("Threaded function with 6 threads")
+
+rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 6)',
+                    number=3,
+                    globals=globals())
+print(rtv)
+
+print("Threaded function with 7 threads")
+
+rtv = timeit.timeit('awesome_cossim_topn(a, b, N, thresh, True, 7)',
                     number=3,
                     globals=globals())
 print(rtv)

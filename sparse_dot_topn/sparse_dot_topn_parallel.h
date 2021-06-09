@@ -17,23 +17,62 @@
 
 // Author: Zhe Sun, Ahmet Erdem
 // April 20, 2017
+// Modified by: Particular Miner
+// April 14, 2021
 
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
 
-extern void sparse_dot_topn_parallel(int n_row,
-      	              int n_col,
-      	              int Ap[],
-      	              int Aj[],
-      	              double Ax[],
-      	              int Bp[],
-      	              int Bj[],
-      	              double Bx[],
-                      int ntop,
-                      double lower_bound,
-      	                    int Cp[],
-      	                    int Cj[],
-      	                    double Cx[],
-      	                    int n_jobs);
+extern void sparse_dot_topn_parallel(
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],
+		int Bp[],
+		int Bj[],
+		double Bx[],
+		int ntop,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[],
+		int n_jobs
+);
+
+extern int sparse_dot_topn_extd_parallel(
+		int n_row,
+		int n_col,
+		int Ap[],
+		int Aj[],
+		double Ax[],
+		int Bp[],
+		int Bj[],
+		double Bx[],
+		int ntop,
+		double lower_bound,
+		int Cp[],
+		int Cj[],
+		double Cx[],
+		std::vector<int>* alt_Cj,
+		std::vector<double>* alt_Cx,
+		int nnz_max,
+		int* n_minmax,
+		int n_jobs
+);
+
+extern int sparse_dot_only_nnz_parallel(
+	int n_row,
+	int n_col,
+	int Ap[],
+	int Aj[],
+	double Ax[],
+	int Bp[],
+	int Bj[],
+	double Bx[],
+	int ntop,
+	double lower_bound,
+	int n_jobs
+);
 
 #endif //UTILS_CPPCLASS_H

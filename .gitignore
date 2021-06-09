@@ -10,6 +10,10 @@ dependency_links.txt
 PKG-INFO
 SOURCES.txt
 top_level.txt
+mprofile_20210520051136.dat
+.project
+.pydevproject
+.settings
 
 sparse_dot_topn/sparse.cpp
 sparse_dot_topn.egg-info
