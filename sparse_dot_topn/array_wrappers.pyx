@@ -93,7 +93,7 @@ cdef class ArrayWrapper_float:
         self.strides[1] = <Py_ssize_t>(  <char *>&(self.vec[1]) - <char *>&(self.vec[0]))
         self.strides[0] = self.vec.size() * self.strides[1]
         buffer.buf = <char *>&(self.vec[0])
-        buffer.format = 'd'
+        buffer.format = 'f'
         buffer.internal = NULL
         buffer.itemsize = itemsize
         buffer.len = self.vec.size() * itemsize   # product(shape) * itemsize
