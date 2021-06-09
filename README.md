@@ -23,12 +23,13 @@ a = a.astype(np.float32)
 b = b.astype(np.float32)
 
 # Use standard implementation
-
 c = awesome_cossim_topn(a, b, N, 0.01)
 
 # Use parallel implementation with 4 threads
-
 d = awesome_cossim_topn(a, b, N, 0.01, use_threads=True, n_jobs=4)
+
+# Use standard implementation with 4 threads and with the computation of best_ntop: the value of ntop needed to capture all results above lower_bound
+d, best_ntop = awesome_cossim_topn(a, b, N, 0.01, use_threads=True, n_jobs=4, return_best_ntop=True)
 ```
 
 You can also find code which compares our boosting method with calling scipy+numpy function directly in example/comparison.py
