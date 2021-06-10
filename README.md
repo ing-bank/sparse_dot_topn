@@ -40,6 +40,7 @@ Install `numpy` and `cython` first before installing this package. Then,
 pip install sparse_dot_topn
 ```
 
+Starting from version >= 3.0.0 this package is not compatible with Python 2
 
 ## Uninstall
 ``` sh
@@ -53,4 +54,11 @@ pip uninstall sparse_dot_topn
 python setup.py clean --all
 python setup.py develop
 pytest
+```
+
+
+``` sh
+python -m build
+cd dist/
+pip install sparse_dot_topn-*.tar.gz
 ```
