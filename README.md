@@ -17,13 +17,19 @@ N = 10
 a = rand(100, 1000000, density=0.005, format='csr')
 b = rand(1000000, 200, density=0.005, format='csr')
 
-# Use standard implementation
+# Default precision type is np.float64, but you can down cast to have a small memory footprint and faster execution
+# Remark : These are the only 2 types supported now, since we assume that float16 will be difficult to implement and will be slower, because C doesn't support a 16-bit float type on most PCs
+a = a.astype(np.float32)
+b = b.astype(np.float32)
 
+# Use standard implementation
 c = awesome_cossim_topn(a, b, N, 0.01)
 
 # Use parallel implementation with 4 threads
-
 d = awesome_cossim_topn(a, b, N, 0.01, use_threads=True, n_jobs=4)
+
+# Use standard implementation with 4 threads and with the computation of best_ntop: the value of ntop needed to capture all results above lower_bound
+d, best_ntop = awesome_cossim_topn(a, b, N, 0.01, use_threads=True, n_jobs=4, return_best_ntop=True)
 ```
 
 You can also find code which compares our boosting method with calling scipy+numpy function directly in example/comparison.py
@@ -34,8 +40,27 @@ Install `numpy` and `cython` first before installing this package. Then,
 pip install sparse_dot_topn
 ```
 
+From version >=0.3.0, we don't proactively support python 2.7. However, you should still be able to install this package in python 2.7.
+If you encounter gcc compiling issue, please refer these discussions and setup CFLAGS and CXXFLAGS variables
+- https://github.com/ing-bank/sparse_dot_topn/issues/7#issuecomment-695165663
 
 ## Uninstall
 ``` sh
 pip uninstall sparse_dot_topn
+```
+
+
+## Local development
+
+``` sh
+python setup.py clean --all
+python setup.py develop
+pytest
+```
+
+
+``` sh
+python -m build
+cd dist/
+pip install sparse_dot_topn-*.tar.gz
 ```

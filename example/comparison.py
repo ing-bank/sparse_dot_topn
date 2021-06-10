@@ -33,15 +33,16 @@ rng2 = np.random.RandomState(43)
 row = rng1.randint(n_samples, size=nnz_a)
 cols = rng2.randint(nr_vocab, size=nnz_a)
 data = rng1.rand(nnz_a)
+dtype = np.float32
 
-a_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab))
+a_sparse = coo_matrix((data, (row, cols)), shape=(n_samples, nr_vocab), dtype=dtype)
 a = a_sparse.tocsr()
 
 row = rng1.randint(n_duplicates, size=nnz_b)
 cols = rng2.randint(nr_vocab, size=nnz_b)
 data = rng1.rand(nnz_b)
 
-b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab))
+b_sparse = coo_matrix((data, (row, cols)), shape=(n_duplicates, nr_vocab), dtype=dtype)
 b = b_sparse.T.tocsr()
 
 

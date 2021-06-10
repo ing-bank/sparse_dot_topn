@@ -23,55 +23,58 @@
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
 
+template<typename T>
 extern void sparse_dot_topn_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[],
+		T Ax[],
 		int Bp[],
 		int Bj[],
-		double Bx[],
+		T Bx[],
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[],
+		T Cx[],
 		int n_jobs
 );
 
+template<typename T>
 extern int sparse_dot_topn_extd_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[],
+		T Ax[],
 		int Bp[],
 		int Bj[],
-		double Bx[],
+		T Bx[],
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[],
+		T Cx[],
 		std::vector<int>* alt_Cj,
-		std::vector<double>* alt_Cx,
+		std::vector<T>* alt_Cx,
 		int nnz_max,
 		int* n_minmax,
 		int n_jobs
 );
 
+template<typename T>
 extern int sparse_dot_only_nnz_parallel(
 	int n_row,
 	int n_col,
 	int Ap[],
 	int Aj[],
-	double Ax[],
+	T Ax[],
 	int Bp[],
 	int Bj[],
-	double Bx[],
+	T Bx[],
 	int ntop,
-	double lower_bound,
+	T lower_bound,
 	int n_jobs
 );
 

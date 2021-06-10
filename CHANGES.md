@@ -1,5 +1,11 @@
 # Release history:
 
+
+## v0.3.1
+- Adding the possibility to use smaller data type float32 instead of the default float64
+- Adding unit tests to cover both data types
+- Adding unit tests to cover return_best_ntop==False
+
 ## v0.3.0
 - defragmented memory used during computation [PR-53](https://github.com/ing-bank/sparse_dot_topn/pull/53)
 - Enable Github Action for unit test

@@ -23,58 +23,68 @@
 #ifndef UTILS_CPPCLASS_H
 #define UTILS_CPPCLASS_H
 
+template<typename T>
+struct Candidate {
+	int index;
+	T value;
 
-struct candidate {int index; double value;};
+	bool operator<(const Candidate& a) const
+    {
+        return a.value < value;
+    }
+	
+};
 
-extern bool candidate_cmp(candidate c_i, candidate c_j);
-
+template<typename T>
 extern void sparse_dot_topn_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[],	//data of A
+		T Ax[],	//data of A
 		int Bp[],
 		int Bj[],
-		double Bx[],	//data of B
+		T Bx[],	//data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[]		//data of C
+		T Cx[]		//data of C
 );
 
+template<typename T>
 extern int sparse_dot_topn_extd_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[],	//data of A
+		T Ax[],	//data of A
 		int Bp[],
 		int Bj[],
-		double Bx[],	//data of B
+		T Bx[],	//data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[], 	//data of C
+		T Cx[], 	//data of C
 		std::vector<int>* alt_Cj,
-		std::vector<double>* alt_Cx,
+		std::vector<T>* alt_Cx,
 		int nnz_max,
 		int* n_minmax
 );
 
+template<typename T>
 extern int sparse_dot_only_nnz_source(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
+		T Bx[], //data of B
 		int ntop,
-		double lower_bound
+		T lower_bound
 );
 
 #endif //UTILS_CPPCLASS_H

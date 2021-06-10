@@ -52,13 +52,14 @@ void distribute_load(
 	}
 }
 
+template<typename T>
 void inner_gather_v2(
 		job_range_type job_range,
 		int Cp[],
 		int Cp_start,
 		int Cj[],
-		double Cx[],
-		std::vector<candidate>* real_candidates,
+		T Cx[],
+		std::vector<Candidate<T>>* real_candidates,
 		std::vector<int>* row_nnz
 )
 {
@@ -72,29 +73,33 @@ void inner_gather_v2(
 	(*nnz_begin) += Cp_start;
 	std::partial_sum(nnz_begin, nnz_end, Cp_begin);
 
-	candidate* c_begin = real_candidates->data();
-	candidate* c_end = c_begin + real_candidates->size();
+	Candidate<T>* c_begin = real_candidates->data();
+	Candidate<T>* c_end = c_begin + real_candidates->size();
 
 	int* Cj_begin = &Cj[Cp_start];
-	double* Cx_begin = &Cx[Cp_start];
+	T* Cx_begin = &Cx[Cp_start];
 
-	std::transform(c_begin, c_end, Cj_begin, [](candidate c) -> int { return c.index; });
-	std::transform(c_begin, c_end, Cx_begin, [](candidate c) -> double { return c.value; });
+	std::transform(c_begin, c_end, Cj_begin, [](Candidate<T> c) -> int { return c.index; });
+	std::transform(c_begin, c_end, Cx_begin, [](Candidate<T> c) -> T { return c.value; });
 }
+template void inner_gather_v2<float>(job_range_type job_range, int Cp[], int Cp_start, int Cj[], float Cx[], std::vector<Candidate<float>>* real_candidates, std::vector<int>* row_nnz);
+template void inner_gather_v2<double>(job_range_type job_range, int Cp[], int Cp_start, int Cj[], double Cx[], std::vector<Candidate<double>>* real_candidates, std::vector<int>* row_nnz);
 
+
+template<typename T>
 void inner_gather_v1(
 		job_range_type job_range,
 		int Cp[],
 		int Cp_start,
 		int vCj_start[],
-		double vCx_start[],
-		std::vector<candidate>* real_candidates,
+		T vCx_start[],
+		std::vector<Candidate<T>>* real_candidates,
 		std::vector<int>* row_nnz
 )
 {
-	candidate* c = real_candidates->data();
+	Candidate<T>* c = real_candidates->data();
 	int* vCj_cursor = &vCj_start[Cp_start];
-	double* vCx_cursor = &vCx_start[Cp_start];
+	T* vCx_cursor = &vCx_start[Cp_start];
 
 	int Cp_i = Cp_start;
 	int* row_nnz_ptr = row_nnz->data();
@@ -108,25 +113,28 @@ void inner_gather_v1(
 		Cp[i + 1] = Cp_i;
 	}
 }
+template void inner_gather_v1<float>(job_range_type job_range, int Cp[], int Cp_start, int vCj_start[], float vCx_start[], std::vector<Candidate<float>>* real_candidates, std::vector<int>* row_nnz);
+template void inner_gather_v1<double>(job_range_type job_range, int Cp[], int Cp_start, int vCj_start[], double vCx_start[], std::vector<Candidate<double>>* real_candidates, std::vector<int>* row_nnz);
 
+template<typename T>
 void inner_sparse_dot_topn(
 		job_range_type job_range,
 		int n_col_inner,
 		int ntop_inner,
-		double lower_bound_inner,
+		T lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
-		double Ax_copy[],
+		T Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-		double Bx_copy[],
-		std::vector<candidate>* real_candidates,
+		T Bx_copy[],
+		std::vector<Candidate<T>>* real_candidates,
 		std::vector<int>* row_nnz,
 		int* total
 )
 {
 	std::vector<int> next(n_col_inner,-1);
-	std::vector<double> sums(n_col_inner, 0);
+	std::vector<T> sums(n_col_inner, 0);
 
 	real_candidates->reserve(job_range.end - job_range.begin);
 
@@ -144,7 +152,7 @@ void inner_sparse_dot_topn(
 
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj_copy[jj];
-			double v = Ax_copy[jj]; //value of A in (i,j)
+			T v = Ax_copy[jj]; //value of A in (i,j)
 
 			int kk_start = Bp_copy[j];
 			int kk_end   = Bp_copy[j+1];
@@ -164,7 +172,7 @@ void inner_sparse_dot_topn(
 		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
 
 			if(sums[head] > lower_bound_inner){ //append the nonzero elements
-				candidate c;
+				Candidate<T> c;
 				c.index = head;
 				c.value = sums[head];
 				real_candidates->push_back(c);
@@ -179,21 +187,19 @@ void inner_sparse_dot_topn(
 
 		int len = (int) (real_candidates->size() - sz);
 
-		candidate* candidate_arr_begin = real_candidates->data() + sz;
+		Candidate<T>* candidate_arr_begin = real_candidates->data() + sz;
 		if (len > ntop_inner){
 			std::partial_sort(
 					candidate_arr_begin,
 					candidate_arr_begin + ntop_inner,
-					candidate_arr_begin + len,
-					candidate_cmp
+					candidate_arr_begin + len
 			);
 			len = ntop_inner;
 		}
 		else {
 			std::sort(
 					candidate_arr_begin,
-					candidate_arr_begin + len,
-					candidate_cmp
+					candidate_arr_begin + len
 			);
 		}
 
@@ -202,28 +208,31 @@ void inner_sparse_dot_topn(
 		(*total) += len;
 	}
 }
+template void inner_sparse_dot_topn<float>(job_range_type job_range, int n_col_inner, int ntop_inner, float lower_bound_inner, int Ap_copy[], int Aj_copy[], float Ax_copy[], int Bp_copy[], int Bj_copy[], float Bx_copy[], std::vector<Candidate<float>>* real_candidates, std::vector<int>* row_nnz, int* total);
+template void inner_sparse_dot_topn<double>(job_range_type job_range, int n_col_inner, int ntop_inner, double lower_bound_inner, int Ap_copy[], int Aj_copy[], double Ax_copy[], int Bp_copy[], int Bj_copy[], double Bx_copy[], std::vector<Candidate<double>>* real_candidates, std::vector<int>* row_nnz, int* total);
 
+template<typename T>
 void sparse_dot_topn_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
+		T Bx[], //data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[],
+		T Cx[],
 		int n_jobs
 )
 {
 	std::vector<job_range_type> job_ranges(n_jobs);
 	distribute_load(n_row, n_jobs, job_ranges);
 
-	std::vector<std::vector<candidate>> real_candidates(n_jobs);
+	std::vector<std::vector<Candidate<T>>> real_candidates(n_jobs);
 	std::vector<std::vector<int>> row_nnz(n_jobs);
 
 	// initialize aggregate:
@@ -233,7 +242,7 @@ void sparse_dot_topn_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_sparse_dot_topn,
+				inner_sparse_dot_topn<T>,
 				job_ranges[job_nr],
 				n_col, ntop,
 				lower_bound,
@@ -256,7 +265,7 @@ void sparse_dot_topn_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_gather_v1,
+				inner_gather_v1<T>,
 				job_ranges[job_nr],
 				Cp,
 				nnz_job_starts[job_nr],
@@ -270,19 +279,22 @@ void sparse_dot_topn_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++)
 		thread_list[job_nr].join();
 }
+template void sparse_dot_topn_parallel<float>(int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound, int Cp[], int Cj[], float Cx[], int n_jobs);
+template void sparse_dot_topn_parallel<double>(int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound, int Cp[], int Cj[], double Cx[], int n_jobs);
 
+template<typename T>
 void inner_sparse_dot_topn_extd(
 		job_range_type job_range,
 		int n_col_inner,
 		int ntop_inner,
-		double lower_bound_inner,
+		T lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
-		double Ax_copy[],
+		T Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-		double Bx_copy[],
-		std::vector<candidate>* real_candidates,
+		T Bx_copy[],
+		std::vector<Candidate<T>>* real_candidates,
 		std::vector<int>* row_nnz,
 		int* total,
 		int* n_minmax,
@@ -290,7 +302,7 @@ void inner_sparse_dot_topn_extd(
 )
 {
 	std::vector<int> next(n_col_inner,-1);
-	std::vector<double> sums(n_col_inner, 0);
+	std::vector<T> sums(n_col_inner, 0);
 
 	real_candidates->reserve(mem_sz_per_row*(job_range.end - job_range.begin));
 
@@ -308,7 +320,7 @@ void inner_sparse_dot_topn_extd(
 
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj_copy[jj];
-			double v = Ax_copy[jj]; //value of A in (i,j)
+			T v = Ax_copy[jj]; //value of A in (i,j)
 
 			int kk_start = Bp_copy[j];
 			int kk_end   = Bp_copy[j+1];
@@ -328,7 +340,7 @@ void inner_sparse_dot_topn_extd(
 		for(int jj = 0; jj < length; jj++){ //length = number of columns set (may include 0s)
 
 			if(sums[head] > lower_bound_inner){ //append the nonzero elements
-				candidate c;
+				Candidate<T> c;
 				c.index = head;
 				c.value = sums[head];
 				real_candidates->push_back(c);
@@ -344,21 +356,19 @@ void inner_sparse_dot_topn_extd(
 		int len = (int) (real_candidates->size() - sz);
 		*n_minmax = (len > *n_minmax)? len : *n_minmax;
 
-		candidate* candidate_arr_begin = real_candidates->data() + sz;
+		Candidate<T>* candidate_arr_begin = real_candidates->data() + sz;
 		if (len > ntop_inner){
 			std::partial_sort(
 					candidate_arr_begin,
 					candidate_arr_begin + ntop_inner,
-					candidate_arr_begin + len,
-					candidate_cmp
+					candidate_arr_begin + len
 			);
 			len = ntop_inner;
 		}
 		else {
 			std::sort(
 					candidate_arr_begin,
-					candidate_arr_begin + len,
-					candidate_cmp
+					candidate_arr_begin + len
 			);
 		}
 
@@ -367,23 +377,27 @@ void inner_sparse_dot_topn_extd(
 		(*total) += len;
 	}
 }
+template void inner_sparse_dot_topn_extd<float>( job_range_type job_range, int n_col_inner, int ntop_inner, float lower_bound_inner, int Ap_copy[], int Aj_copy[], float Ax_copy[], int Bp_copy[], int Bj_copy[], float Bx_copy[], std::vector<Candidate<float>>* real_candidates, std::vector<int>* row_nnz, int* total, int* n_minmax, int mem_sz_per_row);
+template void inner_sparse_dot_topn_extd<double>( job_range_type job_range, int n_col_inner, int ntop_inner, double lower_bound_inner, int Ap_copy[], int Aj_copy[], double Ax_copy[], int Bp_copy[], int Bj_copy[], double Bx_copy[], std::vector<Candidate<double>>* real_candidates, std::vector<int>* row_nnz, int* total, int* n_minmax, int mem_sz_per_row);
 
+
+template<typename T>
 int sparse_dot_topn_extd_parallel(
 		int n_row,
 		int n_col,
 		int Ap[],
 		int Aj[],
-		double Ax[], //data of A
+		T Ax[], //data of A
 		int Bp[],
 		int Bj[],
-		double Bx[], //data of B
+		T Bx[], //data of B
 		int ntop,
-		double lower_bound,
+		T lower_bound,
 		int Cp[],
 		int Cj[],
-		double Cx[],
+		T Cx[],
 		std::vector<int>* alt_Cj,
-		std::vector<double>* alt_Cx,
+		std::vector<T>* alt_Cx,
 		int nnz_max,
 		int *n_minmax,
 		int n_jobs
@@ -392,21 +406,21 @@ int sparse_dot_topn_extd_parallel(
 	std::vector<job_range_type> job_ranges(n_jobs);
 	distribute_load(n_row, n_jobs, job_ranges);
 
-	std::vector<std::vector<candidate>> real_candidates(n_jobs);
+	std::vector<std::vector<Candidate<T>>> real_candidates(n_jobs);
 	std::vector<std::vector<int>> row_nnz(n_jobs);
 
 	// initialize aggregates:
 	std::vector<int> sub_total(n_jobs, 0);
 	std::vector<int> split_n_minmax(n_jobs, 0);
 
-	int mem_sz_per_row = std::max(1, (int) std::ceil(((double) nnz_max)/((double) n_row)));
+	int mem_sz_per_row = std::max(1, (int) std::ceil(((T) nnz_max)/((T) n_row)));
 
 	std::vector<std::thread> thread_list(n_jobs);
 
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_sparse_dot_topn_extd,
+				inner_sparse_dot_topn_extd<T>,
 				job_ranges[job_nr],
 				n_col, ntop,
 				lower_bound,
@@ -430,7 +444,7 @@ int sparse_dot_topn_extd_parallel(
 	partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
 
 	int* Cj_container;
-	double* Cx_container;
+	T* Cx_container;
 
 	int total = nnz_job_starts.back();
 	int nnz_max_is_too_small = (nnz_max < total);
@@ -450,7 +464,7 @@ int sparse_dot_topn_extd_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread(
-				inner_gather_v1,
+				inner_gather_v1<T>,
 				job_ranges[job_nr],
 				Cp,
 				nnz_job_starts[job_nr],
@@ -466,24 +480,27 @@ int sparse_dot_topn_extd_parallel(
 
 	return nnz_max_is_too_small;
 }
+template int sparse_dot_topn_extd_parallel<float>( int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound, int Cp[], int Cj[], float Cx[], std::vector<int>* alt_Cj, std::vector<float>* alt_Cx, int nnz_max, int *n_minmax, int n_jobs);
+template int sparse_dot_topn_extd_parallel<double>( int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound, int Cp[], int Cj[], double Cx[], std::vector<int>* alt_Cj, std::vector<double>* alt_Cx, int nnz_max, int *n_minmax, int n_jobs);
 
+template<typename T>
 void inner_sparse_nnz_only(
 		job_range_type job_range,
 		int n_col_inner,
 		int ntop_inner,
-		double lower_bound_inner,
+		T lower_bound_inner,
 		int Ap_copy[],
 		int Aj_copy[],
-		double Ax_copy[],
+		T Ax_copy[],
 		int Bp_copy[],
 		int Bj_copy[],
-		double Bx_copy[],
+		T Bx_copy[],
 		int* nnz
 )
 {
 
 	std::vector<int> next(n_col_inner,-1);
-	std::vector<double> sums(n_col_inner, 0);
+	std::vector<T> sums(n_col_inner, 0);
 
 	for(int i = job_range.begin; i < job_range.end; i++){
 
@@ -496,7 +513,7 @@ void inner_sparse_nnz_only(
 
 		for(int jj = jj_start; jj < jj_end; jj++){
 			int j = Aj_copy[jj];
-			double v = Ax_copy[jj]; //value of A in (i,j)
+			T v = Ax_copy[jj]; //value of A in (i,j)
 
 			int kk_start = Bp_copy[j];
 			int kk_end   = Bp_copy[j + 1];
@@ -529,18 +546,21 @@ void inner_sparse_nnz_only(
 		(*nnz) += candidates_sz;
 	}
 }
+template void inner_sparse_nnz_only<float>( job_range_type job_range, int n_col_inner, int ntop_inner, float lower_bound_inner, int Ap_copy[], int Aj_copy[], float Ax_copy[], int Bp_copy[], int Bj_copy[], float Bx_copy[], int* nnz);
+template void inner_sparse_nnz_only<double>( job_range_type job_range, int n_col_inner, int ntop_inner, double lower_bound_inner, int Ap_copy[], int Aj_copy[], double Ax_copy[], int Bp_copy[], int Bj_copy[], double Bx_copy[], int* nnz);
 
+template<typename T>
 int sparse_dot_only_nnz_parallel(
 	int n_row,
 	int n_col,
 	int Ap[],
 	int Aj[],
-	double Ax[],
+	T Ax[],
 	int Bp[],
 	int Bj[],
-	double Bx[],
+	T Bx[],
 	int ntop,
-	double lower_bound,
+	T lower_bound,
 	int n_jobs
 )
 {
@@ -553,7 +573,7 @@ int sparse_dot_only_nnz_parallel(
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
 
 		thread_list[job_nr] = std::thread (
-				inner_sparse_nnz_only,
+				inner_sparse_nnz_only<T>,
 				job_row_ranges[job_nr],
 				n_col,
 				ntop, lower_bound,
@@ -568,4 +588,5 @@ int sparse_dot_only_nnz_parallel(
 
 	return std::accumulate(split_nnz.begin(), split_nnz.end(), (int) 0);
 }
-
+template int sparse_dot_only_nnz_parallel<float>( int n_row, int n_col, int Ap[], int Aj[], float Ax[], int Bp[], int Bj[], float Bx[], int ntop, float lower_bound, int n_jobs);
+template int sparse_dot_only_nnz_parallel<double>( int n_row, int n_col, int Ap[], int Aj[], double Ax[], int Bp[], int Bj[], double Bx[], int ntop, double lower_bound, int n_jobs);
