@@ -10,7 +10,6 @@
 - defragmented memory used during computation [PR-53](https://github.com/ing-bank/sparse_dot_topn/pull/53)
 - Enable Github Action for unit test
 - add license metadata [PR-47](https://github.com/ing-bank/sparse_dot_topn/pull/47)
-- This version is not compatible with Python 2 any more
 
 ## v0.2.9
 - added unit tests. 

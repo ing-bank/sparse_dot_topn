@@ -40,7 +40,9 @@ Install `numpy` and `cython` first before installing this package. Then,
 pip install sparse_dot_topn
 ```
 
-Starting from version >= 3.0.0 this package is not compatible with Python 2
+From version >=0.3.0, we don't proactively support python 2.7. However, you should still be able to install this package in python 2.7.
+If you encounter gcc compiling issue, please refer these discussions and setup CFLAGS and CXXFLAGS variables
+- https://github.com/ing-bank/sparse_dot_topn/issues/7#issuecomment-695165663
 
 ## Uninstall
 ``` sh
