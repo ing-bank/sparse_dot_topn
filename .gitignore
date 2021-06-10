@@ -14,7 +14,11 @@ mprofile_20210520051136.dat
 .project
 .pydevproject
 .settings
+.eggs
+.python-version
 
 sparse_dot_topn/sparse.cpp
 sparse_dot_topn.egg-info
 sparse_dot_topn/sparse_dot_topn.cpp
+sparse_dot_topn/array_wrappers.cpp
+sparse_dot_topn/sparse_dot_topn_threaded.cpp
