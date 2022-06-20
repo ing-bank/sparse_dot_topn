@@ -74,6 +74,10 @@ setup(
     author='Zhe Sun',
     author_email='ymwdalex@gmail.com',
     license='Apache 2.0',
+    # Remark: we don't have a pyproject.toml because we don't want to have build isolation
+    # that can potentially create an incompatibility between build time and run time like:
+    # "ValueError: numpy.ndarray size changed, may indicate binary incompatibility.
+    #  Expected 88 from C header, got 80 from PyObject"
     setup_requires=[
         # Setuptools 18.0 properly handles Cython extensions.
         'setuptools>=42',
