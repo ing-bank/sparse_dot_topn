@@ -1,0 +1,69 @@
+name: Build Python wheels and publish
+
+# Controls when the workflow will run
+on:
+  # run pipeline on push event of main or release branch
+  push:
+    branches:
+      # TODO: remove `test/` later
+      - 'test/**'
+      - 'release/**'
+  # run pipeline on pull request
+  pull_request:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-test-python:
+    strategy:
+      matrix:
+        platform: [ linux, macos, windows ]
+ 
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@2.7.0
+
+      - name: Keep wheel files
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheelhouse
+          path: ./wheelhouse/*.whl
+
+
+  publish-wheels:
+    needs: build-and-test-python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: x64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheelhouse
+          path: wheelhouse
+
+      - name: List assets
+        run: |
+          ls ./wheelhouse/*.whl -al
+
+      - name: Upload wheels to test PyPI
+        if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
+        run: |
+          pip install twine
+          echo "Publish to Test PyPI..."
+          twine upload --verbose --repository testpypi wheelhouse/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_TEST_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASS }}
