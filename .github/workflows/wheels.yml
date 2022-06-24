@@ -36,7 +36,8 @@ jobs:
       CIBW_SKIP: pp37-macosx_x86_64
       CIBW_ARCHS: ${{ matrix.archs }}
       CIBW_TEST_REQUIRES: pytest pandas
-      CIBW_TEST_COMMAND: pytest -ra --capture=no --showlocals tests
+      CIBW_TEST_COMMAND: >
+        pytest -ra --capture=no --showlocals {package}/tests
 
     steps:
       - uses: actions/checkout@v3

@@ -32,4 +32,4 @@ jobs:
       run: |
         pip install pytest
         pip install pandas
-        pytest -ra --capture=no --showlocals tests
+        pytest -ra --capture=no --showlocals
