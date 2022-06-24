@@ -21,6 +21,9 @@ jobs:
  
     runs-on: ${{ matrix.os }}
 
+    env:
+      CIBW_ENVIRONMENT_WINDOWS: SETUPTOOLS_USE_DISTUTILS=stdlib
+
     steps:
       - uses: actions/checkout@v3
 
