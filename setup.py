@@ -74,17 +74,7 @@ setup(
     author='Zhe Sun',
     author_email='ymwdalex@gmail.com',
     license='Apache 2.0',
-    setup_requires=[
-        # Setuptools 18.0 properly handles Cython extensions.
-        'setuptools>=42',
-        'cython>=0.29.15',
-        # select this version due to oldest_support_numpy https://github.com/scipy/oldest-supported-numpy/blob/main/setup.cfg#L54
-        'numpy>=1.14.5', 
-        'scipy>=1.2.3'   # select this version for Py2/3 compatible
-    ],
     install_requires=[
-        # Setuptools 18.0 properly handles Cython extensions.
-        'setuptools>=42',
         # select this version due to oldest_support_numpy https://github.com/scipy/oldest-supported-numpy/blob/main/setup.cfg#L54
         'numpy>=1.14.5',
         'scipy>=1.2.3'   # select this version for Py2/3 compatible
