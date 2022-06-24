@@ -78,13 +78,15 @@ setup(
         # Setuptools 18.0 properly handles Cython extensions.
         'setuptools>=42',
         'cython>=0.29.15',
-        'numpy>=1.16.6', # select this version for Py2/3 compatible
+        # select this version due to oldest_support_numpy https://github.com/scipy/oldest-supported-numpy/blob/main/setup.cfg#L54
+        'numpy>=1.14.5', 
         'scipy>=1.2.3'   # select this version for Py2/3 compatible
     ],
     install_requires=[
         # Setuptools 18.0 properly handles Cython extensions.
         'setuptools>=42',
-        'numpy>=1.16.6', # select this version for Py2/3 compatible
+        # select this version due to oldest_support_numpy https://github.com/scipy/oldest-supported-numpy/blob/main/setup.cfg#L54
+        'numpy>=1.14.5',
         'scipy>=1.2.3'   # select this version for Py2/3 compatible
     ],
     zip_safe=False,
