@@ -17,13 +17,24 @@ jobs:
   build-and-test-python:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
- 
+        os: [linux, macos, windows]
+        include:
+          - platform: linux
+            os: ubuntu-latest
+            archs: "x86_64 aarch64"
+          - platform: macos
+            os: macos-latest
+            archs: "x86_64 arm64"
+          - platform: windows
+            os: windows-latest
+            archs: AMD64
+
     runs-on: ${{ matrix.os }}
 
     env:
       CIBW_ENVIRONMENT_WINDOWS: SETUPTOOLS_USE_DISTUTILS=stdlib
       CIBW_SKIP: pp37-macosx_x86_64
+      CIBW_ARCHS: ${{ matrix.archs }}
       CIBW_TEST_REQUIRES: pytest pandas
       CIBW_TEST_COMMAND: pytest -ra --capture=no --showlocals
 
