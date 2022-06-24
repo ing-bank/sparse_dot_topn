@@ -24,6 +24,8 @@ jobs:
     env:
       CIBW_ENVIRONMENT_WINDOWS: SETUPTOOLS_USE_DISTUTILS=stdlib
       CIBW_SKIP: pp37-macosx_x86_64
+      CIBW_TEST_REQUIRES: pytest pandas
+      CIBW_TEST_COMMAND: pytest -ra --capture=no --showlocals
 
     steps:
       - uses: actions/checkout@v3
