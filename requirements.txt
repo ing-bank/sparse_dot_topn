@@ -1,4 +1,4 @@
-numpy>=1.16.6
+numpy>=1.14.5
 setuptools>=45.2.0
 Cython>=0.29.15
 scipy>=1.4.1
