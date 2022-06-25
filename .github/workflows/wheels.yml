@@ -33,7 +33,7 @@ jobs:
 
     env:
       CIBW_ENVIRONMENT_WINDOWS: SETUPTOOLS_USE_DISTUTILS=stdlib
-      CIBW_SKIP: pp*-*_x86_64
+      CIBW_SKIP: pp3*
       CIBW_ARCHS: ${{ matrix.archs }}
       CIBW_TEST_REQUIRES: pytest pandas
       CIBW_TEST_COMMAND: >
