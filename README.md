@@ -69,6 +69,6 @@ pip install sparse_dot_topn-*.tar.gz
 From version 0.3.2, we employ Github Actions to build wheels in different OS environment and release automatically. Hopefully this will solve many issues related to installation.
 
 The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please:
-1. Create a release branch with branch name `release/vx.x.x` from main branch
-2. Update the version number in setup.py
-3. Git push, then build and publish pipeline will be triggered automatically
+1. Create a release branch with branch name `release/vx.x.x` from main branch.
+2. Update the version number in setup.py, and update changelog in CHANGES.md file.
+3. Git push, then build and publish pipeline will be triggered automatically.
