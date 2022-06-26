@@ -37,7 +37,7 @@ jobs:
       CIBW_ARCHS: ${{ matrix.archs }}
       CIBW_TEST_REQUIRES: pytest pandas
       CIBW_TEST_COMMAND: >
-        pytest -ra --capture=no --showlocals {package}/tests
+        python -m pytest -ra --capture=no --showlocals {package}/tests
 
     steps:
       - uses: actions/checkout@v3
