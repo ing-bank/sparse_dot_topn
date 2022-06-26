@@ -21,7 +21,10 @@ jobs:
         include:
           - platform: linux
             os: ubuntu-latest
-            archs: "x86_64 aarch64"
+            # Here we skip aarch64, since we got error
+            # ` standard_init_linux.go:228: exec user process caused: exec format error`
+            # and we don't know how to fix it
+            archs: "x86_64" 
             test_cmd: python -m pytest -ra --capture=no --showlocals {package}/tests
           - platform: macos
             os: macos-latest
