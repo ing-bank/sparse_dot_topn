@@ -22,12 +22,15 @@ jobs:
           - platform: linux
             os: ubuntu-latest
             archs: "x86_64 aarch64"
+            test_cmd: python -m pytest -ra --capture=no --showlocals {package}/tests
           - platform: macos
             os: macos-latest
             archs: "x86_64 arm64"
+            test_cmd: pytest -ra --capture=no --showlocals {package}/tests
           - platform: windows
             os: windows-latest
             archs: AMD64
+            test_cmd: pytest -ra --capture=no --showlocals {package}/tests
 
     runs-on: ${{ matrix.os }}
 
@@ -36,8 +39,7 @@ jobs:
       CIBW_SKIP: pp3*
       CIBW_ARCHS: ${{ matrix.archs }}
       CIBW_TEST_REQUIRES: pytest pandas
-      CIBW_TEST_COMMAND: >
-        python -m pytest -ra --capture=no --showlocals {package}/tests
+      CIBW_TEST_COMMAND: ${{ matrix.test_cmd }}
 
     steps:
       - uses: actions/checkout@v3
