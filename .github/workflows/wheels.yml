@@ -41,6 +41,7 @@ jobs:
       CIBW_ENVIRONMENT_WINDOWS: SETUPTOOLS_USE_DISTUTILS=stdlib
       CIBW_SKIP: pp3*
       CIBW_ARCHS: ${{ matrix.archs }}
+      CIBW_BEFORE_TEST_LINUX: sudo apt-get install gfortran libopenblas-dev liblapack-dev      
       CIBW_TEST_REQUIRES: pytest pandas
       CIBW_TEST_COMMAND: ${{ matrix.test_cmd }}
 
