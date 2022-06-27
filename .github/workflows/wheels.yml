@@ -82,7 +82,7 @@ jobs:
         run: |
           pip install twine
           echo "Publish to Test PyPI..."
-          twine upload --verbose --repository testpypi wheelhouse/*
+          twine upload --verbose --skip-existing --repository testpypi wheelhouse/*
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_TEST_USER }}
           TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASS }}
