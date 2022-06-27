@@ -5,7 +5,6 @@ on:
   # run pipeline on push event of main or release branch
   push:
     branches:
-      # TODO: remove `test/` later
       - 'test/**'
       - 'release/**'
   # run pipeline on pull request
@@ -87,3 +86,13 @@ jobs:
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_TEST_USER }}
           TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASS }}
+
+      - name: Upload wheels to official PyPI
+        if: contains(github.ref, 'release') && ((github.event_name == 'push') || (github.event_name == 'workflow_dispatch'))
+        run: |
+          pip install twine
+          echo "Publish to PyPI..."
+          twine upload --verbose wheelhouse/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
