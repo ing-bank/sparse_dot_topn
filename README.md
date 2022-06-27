@@ -66,9 +66,16 @@ pip install sparse_dot_topn-*.tar.gz
 ```
 
 ## Release strategy
-From version 0.3.2, we employ Github Actions to build wheels in different OS environment and release automatically. Hopefully this will solve many issues related to installation.
+From version 0.3.2, we employ Github Actions to build wheels in different OS environment and release automatically. Hopefully this will solve many issues related to installation. The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please follow these steps
 
-The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please:
-1. Create a release branch with branch name `release/vx.x.x` from main branch.
-2. Update the version number in setup.py, and update changelog in CHANGES.md file.
-3. Git push, then build and publish pipeline will be triggered automatically.
+1. Create a test branch with branch name `test/x.x.x` from main branch.
+2. In `test/x.x.x` branch, update the version number such as `x.x.x.rcx`in setup.py, and update changelog in CHANGES.md file. 
+3. Git push `test/x.x.x` branch, then build and publish pipeline will be triggered automatically. New release will be uploaded in PyPI test [https://test.pypi.org/project/sparse-dot-topn/](https://test.pypi.org/project/sparse-dot-topn/).
+4. Please do a sanity check on PyPI test release.
+5. Create a branch on top of the test branch.
+6. Modify the version number by remove the `rcx` surfix.
+7. Git push, then build and publish pipeline will be triggered automatically. New release will be uploaded to PyPI [https://pypi.org/project/sparse-dot-topn](https://pypi.org/project/sparse-dot-topn/)
+
+
+
+
