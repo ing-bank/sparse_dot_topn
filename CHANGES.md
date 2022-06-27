@@ -1,5 +1,8 @@
 # Release history:
 
+## v0.3.2
+- Fix the Numpy ABI compatibility issues [issue-48](https://github.com/ing-bank/sparse_dot_topn/issues/48) and all related issues
+- Add Github Actions to build Python release in Linux, MacOS and Windows automatically
 
 ## v0.3.1
 - Adding the possibility to use smaller data type float32 instead of the default float64
