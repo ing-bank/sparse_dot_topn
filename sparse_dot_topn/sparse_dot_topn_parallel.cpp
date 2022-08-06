@@ -259,7 +259,7 @@ void sparse_dot_topn_parallel(
 	// gather the results:
 	std::vector<int> nnz_job_starts(n_jobs + 1);
 	nnz_job_starts[0] = 0;
-	partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
+	std::partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
 
 	Cp[0] = 0;
 	for (int job_nr = 0; job_nr < n_jobs; job_nr++) {
@@ -437,11 +437,11 @@ int sparse_dot_topn_extd_parallel(
 		thread_list[job_nr].join();
 
 	// gather the results:
-	*n_minmax = *max_element(split_n_minmax.begin(), split_n_minmax.end());
+	*n_minmax = *std::max_element(split_n_minmax.begin(), split_n_minmax.end());
 
 	std::vector<int> nnz_job_starts(n_jobs + 1);
 	nnz_job_starts[0] = 0;
-	partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
+	std::partial_sum(sub_total.begin(), sub_total.end(), nnz_job_starts.begin() + 1);
 
 	int* Cj_container;
 	T* Cx_container;
