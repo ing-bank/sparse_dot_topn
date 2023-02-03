@@ -72,10 +72,11 @@ From version 0.3.2, we employ Github Actions to build wheels in different OS env
 2. In `test/x.x.x` branch, update the version number such as `x.x.x.rcx`in setup.py, and update changelog in CHANGES.md file. 
 3. Git push `test/x.x.x` branch, then build and publish pipeline will be triggered automatically. New release will be uploaded in PyPI test [https://test.pypi.org/project/sparse-dot-topn/](https://test.pypi.org/project/sparse-dot-topn/).
 4. Please do a sanity check on PyPI test release.
-5. Create a branch on top of the test branch.
-6. Modify the version number by remove the `rcx` surfix.
-7. Git push, then build and publish pipeline will be triggered automatically. New release will be uploaded to PyPI [https://pypi.org/project/sparse-dot-topn](https://pypi.org/project/sparse-dot-topn/)
-8. Merge the release branch back to master
+5. Update the changelog in CHANGES.md
+6. Create a branch on top of the test branch.
+7. Modify the version number by remove the `rcx` suffix in setup.py.
+8. Git push, then build and publish pipeline will be triggered automatically. New release will be uploaded to PyPI [https://pypi.org/project/sparse-dot-topn](https://pypi.org/project/sparse-dot-topn/)
+9. Merge the release branch back to master
 
 
 

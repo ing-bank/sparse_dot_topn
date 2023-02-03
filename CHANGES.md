@@ -1,5 +1,9 @@
 # Release history:
 
+## v0.3.4
+- Add Python 3.11 wheels
+- Fix a compilation error when std:: is missing
+
 ## v0.3.3
 - Upgrade to 0.3.3, since PyPI had versioning problem when we release 0.3.2
 
