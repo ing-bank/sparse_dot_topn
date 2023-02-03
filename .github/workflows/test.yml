@@ -10,8 +10,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        os: [ubuntu-latest, windows-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.11]
+        # For the OS, ubuntu-latest is not compatible with Python 3.6 anymore,
+        # so we can use ubuntu-20.04 that is compatible with 3.6 and 3.11
+        # see: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+        os: [ubuntu-20.04, windows-latest]
 
     steps:
     - uses: actions/checkout@v2
