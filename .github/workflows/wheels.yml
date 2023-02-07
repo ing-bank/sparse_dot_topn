@@ -40,9 +40,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+      
+      # cibuildwheel builds wheels for many different versions of Python and OS:
       - name: Build wheels
-        uses: pypa/cibuildwheel@2.6.1
+        uses: pypa/cibuildwheel@v2.11.4
 
       - name: Keep wheel files
         uses: actions/upload-artifact@v3

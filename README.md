@@ -66,7 +66,7 @@ pip install sparse_dot_topn-*.tar.gz
 ```
 
 ## Release strategy
-From version 0.3.2, we employ Github Actions to build wheels in different OS environment and release automatically. Hopefully this will solve many issues related to installation. The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please follow these steps
+From version 0.3.2, we employ Github Actions to build wheels in different OS and Python environments with cibuildwheel, and release automatically. Hopefully this will solve many issues related to installation. The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please follow these steps
 
 1. Create a test branch with branch name `test/x.x.x` from main branch.
 2. In `test/x.x.x` branch, update the version number such as `x.x.x.rcx`in setup.py, and update changelog in CHANGES.md file. 
