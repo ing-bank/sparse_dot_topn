@@ -66,16 +66,17 @@ pip install sparse_dot_topn-*.tar.gz
 ```
 
 ## Release strategy
-From version 0.3.2, we employ Github Actions to build wheels in different OS environment and release automatically. Hopefully this will solve many issues related to installation. The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please follow these steps
+From version 0.3.2, we employ Github Actions to build wheels in different OS and Python environments with cibuildwheel, and release automatically. Hopefully this will solve many issues related to installation. The build and publish pipeline is configured in `./github/workflows/wheels.yml`. When a new release is neeeded, please follow these steps
 
 1. Create a test branch with branch name `test/x.x.x` from main branch.
-2. In `test/x.x.x` branch, update the version number such as `x.x.x.rcx`in setup.py, and update changelog in CHANGES.md file. 
+2. In `test/x.x.x` branch, update the version number such as `x.x.x.rcx` (e.g. 0.3.4.rc0) in setup.py, and update changelog in CHANGES.md file.
 3. Git push `test/x.x.x` branch, then build and publish pipeline will be triggered automatically. New release will be uploaded in PyPI test [https://test.pypi.org/project/sparse-dot-topn/](https://test.pypi.org/project/sparse-dot-topn/).
 4. Please do a sanity check on PyPI test release.
-5. Create a branch on top of the test branch.
-6. Modify the version number by remove the `rcx` surfix.
-7. Git push, then build and publish pipeline will be triggered automatically. New release will be uploaded to PyPI [https://pypi.org/project/sparse-dot-topn](https://pypi.org/project/sparse-dot-topn/)
-8. Merge the release branch back to master
+5. Update the changelog in CHANGES.md
+6. Create a branch on top of the test branch.
+7. Modify the version number by remove the `rcx` suffix in setup.py.
+8. Git push, then build and publish pipeline will be triggered automatically. New release will be uploaded to PyPI [https://pypi.org/project/sparse-dot-topn](https://pypi.org/project/sparse-dot-topn/)
+9. Merge the release branch back to master
 
 
 
