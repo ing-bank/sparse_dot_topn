@@ -18,10 +18,7 @@ jobs:
         include:
           - platform: linux
             os: ubuntu-latest
-            # Here we skip aarch64, since we got error
-            # ` standard_init_linux.go:228: exec user process caused: exec format error`
-            # and we don't know how to fix it
-            archs: "x86_64" 
+            archs: "aarch64 x86_64"
           - platform: macos
             os: macos-latest
             archs: "x86_64 arm64"
@@ -40,10 +37,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
+      # install QEMU for building aarch64 wheels on linux
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+
       # cibuildwheel builds wheels for many different versions of Python and OS:
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.4
+        uses: pypa/cibuildwheel@v2.13.1
 
       - name: Keep wheel files
         uses: actions/upload-artifact@v3
@@ -51,9 +55,21 @@ jobs:
           name: wheelhouse
           path: ./wheelhouse/*.whl
 
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
 
   publish-wheels:
-    needs: build-and-test-python
+    needs: [build-and-test-python, build_sdist]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,7 +90,7 @@ jobs:
 
       - name: List assets
         run: |
-          ls ./wheelhouse/*.whl -al
+          ls ./wheelhouse/* -al
 
       - name: Upload wheels to test PyPI
         if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
@@ -91,7 +107,7 @@ jobs:
         run: |
           pip install twine
           echo "Publish to PyPI..."
-          twine upload --verbose wheelhouse/*
+          twine upload --verbose --skip-existing wheelhouse/*
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USER }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
