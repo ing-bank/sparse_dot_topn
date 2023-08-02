@@ -20,7 +20,7 @@
 # distutils: language = c++
 
 from libcpp.vector cimport vector
-from array_wrappers cimport ArrayWrapper_int, ArrayWrapper_float, ArrayWrapper_double
+from sparse_dot_topn.array_wrappers cimport ArrayWrapper_int, ArrayWrapper_float, ArrayWrapper_double
 
 cimport cython
 cimport numpy as np
