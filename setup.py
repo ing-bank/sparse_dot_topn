@@ -74,7 +74,7 @@ threaded_ext = Extension(
 
 setup(
     name="sparse_dot_topn",
-    version="0.3.6.rc0",
+    version="0.3.6",
     description="This package boosts a sparse matrix multiplication "
     "followed by selecting the top-n multiplication",
     keywords="cosine-similarity sparse-matrix scipy cython",
