@@ -1,5 +1,11 @@
 # Release history:
 
+## v0.3.6
+- Adds support for Cython >= 3.0
+
+## v0.3.5
+- Restrict Cython version to <3.0
+
 ## v0.3.4
 - Add Python 3.11 wheels
 - Fix a compilation error when std:: is missing
