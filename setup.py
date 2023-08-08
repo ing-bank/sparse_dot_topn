@@ -88,6 +88,7 @@ setup(
         # select this version due to oldest_support_numpy https://github.com/scipy/oldest-supported-numpy/blob/main/setup.cfg#L54
         "numpy>=1.14.5",
         "scipy>=1.2.3",  # select this version for Py2/3 compatible
+        "psutil>=4.2.0",
     ],
     zip_safe=False,
     packages=find_packages(),
