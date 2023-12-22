@@ -1,36 +1,38 @@
-name: Run tests
+name: Test
+
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
+  build:
+    name: Build with Pip
+    runs-on: ${{ matrix.platform }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.11]
-        # For the OS, ubuntu-latest is not compatible with Python 3.6 anymore,
-        # so we can use ubuntu-20.04 that is compatible with 3.6 and 3.11
-        # see: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-        os: [ubuntu-20.04, windows-latest]
+        platform: [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ["3.8", "3.12"]
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
-    - name: Install dev-package
+
+    - name: Set min macOS version
+      if: runner.os == 'macOS'
       run: |
-        python -m pip install --upgrade pip
-        pip install -v -e .
-    
-    - name: Run tests
+        echo "MACOS_DEPLOYMENT_TARGET=10.14" >> $GITHUB_ENV
+
+    - name: Build and install
+      run: pip install --verbose ".[test]"
+
+    - name: Test
       run: |
-        pip install pytest
-        pip install pandas
-        pytest -ra --capture=no --showlocals
+        cd tests
+        pyest -vv
