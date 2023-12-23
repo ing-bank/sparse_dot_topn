@@ -19,6 +19,6 @@
 
 namespace sdtn::bindings {
 
-NB_MODULE(_sparse_dot_topn_core, m) { bind_add(m); }
+NB_MODULE(_sparse_dot_topn_core, m) { bind_sparse_dot_topn(m); }
 
 }  // namespace sdtn::bindings

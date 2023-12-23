@@ -14,15 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <nanobind/ndarray.h>
+#include <sparse_dot_topn/sparse_dot_topn.hpp>
 #include <sparse_dot_topn/sparse_dot_topn_bindings.hpp>
-namespace sdtn::bindings {
 
+namespace sdtn::bindings {
 namespace nb = nanobind;
+
 using namespace nb::literals;
 
-void bind_add(nb::module_& m) {
+void bind_sparse_dot_topn(nb::module_& m) {
     m.def(
-        "add", [](int a, int b) { return a + b; }, "a"_a, "b"_a
+        "sparse_dot_topn",
+        &api::sparse_dot_topn<float, int>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a,
+        "A_indptr"_a,
+        "A_indices"_a,
+        "B_data"_a,
+        "B_indptr"_a,
+        "B_indices"_a,
+        "C_data"_a,
+        "C_indptr"_a,
+        "C_indices"_a,
+        nb::raw_doc("Compute sparse dot product and keep top n.\n"
+                    "\n"
+                    "Args:\n"
+                    "    arg (float | int): Input value\n"
+                    "\n"
+                    "Returns:\n"
+                    "    float | int: Result of the identity operation")
     );
 }
 

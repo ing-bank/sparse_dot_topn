@@ -64,7 +64,7 @@ struct Candidate {
  * \param[out] C_indices array containing the column indices
  */
 template <typename eT, typename idxT, iffInt<idxT> = true>
-void sparse_dot_topn(
+inline void sparse_dot_topn(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
