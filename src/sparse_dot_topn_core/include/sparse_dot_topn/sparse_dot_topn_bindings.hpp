@@ -16,12 +16,58 @@
  */
 #pragma once
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <sparse_dot_topn/sparse_dot_topn.hpp>
 #include <sparse_dot_topn/sparse_dot_topn_bindings.hpp>
 
-namespace sdtn::bindings {
+namespace sdtn {
 
 namespace nb = nanobind;
 
-void bind_add(nb::module_& m);
+namespace api {
 
-}  // namespace sdtn::bindings
+template <typename eT>
+using nb_vec
+    = nb::ndarray<nb::numpy, eT, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
+
+template <typename eT, typename idxT, core::iffInt<idxT> = true>
+inline void sparse_dot_topn(
+    const idxT top_n,
+    const idxT nrows,
+    const idxT ncols,
+    const eT threshold,
+    const nb_vec<eT>& A_data,
+    const nb_vec<idxT>& A_indptr,
+    const nb_vec<idxT>& A_indices,
+    const nb_vec<eT>& B_data,
+    const nb_vec<idxT>& B_indptr,
+    const nb_vec<idxT>& B_indices,
+    nb_vec<eT>& C_data,
+    nb_vec<idxT>& C_indptr,
+    nb_vec<idxT>& C_indices
+) {
+    core::sparse_dot_topn<eT, idxT>(
+        top_n,
+        nrows,
+        ncols,
+        threshold,
+        A_data.data(),
+        A_indptr.data(),
+        A_indices.data(),
+        B_data.data(),
+        B_indptr.data(),
+        B_indices.data(),
+        C_data.data(),
+        C_indptr.data(),
+        C_indices.data()
+    );
+}
+
+}  // namespace api
+
+namespace bindings {
+
+void bind_sparse_dot_topn(nb::module_& m);
+
+}  // namespace bindings
+}  // namespace sdtn
