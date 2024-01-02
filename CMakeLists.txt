@@ -9,7 +9,7 @@ project(
   LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH_SAVED ${CMAKE_MODULE_PATH})
-list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
+list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/src/sparse_dot_topn_core/cmake")
 
 include(GNUInstallDirs)
 
