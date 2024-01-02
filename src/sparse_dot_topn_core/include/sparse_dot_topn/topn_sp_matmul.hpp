@@ -64,7 +64,7 @@ struct Candidate {
  * \param[out] C_indices array containing the column indices
  */
 template <typename eT, typename idxT, iffInt<idxT> = true>
-inline void sparse_dot_topn(
+inline void topn_sp_matmul(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
@@ -92,21 +92,22 @@ inline void sparse_dot_topn(
         idxT head = -2;
         idxT length = 0;
 
-        idxT jj_start = A_indptr[i];
-        idxT jj_end = A_indptr[i + 1];
-        for (idxT jj = jj_start; jj < jj_end; jj++) {
-            idxT j = A_indices[jj];
+        // A_cidx: column index for A
+        idxT A_cidx_start = A_indptr[i];
+        idxT A_cidx_end = A_indptr[i + 1];
+        for (idxT A_cidx = A_cidx_start; A_cidx < A_cidx_end; A_cidx++) {
+            idxT j = A_indices[A_cidx];
             // value of A in (i,j)
-            eT v = A_data[jj];
+            eT v = A_data[A_cidx];
 
-            idxT kk_start = B_indptr[j];
-            idxT kk_end = B_indptr[j + 1];
-            for (idxT kk = kk_start; kk < kk_end; kk++) {
-                idxT k = B_indices[kk];  // kth column of B in row j
+            idxT B_ridx_start = B_indptr[j];
+            idxT B_ridx_end = B_indptr[j + 1];
+            for (idxT B_ridx = B_ridx_start; B_ridx < B_ridx_end; B_ridx++) {
+                idxT k = B_indices[B_ridx];  // kth column of B in row j
 
                 // multiply with value of B in (j,k) and accumulate to the
                 // result for kth column of row i
-                sums[k] += v * B_data[kk];
+                sums[k] += v * B_data[B_ridx];
 
                 if (next[k] == -1) {
                     // keep a linked list, every element points to the next

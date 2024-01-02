@@ -17,8 +17,8 @@
 #pragma once
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <sparse_dot_topn/sparse_dot_topn.hpp>
-#include <sparse_dot_topn/sparse_dot_topn_bindings.hpp>
+#include <sparse_dot_topn/topn_sp_matmul.hpp>
+#include <sparse_dot_topn/topn_sp_matmul_bindings.hpp>
 
 namespace sdtn {
 
@@ -31,7 +31,7 @@ using nb_vec
     = nb::ndarray<nb::numpy, eT, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
 
 template <typename eT, typename idxT, core::iffInt<idxT> = true>
-inline void sparse_dot_topn(
+inline void topn_sp_matmul(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
@@ -46,7 +46,7 @@ inline void sparse_dot_topn(
     nb_vec<idxT>& C_indptr,
     nb_vec<idxT>& C_indices
 ) {
-    core::sparse_dot_topn<eT, idxT>(
+    core::topn_sp_matmul<eT, idxT>(
         top_n,
         nrows,
         ncols,
@@ -67,7 +67,7 @@ inline void sparse_dot_topn(
 
 namespace bindings {
 
-void bind_sparse_dot_topn(nb::module_& m);
+void bind_topn_sp_matmul(nb::module_& m);
 
 }  // namespace bindings
 }  // namespace sdtn

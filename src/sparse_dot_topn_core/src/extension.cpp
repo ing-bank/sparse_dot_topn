@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 #include <nanobind/nanobind.h>
-#include <sparse_dot_topn/sparse_dot_topn_bindings.hpp>
+#include <sparse_dot_topn/topn_sp_matmul_bindings.hpp>
 
 namespace sdtn::bindings {
 
-NB_MODULE(_sparse_dot_topn_core, m) { bind_sparse_dot_topn(m); }
+NB_MODULE(_sparse_dot_topn_core, m) { bind_topn_sp_matmul(m); }
 
 }  // namespace sdtn::bindings
