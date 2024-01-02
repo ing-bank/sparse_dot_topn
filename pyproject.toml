@@ -35,6 +35,12 @@ minimum-version = "0.4"
 # Setuptools-style build caching in a local directory
 build-dir = "build/{wheel_tag}"
 
+sdist.include = [
+  "src/sparse_dot_topn",
+  "src/sparse_dot_topn_core",
+  "CMakeLists.txt",
+]
+
 # Build stable ABI wheels for CPython 3.12+
 wheel.py-api = "cp312"
 
