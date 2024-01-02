@@ -38,6 +38,13 @@ build-dir = "build/{wheel_tag}"
 # Build stable ABI wheels for CPython 3.12+
 wheel.py-api = "cp312"
 
+[tool.scikit-build.cmake.define]
+SDTN_CPP_STANDARD = "17"
+SDTN_ENABLE_DEVMODE = false
+SDTN_ENABLE_DEBUG = false
+SDTN_ENABLE_OPENMP = false
+SDTN_ENABLE_ARCH_FLAGS = true
+
 [tool.cibuildwheel]
 # Necessary to see build output from the actual compilation
 build-verbosity = 1

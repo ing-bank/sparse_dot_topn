@@ -1,6 +1,10 @@
 set(CMAKE_CXX_STANDARD ${SDTN_CPP_STANDARD})
 set(SDTN_DEVMODE_OPTIONS -Wall -Wextra -Wunused-variable -Wunused-const-variable)
-set(SDTN_DEFAULT_BUILD_TYPE Release)
+if(SDTN_ENABLE_DEBUG)
+    set(SDTN_DEFAULT_BUILD_TYPE Debug)
+else()
+    set(SDTN_DEFAULT_BUILD_TYPE Release)
+endif()
 
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to '${SDTN_DEFAULT_BUILD_TYPE}' as none was specified.")
