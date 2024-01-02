@@ -34,7 +34,7 @@ def sp_matmul_topn(
     A: csr_matrix | csc_matrix | coo_matrix,
     B: csr_matrix | csc_matrix | coo_matrix,
     top_n: int,
-    threshold: float | None = None,
+    threshold: int | float | None = None,
     n_threads: int | None = None,
     idx_dtype: DTypeLike | None = None,
 ) -> csr_matrix | tuple[csr_matrix, NDArray]:
@@ -60,7 +60,6 @@ def sp_matmul_topn(
         nz_counts (optional): the number of elements in A * B that exceeded the threshold for each row of A
 
     """
-    threshold: float = threshold or 0.0
     n_threads: int = n_threads or 1
     idx_dtype = assert_idx_dtype(idx_dtype)
 
@@ -92,6 +91,12 @@ def sp_matmul_topn(
     assert_supported_dtype(A)
     assert_supported_dtype(B)
     ensure_compatible_dtype(A, B)
+
+    # handle threshold
+    if np.issubdtype(A.data.dtype, np.integer):
+        threshold = int(np.rint(threshold)) if threshold is not None else np.iinfo(A.data.dtype).min
+    else:
+        threshold = threshold if threshold is not None else np.finfo(A.data.dtype).min
 
     # the max number of result entries
     max_nz = A_nrows * top_n
@@ -125,5 +130,4 @@ def sp_matmul_topn(
         C_indptr,
         C_indices,
     )
-
     return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
