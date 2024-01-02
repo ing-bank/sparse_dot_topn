@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 #include <nanobind/ndarray.h>
-#include <sparse_dot_topn/topn_sp_matmul.hpp>
-#include <sparse_dot_topn/topn_sp_matmul_bindings.hpp>
+#include <sparse_dot_topn/sp_matmul_topn.hpp>
+#include <sparse_dot_topn/sp_matmul_topn_bindings.hpp>
 
 namespace sdtn::bindings {
 namespace nb = nanobind;
 
 using namespace nb::literals;
 
-void bind_topn_sp_matmul(nb::module_& m) {
+void bind_sp_matmul_topn(nb::module_& m) {
     m.def(
-        "topn_sp_matmul",
-        &api::topn_sp_matmul<double, int>,
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<double, int>,
         "top_n"_a,
         "nrows"_a,
         "ncols"_a,
@@ -61,8 +61,8 @@ void bind_topn_sp_matmul(nb::module_& m) {
         )
     );
     m.def(
-        "topn_sp_matmul",
-        &api::topn_sp_matmul<float, int>,
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<float, int>,
         "top_n"_a,
         "nrows"_a,
         "ncols"_a,
@@ -78,8 +78,8 @@ void bind_topn_sp_matmul(nb::module_& m) {
         "C_indices"_a.noconvert()
     );
     m.def(
-        "topn_sp_matmul",
-        &api::topn_sp_matmul<double, int64_t>,
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<double, int64_t>,
         "top_n"_a,
         "nrows"_a,
         "ncols"_a,
@@ -95,8 +95,76 @@ void bind_topn_sp_matmul(nb::module_& m) {
         "C_indices"_a.noconvert()
     );
     m.def(
-        "topn_sp_matmul",
-        &api::topn_sp_matmul<float, int64_t>,
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<float, int64_t>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<int, int>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<int64_t, int>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<int, int64_t>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "sp_matmul_topn",
+        &api::sp_matmul_topn<int64_t, int64_t>,
         "top_n"_a,
         "nrows"_a,
         "ncols"_a,

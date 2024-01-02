@@ -64,7 +64,7 @@ struct Candidate {
  * \param[out] C_indices array containing the column indices
  */
 template <typename eT, typename idxT, iffInt<idxT> = true>
-inline void topn_sp_matmul(
+inline void sp_matmul_topn(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
@@ -144,8 +144,6 @@ inline void topn_sp_matmul(
                 candidates.begin(), candidates.begin() + top_n, candidates.end()
             );
             len = top_n;
-        } else {
-            std::sort(candidates.begin(), candidates.end());
         }
 
         for (idxT a = 0; a < len; a++) {

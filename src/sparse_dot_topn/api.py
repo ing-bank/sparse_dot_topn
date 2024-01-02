@@ -13,19 +13,24 @@ from sparse_dot_topn.types import assert_idx_dtype, assert_supported_dtype, ensu
 if TYPE_CHECKING:
     from numpy.types import DTypeLike, NDArray
 
-__all__ = ["sparse_dot_topn", "awesome_cossim_topn"]
+__all__ = ["sp_matmul_topn", "awesome_cossim_topn"]
 
 
 _SUPPORTED_DTYPES = {np.dtype("int32"), np.dtype("int64"), np.dtype("float32"), np.dtype("float64")}
 
 
 def awesome_cossim_topn(*args, **kwargs):
-    """This function has been removed and replaced with `sparse_dot_topn`."""
-    msg = "`awesome_cossim_topn` function has been removed and replaced with `sparse_dot_topn`."
+    """This function has been removed and replaced with `sp_matmul_topn`."""
+    msg = "`awesome_cossim_topn` function has been removed and replaced with `sp_matmul_topn`."
     raise NotImplementedError(msg)
 
 
-def sparse_dot_topn(
+def sp_matmul(*args, **kwargs):
+    msg = "Sparse Matrix Multiplication is not yet implemented."
+    raise NotImplementedError(msg)
+
+
+def sp_matmul_topn(
     A: csr_matrix | csc_matrix | coo_matrix,
     B: csr_matrix | csc_matrix | coo_matrix,
     top_n: int,
@@ -56,6 +61,7 @@ def sparse_dot_topn(
 
     """
     threshold: float = threshold or 0.0
+    n_threads: int = n_threads or 1
     idx_dtype = assert_idx_dtype(idx_dtype)
 
     if isinstance(A, (coo_matrix, csc_matrix)):
@@ -72,10 +78,10 @@ def sparse_dot_topn(
     B_nrows, B_ncols = B.shape
 
     if A_ncols == B_nrows:
-        if isinstance(B, (coo_matrix, csr_matrix)):
-            B = B.tocsc(False)
+        if isinstance(B, (coo_matrix, csc_matrix)):
+            B = B.tocsr(False)
     elif A_ncols == B_ncols:
-        B = B.transpose() if isinstance(B, csr_matrix) else B.transpose().tocsc(False)
+        B = B.transpose() if isinstance(B, csc_matrix) else B.transpose().tocsr(False)
         B_nrows, B_ncols = B.shape
     else:
         msg = (
@@ -92,41 +98,32 @@ def sparse_dot_topn(
 
     # basic check. if A or B are all zeros matrix, return all zero matrix directly
     if A.indices.size == 0 or B.indices.size == 0:
-        indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
-        indices = np.zeros(max_nz, dtype=idx_dtype)
-        data = np.zeros(max_nz, dtype=A.dtype)
-        return csr_matrix((data, indices, indptr), shape=(A_nrows, B_ncols))
+        C_indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
+        C_indices = np.zeros(max_nz, dtype=idx_dtype)
+        C_data = np.zeros(max_nz, dtype=A.dtype)
+        return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
 
-    indptr = np.empty(A_nrows + 1, dtype=idx_dtype)
-
-    # filled matrices from here on
-    indices = np.empty(max_nz, dtype=idx_dtype)
-    data = np.empty(max_nz, dtype=A.dtype)
-
-    best_ntop_arr = np.zeros(A_nrows, dtype=idx_dtype)
+    C_indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
+    C_indices = np.zeros(max_nz, dtype=idx_dtype)
+    C_data = np.zeros(max_nz, dtype=A.dtype)
 
     if n_threads > 1:
         warnings.warn("multithreading is currently not supported, reverting to sequential mode.")
 
-    alt_indices, alt_data = _core.sparse_dot_topn(
+    _core.sp_matmul_topn(
+        top_n,
         A_nrows,
         B_ncols,
-        np.asarray(A.indptr, dtype=idx_dtype),
-        np.asarray(A.indices, dtype=idx_dtype),
-        A.data,
-        np.asarray(B.indptr, dtype=idx_dtype),
-        np.asarray(B.indices, dtype=idx_dtype),
-        B.data,
-        top_n,
         threshold,
-        indptr,
-        indices,
-        data,
-        best_ntop_arr,
+        A.data,
+        A.indptr,
+        A.indices,
+        B.data,
+        B.indptr,
+        B.indices,
+        C_data,
+        C_indptr,
+        C_indices,
     )
 
-    if alt_indices is not None:
-        indices = alt_indices
-        data = alt_data
-
-    return csr_matrix((data, indices, indptr), shape=(A_nrows, B_ncols))
+    return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
