@@ -15,38 +15,101 @@
  * limitations under the License.
  */
 #include <nanobind/ndarray.h>
-#include <sparse_dot_topn/sparse_dot_topn.hpp>
-#include <sparse_dot_topn/sparse_dot_topn_bindings.hpp>
+#include <sparse_dot_topn/topn_sp_matmul.hpp>
+#include <sparse_dot_topn/topn_sp_matmul_bindings.hpp>
 
 namespace sdtn::bindings {
 namespace nb = nanobind;
 
 using namespace nb::literals;
 
-void bind_sparse_dot_topn(nb::module_& m) {
+void bind_topn_sp_matmul(nb::module_& m) {
     m.def(
-        "sparse_dot_topn",
-        &api::sparse_dot_topn<float, int>,
+        "topn_sp_matmul",
+        &api::topn_sp_matmul<double, int>,
         "top_n"_a,
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
-        "A_data"_a,
-        "A_indptr"_a,
-        "A_indices"_a,
-        "B_data"_a,
-        "B_indptr"_a,
-        "B_indices"_a,
-        "C_data"_a,
-        "C_indptr"_a,
-        "C_indices"_a,
-        nb::raw_doc("Compute sparse dot product and keep top n.\n"
-                    "\n"
-                    "Args:\n"
-                    "    arg (float | int): Input value\n"
-                    "\n"
-                    "Returns:\n"
-                    "    float | int: Result of the identity operation")
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert(),
+        nb::raw_doc(
+            "Compute sparse dot product and keep top n.\n"
+            "\n"
+            "Args:\n"
+            "    top_n (int): the number of results to retain\n"
+            "    nrows (int): the number of rows in `A`\n"
+            "    ncols (int): the number of columns in `B`\n"
+            "    threshold (float): only store values greater than\n"
+            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+            "\n"
+        )
+    );
+    m.def(
+        "topn_sp_matmul",
+        &api::topn_sp_matmul<float, int>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "topn_sp_matmul",
+        &api::topn_sp_matmul<double, int64_t>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
+    );
+    m.def(
+        "topn_sp_matmul",
+        &api::topn_sp_matmul<float, int64_t>,
+        "top_n"_a,
+        "nrows"_a,
+        "ncols"_a,
+        "threshold"_a,
+        "A_data"_a.noconvert(),
+        "A_indptr"_a.noconvert(),
+        "A_indices"_a.noconvert(),
+        "B_data"_a.noconvert(),
+        "B_indptr"_a.noconvert(),
+        "B_indices"_a.noconvert(),
+        "C_data"_a.noconvert(),
+        "C_indptr"_a.noconvert(),
+        "C_indices"_a.noconvert()
     );
 }
 
