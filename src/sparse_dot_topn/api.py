@@ -42,11 +42,15 @@ def sp_matmul_topn(
 
     This functions allows large matrices to multiplied with a limited memory footprint.
 
+    Note that
+
     Args:
         A: LHS of the multiplication, the number of columns of A determines the orientation of B.
             `A` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `B`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
         B: RHS of the multiplication, the number of rows of B must match the number of columns of A or the shape of B.T should be match A.
             `B` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `A`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
         top_n: the number of results to retain
         threshold: only return values greater than the threshold, by default this 0.0
         n_threads: number of threads to use, `None` implies sequential processing, -1 will use all but one of the available cores.
@@ -62,7 +66,10 @@ def sp_matmul_topn(
     n_threads: int = n_threads or 1
     idx_dtype = assert_idx_dtype(idx_dtype)
 
-    if isinstance(A, (coo_matrix, csc_matrix)):
+    if isinstance(A, csc_matrix) and isinstance(B, csc_matrix) and A.shape[0] == B.shape[1]:
+        A = A.transpose()
+        B = B.transpose()
+    elif isinstance(A, (coo_matrix, csc_matrix)):
         A = A.tocsr(False)
     elif not isinstance(A, csr_matrix):
         msg = f"type of `A` must be one of `csr_matrix`, `csc_matrix` or `csr_matrix`, got `{type(A)}`"
