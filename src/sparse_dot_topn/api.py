@@ -11,7 +11,7 @@ from sparse_dot_topn.lib import _sparse_dot_topn_core as _core
 from sparse_dot_topn.types import assert_idx_dtype, assert_supported_dtype, ensure_compatible_dtype
 
 if TYPE_CHECKING:
-    from numpy.types import DTypeLike, NDArray
+    from numpy.types import DTypeLike
 
 __all__ = ["sp_matmul_topn", "awesome_cossim_topn"]
 
@@ -37,7 +37,7 @@ def sp_matmul_topn(
     threshold: int | float | None = None,
     n_threads: int | None = None,
     idx_dtype: DTypeLike | None = None,
-) -> csr_matrix | tuple[csr_matrix, NDArray]:
+) -> csr_matrix:
     """Compute A * B whilst only storing the `top_n` elements.
 
     This functions allows large matrices to multiplied with a limited memory footprint.
@@ -56,8 +56,7 @@ def sp_matmul_topn(
         TypeError: when A, B are not trivially convertable to a `CSR matrix`
 
     Returns:
-        C: result matrix (returned alone, if return_best_ntop=False)
-        nz_counts (optional): the number of elements in A * B that exceeded the threshold for each row of A
+        C: result matrix
 
     """
     n_threads: int = n_threads or 1
@@ -121,11 +120,11 @@ def sp_matmul_topn(
         B_ncols,
         threshold,
         A.data,
-        A.indptr,
-        A.indices,
+        A.indptr if idx_dtype is None else A.indptr.astype(idx_dtype),
+        A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
         B.data,
-        B.indptr,
-        B.indices,
+        B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
+        B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
         C_data,
         C_indptr,
         C_indices,
