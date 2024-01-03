@@ -19,10 +19,24 @@ __all__ = ["sp_matmul_topn", "awesome_cossim_topn"]
 _SUPPORTED_DTYPES = {np.dtype("int32"), np.dtype("int64"), np.dtype("float32"), np.dtype("float64")}
 
 
-def awesome_cossim_topn(*args, **kwargs):
-    """This function has been removed and replaced with `sp_matmul_topn`."""
-    msg = "`awesome_cossim_topn` function has been removed and replaced with `sp_matmul_topn`."
-    raise NotImplementedError(msg)
+def awesome_cossim_topn(
+    A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1, return_best_ntop=None, test_nnz_max=None
+):
+    """This function has been removed and replaced with `sp_matmul_topn`.
+
+    NOTE this function calls `sp_matmul_topn` but the results may not be the same.
+    See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#migration' for details.
+    """
+    msg = (
+        "`awesome_cossim_topn` function has been removed and (partially) replaced with `sp_matmul_topn`."
+        " See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#migration'."
+    )
+    if return_best_ntop is True or test_nnz_max is not None:
+        raise DeprecationWarning(msg)
+    msg += " Calling `sp_matmul_topn`, NOTE the results may not be the same."
+    warnings.warn(msg, DeprecationWarning, stacklevel=2)
+    n_threads = n_jobs if use_threads is True else None
+    return sp_matmul_topn(A=A, B=B, top_n=ntop, threshold=lower_bound, n_threads=n_threads)
 
 
 def sp_matmul(*args, **kwargs):
