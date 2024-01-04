@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def _get_topn_elements(x: NDArray, n: int):
-    return np.sort(x)[::-1][:n]
+    return x[np.sort(np.argsort(x)[::-1][:n])]
 
 
 def _assert_array_equal(A, B, rtol=1e-5, atol=1e-8):
