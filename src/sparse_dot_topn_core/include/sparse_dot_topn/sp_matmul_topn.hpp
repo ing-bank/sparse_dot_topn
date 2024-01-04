@@ -17,24 +17,14 @@
 
 #pragma once
 
-#include <algorithm>
 #include <vector>
+
+#include <sparse_dot_topn/maxheap.hpp>
 
 namespace sdtn::core {
 
 template <typename T>
 using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
-
-template <typename T>
-using iffFloat = std::enable_if_t<std::is_floating_point_v<T>, bool>;
-
-template <typename eT, typename idxT>
-struct Candidate {
-    idxT index;
-    eT value;
-
-    bool operator<(const Candidate& a) const { return a.value < value; }
-};
 
 /**
  * \brief Compute A.dot(B) keeping only the top n results.
@@ -82,8 +72,7 @@ inline void sp_matmul_topn(
     std::vector<idxT> next(ncols, -1);
     std::vector<eT> sums(ncols, 0);
 
-    std::vector<Candidate<eT, idxT>> candidates;
-
+    auto max_heap = MaxHeap<eT, idxT>(top_n, threshold);
     idxT nnz = 0;
 
     C_indptr[0] = 0;
@@ -91,6 +80,7 @@ inline void sp_matmul_topn(
     for (idxT i = 0; i < nrows; i++) {
         idxT head = -2;
         idxT length = 0;
+        eT min = max_heap.reset();
 
         // A_cidx: column index for A
         idxT A_cidx_start = A_indptr[i];
@@ -121,12 +111,8 @@ inline void sp_matmul_topn(
 
         for (idxT jj = 0; jj < length; jj++) {
             // length = number of columns set (may include 0s)
-            if (sums[head] > threshold) {
-                // append the nonzero elements
-                Candidate<eT, idxT> c;
-                c.index = head;
-                c.value = sums[head];
-                candidates.push_back(c);
+            if (sums[head] > min) {
+                min = max_heap.push_pop(head, sums[head]);
             }
 
             idxT temp = head;
@@ -138,21 +124,14 @@ inline void sp_matmul_topn(
             sums[temp] = 0;
         }
 
-        auto len = static_cast<idxT>(candidates.size());
-        if (len > top_n) {
-            std::partial_sort(
-                candidates.begin(), candidates.begin() + top_n, candidates.end()
-            );
-            len = top_n;
-        }
-
-        for (idxT a = 0; a < len; a++) {
-            C_indices[nnz] = candidates[a].index;
-            C_data[nnz] = candidates[a].value;
+        // sort the heap s.t. the original matrix order is maintained
+        max_heap.insertion_sort();
+        int n_set = max_heap.get_n_set();
+        for (int ii = 0; ii < n_set; ++ii) {
+            C_indices[nnz] = max_heap.heap[ii].idx;
+            C_data[nnz] = max_heap.heap[ii].val;
             nnz++;
         }
-        candidates.clear();
-
         C_indptr[i + 1] = nnz;
     }
 }
