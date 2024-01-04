@@ -19,6 +19,14 @@
 
 namespace sdtn::bindings {
 
-NB_MODULE(_sparse_dot_topn_core, m) { bind_sp_matmul_topn(m); }
+NB_MODULE(_sparse_dot_topn_core, m) {
+    bind_sp_matmul_topn(m);
+
+#ifdef SDTN_OMP_ENABLED
+    m.attr("_has_openmp_support") = true;
+#else
+    m.attr("_has_openmp_support") = false;
+#endif  // MMU_HAS_OPENMP_SUPPORT
+}
 
 }  // namespace sdtn::bindings
