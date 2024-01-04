@@ -112,6 +112,9 @@ def sp_matmul_topn(
     assert_supported_dtype(B)
     ensure_compatible_dtype(A, B)
 
+    # guard against top_n larger than number of cols
+    top_n = min(top_n, B_ncols)
+
     # handle threshold
     if np.issubdtype(A.data.dtype, np.integer):
         threshold = int(np.rint(threshold)) if threshold is not None else np.iinfo(A.data.dtype).min
