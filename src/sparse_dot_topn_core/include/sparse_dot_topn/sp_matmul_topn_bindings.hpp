@@ -63,11 +63,51 @@ inline void sp_matmul_topn(
     );
 }
 
+#ifdef SDTN_OMP_ENABLED
+template <typename eT, typename idxT, core::iffInt<idxT> = true>
+inline void sp_matmul_topn_mt(
+    const idxT top_n,
+    const idxT nrows,
+    const idxT ncols,
+    const eT threshold,
+    const int n_threads,
+    const nb_vec<eT>& A_data,
+    const nb_vec<idxT>& A_indptr,
+    const nb_vec<idxT>& A_indices,
+    const nb_vec<eT>& B_data,
+    const nb_vec<idxT>& B_indptr,
+    const nb_vec<idxT>& B_indices,
+    nb_vec<eT>& C_data,
+    nb_vec<idxT>& C_indptr,
+    nb_vec<idxT>& C_indices
+) {
+    core::sp_matmul_topn_mt<eT, idxT>(
+        top_n,
+        nrows,
+        ncols,
+        threshold,
+        n_threads,
+        A_data.data(),
+        A_indptr.data(),
+        A_indices.data(),
+        B_data.data(),
+        B_indptr.data(),
+        B_indices.data(),
+        C_data.data(),
+        C_indptr.data(),
+        C_indices.data()
+    );
+}
+#endif  // SDTN_OMP_ENABLED
+
 }  // namespace api
 
 namespace bindings {
 
 void bind_sp_matmul_topn(nb::module_& m);
+#ifdef SDTN_OMP_ENABLED
+void bind_sp_matmul_topn_mt(nb::module_& m);
+#endif  // SDTN_OMP_ENABLED
 
 }  // namespace bindings
 }  // namespace sdtn
