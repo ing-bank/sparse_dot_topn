@@ -49,6 +49,7 @@ def sp_matmul_topn(
     B: csr_matrix | csc_matrix | coo_matrix,
     top_n: int,
     threshold: int | float | None = None,
+    density: float | None = None,
     n_threads: int | None = None,
     idx_dtype: DTypeLike | None = None,
 ) -> csr_matrix:
@@ -67,6 +68,9 @@ def sp_matmul_topn(
             Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
         top_n: the number of results to retain
         threshold: only return values greater than the threshold, by default this 0.0
+        density: the expected density of the result considering `top_n`. The expected number of non-zero elements
+            in C should <= (`density` * `top_n` * `A.shape[0]`) otherwise the memory has to reallocated.
+            This value should only be set if you have a strong expectation as being wrong incurs a realloaction penalty.
         n_threads: number of threads to use, `None` implies sequential processing, -1 will use all but one of the available cores.
         idx_dtype: dtype to use for the indices, defaults to 32bit integers
 
@@ -78,6 +82,7 @@ def sp_matmul_topn(
 
     """
     n_threads: int = n_threads or 1
+    density: float = density or 1.0
     idx_dtype = assert_idx_dtype(idx_dtype)
 
     if isinstance(A, csc_matrix) and isinstance(B, csc_matrix) and A.shape[0] == B.shape[1]:
@@ -121,43 +126,34 @@ def sp_matmul_topn(
     else:
         threshold = threshold if threshold is not None else np.finfo(A.data.dtype).min
 
-    # the max number of result entries
-    max_nz = A_nrows * top_n
-
     # basic check. if A or B are all zeros matrix, return all zero matrix directly
     if A.indices.size == 0 or B.indices.size == 0:
         C_indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
-        C_indices = np.zeros(max_nz, dtype=idx_dtype)
-        C_data = np.zeros(max_nz, dtype=A.dtype)
+        C_indices = np.zeros(1, dtype=idx_dtype)
+        C_data = np.zeros(1, dtype=A.dtype)
         return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
-
-    C_indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
-    C_indices = np.zeros(max_nz, dtype=idx_dtype)
-    C_data = np.zeros(max_nz, dtype=A.dtype)
 
     kwargs = {
         "top_n": top_n,
         "nrows": A_nrows,
         "ncols": B_ncols,
         "threshold": threshold,
+        "density": density,
         "A_data": A.data,
         "A_indptr": A.indptr if idx_dtype is None else A.indptr.astype(idx_dtype),
         "A_indices": A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
         "B_data": B.data,
         "B_indptr": B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
-        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
-        "C_data": C_data,
-        "C_indptr": C_indptr,
-        "C_indices": C_indices,
+        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype)
     }
 
     func = _core.sp_matmul_topn
     if n_threads > 1:
         if _core._has_openmp_support:
             kwargs["n_threads"] = n_threads
+            kwargs.pop("density")
             func = _core.sp_matmul_topn_mt
         else:
             msg = "sparse_dot_topn: extension was compiled without parallelisation (OpenMP) support, ignoring ``n_threads``"
             warnings.warn(msg, stacklevel=1)
-    func(**kwargs)
-    return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
+    return csr_matrix(func(**kwargs), shape=(A_nrows, B_ncols))
