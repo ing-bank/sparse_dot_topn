@@ -3,7 +3,7 @@ from itertools import product
 import numpy as np
 import pytest
 from scipy import sparse
-from sparse_dot_topn import sp_matmul_topn
+from sparse_dot_topn import _has_openmp_support, sp_matmul_topn
 
 from ._resources import _assert_array_equal, _assert_smat_equal, _get_topn_elements
 
@@ -24,6 +24,25 @@ def test_sp_matmul_topn_topn(rng, dtype):
     C_ref = A.dot(B)
     C_10 = sp_matmul_topn(A, B, top_n=10)
     C_30 = sp_matmul_topn(A, B, top_n=30)
+    for i in range(A.shape[0]):
+        _assert_array_equal(C_10[i, :].data, _get_topn_elements(C_ref[i, :].data, 10))
+        _assert_array_equal(C_30[i, :].data, _get_topn_elements(C_ref[i, :].data, 30))
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
+def test_sp_matmul_topn_nthreads(rng, dtype):
+    A = sparse.random(100, 10, density=0.5, format="csr", dtype=dtype, random_state=rng)
+    B = sparse.random(10, 100, density=0.5, format="csr", dtype=dtype, random_state=rng)
+    C_ref = A.dot(B)
+    if not _has_openmp_support:
+        with pytest.warns(UserWarning):
+            C = sp_matmul_topn(A, B, top_n=B.shape[1], n_threads=2)
+    else:
+        C = sp_matmul_topn(A, B, top_n=B.shape[1], n_threads=2)
+    _assert_smat_equal(C, C_ref)
+
+    C_10 = sp_matmul_topn(A, B, top_n=10, n_threads=2)
+    C_30 = sp_matmul_topn(A, B, top_n=30, n_threads=2)
     for i in range(A.shape[0]):
         _assert_array_equal(C_10[i, :].data, _get_topn_elements(C_ref[i, :].data, 10))
         _assert_array_equal(C_30[i, :].data, _get_topn_elements(C_ref[i, :].data, 30))
