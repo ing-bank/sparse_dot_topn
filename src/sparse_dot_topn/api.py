@@ -33,7 +33,7 @@ def awesome_cossim_topn(
     )
     if return_best_ntop is True or test_nnz_max is not None:
         raise DeprecationWarning(msg)
-    msg += " Calling `sp_matmul_topn`, NOTE the results may not be the same."
+    msg += " Calling `sp_matmul_topn`, WARNING the results may not be the same."
     warnings.warn(msg, DeprecationWarning, stacklevel=2)
     n_threads = n_jobs if use_threads is True else None
     return sp_matmul_topn(A=A, B=B, top_n=ntop, threshold=lower_bound, n_threads=n_threads)
@@ -135,22 +135,29 @@ def sp_matmul_topn(
     C_indices = np.zeros(max_nz, dtype=idx_dtype)
     C_data = np.zeros(max_nz, dtype=A.dtype)
 
-    if n_threads > 1:
-        warnings.warn("multithreading is currently not supported, reverting to sequential mode.")
+    kwargs = {
+        "top_n": top_n,
+        "nrows": A_nrows,
+        "ncols": B_ncols,
+        "threshold": threshold,
+        "A_data": A.data,
+        "A_indptr": A.indptr if idx_dtype is None else A.indptr.astype(idx_dtype),
+        "A_indices": A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
+        "B_data": B.data,
+        "B_indptr": B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
+        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
+        "C_data": C_data,
+        "C_indptr": C_indptr,
+        "C_indices": C_indices,
+    }
 
-    _core.sp_matmul_topn(
-        top_n,
-        A_nrows,
-        B_ncols,
-        threshold,
-        A.data,
-        A.indptr if idx_dtype is None else A.indptr.astype(idx_dtype),
-        A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
-        B.data,
-        B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
-        B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
-        C_data,
-        C_indptr,
-        C_indices,
-    )
+    func = _core.sp_matmul_topn
+    if n_threads > 1:
+        if _core._has_openmp_support:
+            kwargs["n_threads"] = n_threads
+            func = _core.sp_matmul_topn_mt
+        else:
+            msg = "sparse_dot_topn: extension was compiled without parallelisation (OpenMP) support, ignoring ``n_threads``"
+            warnings.warn(msg, stacklevel=1)
+    func(**kwargs)
     return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
