@@ -17,6 +17,10 @@
 #pragma once
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+
+#include <utility>
+#include <vector>
+
 #include <sparse_dot_topn/sp_matmul_topn.hpp>
 #include <sparse_dot_topn/sp_matmul_topn_bindings.hpp>
 
@@ -49,21 +53,25 @@ inline nb_vec<eT> to_nbvec(eT* data, size_t size) {
 }
 
 template <typename eT, typename idxT, core::iffInt<idxT> = true>
-inline void sp_matmul_topn(
+inline nb::tuple sp_matmul_topn(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
     const eT threshold,
+    const double density,
     const nb_vec<eT>& A_data,
     const nb_vec<idxT>& A_indptr,
     const nb_vec<idxT>& A_indices,
     const nb_vec<eT>& B_data,
     const nb_vec<idxT>& B_indptr,
-    const nb_vec<idxT>& B_indices,
-    nb_vec<eT>& C_data,
-    nb_vec<idxT>& C_indptr,
-    nb_vec<idxT>& C_indices
+    const nb_vec<idxT>& B_indices
 ) {
+    auto pre_alloc_size = static_cast<int64_t>(ceil(density * top_n * nrows));
+    std::vector<eT> C_data;
+    C_data.reserve(pre_alloc_size);
+    std::vector<idxT> C_indices;
+    C_indices.reserve(pre_alloc_size);
+    std::vector<idxT> C_indptr(nrows + 1);
     core::sp_matmul_topn<eT, idxT>(
         top_n,
         nrows,
@@ -75,9 +83,14 @@ inline void sp_matmul_topn(
         B_data.data(),
         B_indptr.data(),
         B_indices.data(),
-        C_data.data(),
-        C_indptr.data(),
-        C_indices.data()
+        C_data,
+        C_indptr,
+        C_indices
+    );
+    return nb::make_tuple(
+        to_nbvec<eT>(std::move(C_data)),
+        to_nbvec<idxT>(std::move(C_indices)),
+        to_nbvec<idxT>(std::move(C_indptr))
     );
 }
 

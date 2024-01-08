@@ -46,6 +46,7 @@ using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
  * \param[in] nrows the number of rows in A
  * \param[in] ncols the number of columns in B
  * \param[in] threshold minimum values required to store
+ * \param[in] density the expected density of nonzero elements C
  * \param[in] A_data the nonzero elements of A
  * \param[in] A_indptr array containing the row indices for `A_data`
  * \param[in] A_indices array containing the column indices
@@ -68,9 +69,9 @@ inline void sp_matmul_topn(
     const eT* __restrict B_data,
     const idxT* __restrict B_indptr,
     const idxT* __restrict B_indices,
-    eT* __restrict C_data,
-    idxT* __restrict C_indptr,
-    idxT* __restrict C_indices
+    std::vector<eT>& C_data,
+    std::vector<idxT>& C_indptr,
+    std::vector<idxT>& C_indices
 ) {
     std::vector<idxT> next(ncols, -1);
     std::vector<eT> sums(ncols, 0);
@@ -131,10 +132,10 @@ inline void sp_matmul_topn(
         max_heap.insertion_sort();
         int n_set = max_heap.get_n_set();
         for (int ii = 0; ii < n_set; ++ii) {
-            C_indices[nnz] = max_heap.heap[ii].idx;
-            C_data[nnz] = max_heap.heap[ii].val;
-            nnz++;
+            C_indices.push_back(max_heap.heap[ii].idx);
+            C_data.push_back(max_heap.heap[ii].val);
         }
+        nnz += n_set;
         C_indptr[i + 1] = nnz;
     }
 }
