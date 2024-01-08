@@ -31,15 +31,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert(),
         nb::raw_doc(
             "Compute sparse dot product and keep top n.\n"
             "\n"
@@ -54,6 +52,8 @@ void bind_sp_matmul_topn(nb::module_& m) {
             "    B_data (NDArray[int | float]): the non-zero elements of B\n"
             "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
             "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+            "\n"
+            "Returns:\n"
             "    C_data (NDArray[int | float]): the non-zero elements of C\n"
             "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
             "    C_indices (NDArray[int]): the column indices for `C_data`\n"
@@ -67,15 +67,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -84,15 +82,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -101,15 +97,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -118,15 +112,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -135,15 +127,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -152,15 +142,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn",
@@ -169,15 +157,13 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "nrows"_a,
         "ncols"_a,
         "threshold"_a,
+        "density"_a,
         "A_data"_a.noconvert(),
         "A_indptr"_a.noconvert(),
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
 }
 
@@ -197,9 +183,6 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert(),
         nb::raw_doc(
             "Compute sparse dot product and keep top n.\n"
             "\n"
@@ -214,6 +197,8 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
             "    B_data (NDArray[int | float]): the non-zero elements of B\n"
             "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
             "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+            "\n"
+            "Returns:\n"
             "    C_data (NDArray[int | float]): the non-zero elements of C\n"
             "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
             "    C_indices (NDArray[int]): the column indices for `C_data`\n"
@@ -233,10 +218,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -251,10 +233,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -269,10 +248,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -287,10 +263,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -305,10 +278,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -323,10 +293,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -341,10 +308,7 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "A_indices"_a.noconvert(),
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
-        "B_indices"_a.noconvert(),
-        "C_data"_a.noconvert(),
-        "C_indptr"_a.noconvert(),
-        "C_indices"_a.noconvert()
+        "B_indices"_a.noconvert()
     );
 }
 #endif  // SDTN_OMP_ENABLED
