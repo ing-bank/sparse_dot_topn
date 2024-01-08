@@ -18,6 +18,8 @@
 #pragma once
 
 #include <memory>
+#include <numeric>
+#include <tuple>
 #include <vector>
 
 #include <sparse_dot_topn/maxheap.hpp>
@@ -167,7 +169,7 @@ inline void sp_matmul_topn(
  * \param[out] C_indices array containing the column indices
  */
 template <typename eT, typename idxT, iffInt<idxT> = true>
-inline void sp_matmul_topn_mt(
+inline std::tuple<size_t, eT*, idxT*, idxT*> sp_matmul_topn_mt(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
@@ -178,14 +180,11 @@ inline void sp_matmul_topn_mt(
     const idxT* __restrict A_indices,
     const eT* __restrict B_data,
     const idxT* __restrict B_indptr,
-    const idxT* __restrict B_indices,
-    eT* __restrict C_data,
-    idxT* __restrict C_indptr,
-    idxT* __restrict C_indices
+    const idxT* __restrict B_indices
 ) {
-    auto values = std::make_unique<eT[]>(nrows * top_n);
-    auto indices = std::make_unique<idxT[]>(nrows * top_n);
-    auto row_nset = std::make_unique<idxT[]>(nrows);
+    auto values = std::unique_ptr<eT[]>(new eT[nrows * top_n]);
+    auto indices = std::unique_ptr<idxT[]>(new idxT[nrows * top_n]);
+    auto row_nset = std::unique_ptr<idxT[]>(new idxT[nrows]);
 #pragma omp parallel num_threads(n_threads) \
     shared(top_n,                           \
                nrows,                       \
@@ -271,12 +270,20 @@ inline void sp_matmul_topn_mt(
         }
     }  // #pragma omp parallel
 
+    // check how many non-zero elements are in C
+    size_t total_nonzero
+        = std::accumulate(row_nset.get(), row_nset.get() + nrows, 0);
+    idxT* C_indptr = new idxT[nrows + 1];
     C_indptr[0] = 0;
+    idxT* C_indices = new idxT[total_nonzero];
+    eT* C_data = new eT[total_nonzero];
+    // create ptr that will be shifted
+    idxT* C_idx_ptr = C_indices;
+    eT* C_data_ptr = C_data;
+
     int nnz = 0;
     idxT* idx_ptr = indices.get();
     eT* vals_ptr = values.get();
-    idxT* C_idx_ptr = C_indices;
-    eT* C_data_ptr = C_data;
 
     for (int i = 0; i < nrows; ++i) {
         idxT n_set = row_nset[i];
@@ -289,6 +296,7 @@ inline void sp_matmul_topn_mt(
         idx_ptr += top_n;
         vals_ptr += top_n;
     }
+    return std::make_tuple(total_nonzero, C_data, C_indices, C_indptr);
 }  // sp_matmul_topn_mt
 #endif  // SDTN_OMP_ENABLED
 
