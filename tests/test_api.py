@@ -49,6 +49,15 @@ def test_sp_matmul_topn_nthreads(rng, dtype):
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
+def test_sp_matmul_topn_density(rng, dtype):
+    A = sparse.random(200, 200, density=0.9, format="csr", dtype=dtype, random_state=rng)
+    B = sparse.random(200, 200, density=0.9, format="csr", dtype=dtype, random_state=rng)
+    C = sp_matmul_topn(A, B, top_n=B.shape[1], density=0.01)
+    C_ref = A.dot(B)
+    _assert_smat_equal(C, C_ref)
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
 def test_sp_matmul_topn_threshold(rng, dtype):
     A = sparse.random(100, 100, density=0.1, format="csr", dtype=dtype, random_state=rng)
     B = sparse.random(100, 100, density=0.1, format="csr", dtype=dtype, random_state=rng)
