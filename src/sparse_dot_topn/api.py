@@ -22,18 +22,45 @@ _SUPPORTED_DTYPES = {np.dtype("int32"), np.dtype("int64"), np.dtype("float32"), 
 def awesome_cossim_topn(
     A, B, ntop, lower_bound=0, use_threads=False, n_jobs=1, return_best_ntop=None, test_nnz_max=None
 ):
-    """This function has been removed and replaced with `sp_matmul_topn`.
+    """This function will be removed and replaced with `sp_matmul_topn`.
 
     NOTE this function calls `sp_matmul_topn` but the results may not be the same.
     See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#migration' for details.
+
+    This function will return a matrix C in CSR format, where
+    C = [sorted top n results > lower_bound for each row of A * B].
+    If return_best_ntop=True then best_ntop
+    (the true maximum number of elements > lower_bound per row of A * B)
+    will also be returned in a tuple together with C as (C, best_ntop).
+
+    Args:
+        A: LHS of the multiplication, the number of columns of A determines the orientation of B.
+            `A` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `B`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
+        B: RHS of the multiplication, the number of rows of B must match the number of columns of A or the shape of B.T should be match A.
+            `B` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `A`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
+        ntop: top n results
+        lower_bound: a threshold that the element of A*B must be greater than
+        use_threads: use multi-thread or not
+        n_jobs: number of thread, must be >= 1
+        return_best_ntop: (default: False) if True, will return best_ntop together
+                          with C as a tuple: (C, best_ntop)
+
+    Returns:
+        C: result matrix (returned alone, if return_best_ntop=False)
+        best_ntop: The true maximum number of elements > lower_bound per row of
+                   A * B returned together with C as a tuple: (C, best_ntop). It is
+                   returned only if return_best_ntop=True.
+
+    N.B. if A and B are not in CSR format, they will be converted to CSR
     """
     msg = (
-        "`awesome_cossim_topn` function has been removed and (partially) replaced with `sp_matmul_topn`."
+        "`awesome_cossim_topn` function will be removed and (partially) replaced with `sp_matmul_topn`."
         " See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#migration'."
     )
-    if return_best_ntop is True or test_nnz_max is not None:
+    if test_nnz_max is not None:
         raise DeprecationWarning(msg)
-    msg += " Calling `sp_matmul_topn`, WARNING the results may not be the same."
     warnings.warn(msg, DeprecationWarning, stacklevel=2)
     n_threads = n_jobs if use_threads is True else None
     C = sp_matmul_topn(A=A, B=B, top_n=ntop, sort=True, threshold=lower_bound, n_threads=n_threads)
