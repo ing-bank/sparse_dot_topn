@@ -1,5 +1,10 @@
 set(CMAKE_CXX_STANDARD ${SDTN_CPP_STANDARD})
-set(SDTN_DEVMODE_OPTIONS -Wall -Wextra -Wunused-variable -Wunused-const-variable)
+if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+    set(SDTN_DEVMODE_OPTIONS -Wall -Wextra -Wunused-variable -Wunused-const-variable)
+else()
+    set(SDTN_DEVMODE_OPTIONS)
+endif()
+
 if(SDTN_ENABLE_DEBUG)
     set(SDTN_DEFAULT_BUILD_TYPE Debug)
 else()
