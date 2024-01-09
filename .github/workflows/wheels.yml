@@ -45,6 +45,7 @@ jobs:
 
     - uses: pypa/cibuildwheel@v2.16.2
       env:
+        CIBW_ENVIRONMENT: SKBUILD_CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF"
         CIBW_ARCHS: "auto64"
         # Cross-compile on macOS
         CIBW_ARCHS_MACOS: "x86_64 arm64"
