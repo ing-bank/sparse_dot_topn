@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
     "numpy>=1.18.0",
     "scipy>=1.4.1",
+    "psutil",
 ]
 
 [project.optional-dependencies]
