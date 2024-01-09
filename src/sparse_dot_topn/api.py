@@ -36,7 +36,10 @@ def awesome_cossim_topn(
     msg += " Calling `sp_matmul_topn`, WARNING the results may not be the same."
     warnings.warn(msg, DeprecationWarning, stacklevel=2)
     n_threads = n_jobs if use_threads is True else None
-    return sp_matmul_topn(A=A, B=B, top_n=ntop, threshold=lower_bound, n_threads=n_threads)
+    C = sp_matmul_topn(A=A, B=B, top_n=ntop, sort=True, threshold=lower_bound, n_threads=n_threads)
+    if return_best_ntop:
+        return C, np.diff(C.indptr).max()
+    return C
 
 
 def sp_matmul(*args, **kwargs):
@@ -48,6 +51,7 @@ def sp_matmul_topn(
     A: csr_matrix | csc_matrix | coo_matrix,
     B: csr_matrix | csc_matrix | coo_matrix,
     top_n: int,
+    sort: bool = False,
     threshold: int | float | None = None,
     density: float | None = None,
     n_threads: int | None = None,
@@ -67,6 +71,7 @@ def sp_matmul_topn(
             `B` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `A`.
             Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
         top_n: the number of results to retain
+        sort: return C in a format where the first non-zero element of each row is the largest value
         threshold: only return values greater than the threshold, by default this 0.0
         density: the expected density of the result considering `top_n`. The expected number of non-zero elements
             in C should <= (`density` * `top_n` * `A.shape[0]`) otherwise the memory has to reallocated.
@@ -144,15 +149,15 @@ def sp_matmul_topn(
         "A_indices": A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
         "B_data": B.data,
         "B_indptr": B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
-        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype)
+        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
     }
 
-    func = _core.sp_matmul_topn
+    func = _core.sp_matmul_topn if not sort else _core.sp_matmul_topn_sorted
     if n_threads > 1:
         if _core._has_openmp_support:
             kwargs["n_threads"] = n_threads
             kwargs.pop("density")
-            func = _core.sp_matmul_topn_mt
+            func = _core.sp_matmul_topn_mt if not sort else _core.sp_matmul_topn_sorted_mt
         else:
             msg = "sparse_dot_topn: extension was compiled without parallelisation (OpenMP) support, ignoring ``n_threads``"
             warnings.warn(msg, stacklevel=1)
