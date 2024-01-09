@@ -5,6 +5,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
+import psutil
 from scipy.sparse import coo_matrix, csc_matrix, csr_matrix
 
 from sparse_dot_topn.lib import _sparse_dot_topn_core as _core
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
 
 __all__ = ["sp_matmul_topn", "awesome_cossim_topn"]
 
+
+_N_CORES = psutil.cpu_count(logical=False) - 1
 
 _SUPPORTED_DTYPES = {np.dtype("int32"), np.dtype("int64"), np.dtype("float32"), np.dtype("float64")}
 
@@ -46,6 +49,7 @@ def awesome_cossim_topn(
         n_jobs: number of thread, must be >= 1
         return_best_ntop: (default: False) if True, will return best_ntop together
                           with C as a tuple: (C, best_ntop)
+        test_nnz_max: deprecated argument, cannot be used
 
     Returns:
         C: result matrix (returned alone, if return_best_ntop=False)
@@ -114,6 +118,8 @@ def sp_matmul_topn(
 
     """
     n_threads: int = n_threads or 1
+    if n_threads < 0:
+        n_threads = _N_CORES
     density: float = density or 1.0
     idx_dtype = assert_idx_dtype(idx_dtype)
 
