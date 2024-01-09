@@ -52,7 +52,11 @@ inline nb_vec<eT> to_nbvec(eT* data, size_t size) {
     return nb_vec<eT>(data, {size}, capsule);
 }
 
-template <typename eT, typename idxT, core::iffInt<idxT> = true>
+template <
+    typename eT,
+    typename idxT,
+    bool insertion_sort,
+    core::iffInt<idxT> = true>
 inline nb::tuple sp_matmul_topn(
     const idxT top_n,
     const idxT nrows,
@@ -72,7 +76,7 @@ inline nb::tuple sp_matmul_topn(
     std::vector<idxT> C_indices;
     C_indices.reserve(pre_alloc_size);
     std::vector<idxT> C_indptr(nrows + 1);
-    core::sp_matmul_topn<eT, idxT>(
+    core::sp_matmul_topn<eT, idxT, insertion_sort>(
         top_n,
         nrows,
         ncols,
@@ -95,7 +99,11 @@ inline nb::tuple sp_matmul_topn(
 }
 
 #ifdef SDTN_OMP_ENABLED
-template <typename eT, typename idxT, core::iffInt<idxT> = true>
+template <
+    typename eT,
+    typename idxT,
+    bool insertion_sort,
+    core::iffInt<idxT> = true>
 inline nb::tuple sp_matmul_topn_mt(
     const idxT top_n,
     const idxT nrows,
@@ -110,7 +118,7 @@ inline nb::tuple sp_matmul_topn_mt(
     const nb_vec<idxT>& B_indices
 ) {
     auto [total_nonzero, C_data, C_indices, C_indptr]
-        = core::sp_matmul_topn_mt<eT, idxT>(
+        = core::sp_matmul_topn_mt<eT, idxT, insertion_sort>(
             top_n,
             nrows,
             ncols,
@@ -136,8 +144,10 @@ inline nb::tuple sp_matmul_topn_mt(
 namespace bindings {
 
 void bind_sp_matmul_topn(nb::module_& m);
+void bind_sp_matmul_topn_sorted(nb::module_& m);
 #ifdef SDTN_OMP_ENABLED
 void bind_sp_matmul_topn_mt(nb::module_& m);
+void bind_sp_matmul_topn_sorted_mt(nb::module_& m);
 #endif  // SDTN_OMP_ENABLED
 }  // namespace bindings
 }  // namespace sdtn

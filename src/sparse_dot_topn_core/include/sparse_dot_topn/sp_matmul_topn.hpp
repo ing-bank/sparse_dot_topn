@@ -57,7 +57,7 @@ using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
  * \param[out] C_indptr array containing the row indices for `C_data`
  * \param[out] C_indices array containing the column indices
  */
-template <typename eT, typename idxT, iffInt<idxT> = true>
+template <typename eT, typename idxT, bool insertion_sort, iffInt<idxT> = true>
 inline void sp_matmul_topn(
     const idxT top_n,
     const idxT nrows,
@@ -128,8 +128,13 @@ inline void sp_matmul_topn(
             sums[temp] = 0;
         }
 
-        // sort the heap s.t. the original matrix order is maintained
-        max_heap.insertion_sort();
+        if constexpr (insertion_sort) {
+            // sort the heap s.t. the original matrix order is maintained
+            max_heap.insertion_sort();
+        } else {
+            // sort the heap s.t. the first value is the largest
+            max_heap.value_sort();
+        }
         int n_set = max_heap.get_n_set();
         for (int ii = 0; ii < n_set; ++ii) {
             C_indices.push_back(max_heap.heap[ii].idx);
@@ -169,7 +174,7 @@ inline void sp_matmul_topn(
  * \param[out] C_indptr array containing the row indices for `C_data`
  * \param[out] C_indices array containing the column indices
  */
-template <typename eT, typename idxT, iffInt<idxT> = true>
+template <typename eT, typename idxT, bool insertion_sort, iffInt<idxT> = true>
 inline std::tuple<size_t, eT*, idxT*, idxT*> sp_matmul_topn_mt(
     const idxT top_n,
     const idxT nrows,
@@ -260,8 +265,13 @@ inline std::tuple<size_t, eT*, idxT*, idxT*> sp_matmul_topn_mt(
                 sums[temp] = 0;
             }
 
-            // sort the heap s.t. the original matrix order is maintained
-            max_heap.insertion_sort();
+            if constexpr (insertion_sort) {
+                // sort the heap s.t. the original matrix order is maintained
+                max_heap.insertion_sort();
+            } else {
+                // sort the heap s.t. the first value is the largest
+                max_heap.value_sort();
+            }
             int n_set = max_heap.get_n_set();
             for (int ii = 0; ii < n_set; ++ii) {
                 local_idxs[ii] = max_heap.heap[ii].idx;

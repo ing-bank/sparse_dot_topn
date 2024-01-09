@@ -99,11 +99,19 @@ class MaxHeap {
      * \brief Sort the heap accoring to the insertion order.
      *
      * \details Note that calling `insertion_sort` invalidates the heap.
-     * Call should be followed by a call to `reset`.
+     * Calls should be followed by a call to `reset`.
      */
     void insertion_sort() {
         std::sort(heap.begin(), heap.end(), std::less<Score<eT, idxT>>());
     }
+
+    /**
+     * \brief Sort the heap accoring to values.
+     *
+     * \details Note that calling `value_sort` invalidates the heap.
+     * Calls should be followed by a call to `reset`.
+     */
+    void value_sort() { std::sort(heap.begin(), heap.end(), compare()); }
 };
 
 }  // namespace sdtn::core
