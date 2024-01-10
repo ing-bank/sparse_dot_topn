@@ -92,8 +92,6 @@ def sp_matmul_topn(
 
     This functions allows large matrices to multiplied with a limited memory footprint.
 
-    Note that
-
     Args:
         A: LHS of the multiplication, the number of columns of A determines the orientation of B.
             `A` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `B`.
@@ -103,7 +101,7 @@ def sp_matmul_topn(
             Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
         top_n: the number of results to retain
         sort: return C in a format where the first non-zero element of each row is the largest value
-        threshold: only return values greater than the threshold, by default this 0.0
+        threshold: only return values greater than the threshold
         density: the expected density of the result considering `top_n`. The expected number of non-zero elements
             in C should <= (`density` * `top_n` * `A.shape[0]`) otherwise the memory has to reallocated.
             This value should only be set if you have a strong expectation as being wrong incurs a realloaction penalty.
