@@ -67,7 +67,7 @@ def awesome_cossim_topn(
         raise DeprecationWarning(msg)
     warnings.warn(msg, DeprecationWarning, stacklevel=2)
     n_threads = n_jobs if use_threads is True else None
-    C = sp_matmul_topn(A=A, B=B, top_n=ntop, sort=True, threshold=lower_bound, n_threads=n_threads)
+    C = sp_matmul_topn(A=A, B=B, top_n=ntop, threshold=lower_bound, sort=True, n_threads=n_threads)
     if return_best_ntop:
         return C, np.diff(C.indptr).max()
     return C
@@ -82,8 +82,8 @@ def sp_matmul_topn(
     A: csr_matrix | csc_matrix | coo_matrix,
     B: csr_matrix | csc_matrix | coo_matrix,
     top_n: int,
-    sort: bool = False,
     threshold: int | float | None = None,
+    sort: bool = False,
     density: float | None = None,
     n_threads: int | None = None,
     idx_dtype: DTypeLike | None = None,
