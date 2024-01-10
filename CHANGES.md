@@ -1,5 +1,33 @@
 # Release history:
 
+## v1.0.0
+
+This introduces major and potentially breaking changes to the API.
+Please see the migration guide in the README for details.
+
+### API
+
+- API: `awesome_cossim_topn` is superseded with `sp_matmul_topn`.
+- API: `awesome_cossim_topn` has been deprecated and will be removed in a future version.
+- API: `ntop` parameter has been renamed to `topn`
+- API: `lower_bound` parameter has been renamed to `threshold`
+- API: `use_threads` and `n_jobs` parameters have been combined into `n_threads`
+- API: `return_best_ntop` parameter has been removed
+- API: `test_nnz_max` parameter has been removed
+- API: default parameter value for `threshold` changed from `0.0` to `None` (disabled)
+- API: default parameter value for `sort` changed to `False`
+
+- ENH: Add support for 32 and 64bit integers
+- BLD: Add support for CPython 3.12
+
+### Internal
+
+- BLD: Switch to pyproject.toml based setup (scikit-build-core)
+- FIX: [C++] Resolve unneeded memory allocation that solved hidden buffer-overrun in multithreaded implementation
+- BLD: [C++] Switch to Nanobind bindings
+- CHG: [C++] Switch to OpenMP for multithreading
+- ENH: [C++] Use MaxHeap to collect top-n results over vector of candidates
+
 ## v0.3.6
 - Adds support for Cython >= 3.0
 
