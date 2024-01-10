@@ -1,11 +1,18 @@
 # sparse\_dot\_topn
 
+-------------------------------**WARNING**-------------------------------
+
+Version 1.0 introduces major and potentially breaking changes to the API.
+
+Please see the Migrating section below.
+
+-------------------------------**WARNING**-------------------------------
+
 **sparse\_dot\_topn** provides a fast way to performing a sparse matrix multiplication followed by top-n multiplication result selection.
 
 Comparing very large feature vectors and picking the best matches, in practice often results in performing a sparse matrix multiplication followed by selecting the top-n multiplication results.
-**sparse\_dot\_topn** provides an sparse matrix multiplication implementation that integrates selecting the top-n values, resulting in a significantly lower memory footprint and improved performance.
 
-You can read about the original implementation in the blog ["Boosting the selection of the most similar entities in large scale datasets"](https://medium.com/@ingwbaa/https-medium-com-ingwbaa-boosting-selection-of-the-most-similar-entities-in-large-scale-datasets-450b3242e618) by [Zhe Sun](https://www.sun-analytics.nl/posts/2017-07-26-boosting-selection-of-most-similar-entities-in-large-scale-datasets/).
+**sparse\_dot\_topn** provides an sparse matrix multiplication implementation that integrates selecting the top-n values, resulting in a significantly lower memory footprint and improved performance.
 
 ## Usage
 
@@ -93,6 +100,7 @@ pip install sparse_dot_topn --no-binary sparse_dot_topn
 **sparse\_dot\_topn** v1 is a significant change from `v0.*` with a new bindings and API.
 
 **`awesome_cossim_topn` has been deprecated and will be removed in a future version.**
+
 Users should switch to `sp_matmul_topn` which is largely compatible:
 
 For example:
@@ -106,7 +114,6 @@ can be replicated using:
 ```python
 C = sp_matmul_topn(A, B, top_n=10, threshold=0.0, sort=True)
 ```
-
 
 ### API changes
 
@@ -145,6 +152,7 @@ Contributions are very welcome, please see CONTRIBUTING for details.
 ### Contributors
 
 This package was developed and is maintained by authors (previously) affiliated with ING Analytics Wholesale Banking Advanced Analytics.
+You can read about the original implementation in a [blog](https://medium.com/@ingwbaa/https-medium-com-ingwbaa-boosting-selection-of-the-most-similar-entities-in-large-scale-datasets-450b3242e618) [(mirror)](https://www.sun-analytics.nl/posts/2017-07-26-boosting-selection-of-most-similar-entities-in-large-scale-datasets/) written by Zhe Sun.
 
 * [Zhe Sun](https://github.com/ymwdalex/)
 * [Ahmet Erdem](https://github.com/aerdem4)
