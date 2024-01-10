@@ -61,7 +61,7 @@ def awesome_cossim_topn(
     """
     msg = (
         "`awesome_cossim_topn` function will be removed and (partially) replaced with `sp_matmul_topn`."
-        " See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#migration'."
+        " See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#readme'."
     )
     if test_nnz_max is not None:
         raise DeprecationWarning(msg)
