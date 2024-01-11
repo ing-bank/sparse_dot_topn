@@ -1,9 +1,7 @@
 import numpy as np
 import pytest
 
-_rng = np.random.Generator(np.random.PCG64DXSM(1483336117))
 
-
-@pytest.fixture()
+@pytest.fixture(scope="package")
 def rng():
-    return _rng
+    return np.random.Generator(np.random.PCG64DXSM(1483336117))
