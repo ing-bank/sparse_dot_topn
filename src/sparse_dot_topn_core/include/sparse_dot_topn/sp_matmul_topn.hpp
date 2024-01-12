@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <numeric>
 #include <tuple>
@@ -28,6 +29,28 @@ namespace sdtn::core {
 
 template <typename T>
 using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
+
+template <typename idxT, iffInt<idxT> = true>
+inline idxT sp_matmul_topn_size(
+    const idxT top_n,
+    const idxT nrows,
+    const idxT* __restrict A_indptr,
+    const idxT* __restrict A_indices,
+    const idxT* __restrict B_indptr
+) {
+    idxT nnz = 0;
+    for (idxT i = 0; i < nrows; i++) {
+        idxT row_nnz = 0;
+        idxT A_cidx_start = A_indptr[i];
+        idxT A_cidx_end = A_indptr[i + 1];
+        for (idxT A_cidx = A_cidx_start; A_cidx < A_cidx_end; ++A_cidx) {
+            idxT j = A_indices[A_cidx];
+            row_nnz += (B_indptr[j + 1] - B_indptr[j]);
+        }
+        nnz += std::min(top_n, row_nnz);
+    }
+    return nnz;
+}
 
 /**
  * \brief Compute A.dot(B) keeping only the top n results.
@@ -146,6 +169,30 @@ inline void sp_matmul_topn(
 }
 
 #if defined(SDTN_OMP_ENABLED)
+template <typename idxT, iffInt<idxT> = true>
+inline idxT sp_matmul_topn_size_mt(
+    const idxT top_n,
+    const idxT nrows,
+    const idxT* __restrict A_indptr,
+    const idxT* __restrict A_indices,
+    const idxT* __restrict B_indptr
+) {
+    idxT nnz = 0;
+#pragma omp parallel for default(none) \
+    shared(top_n, A_indptr, A_indices, B_indptr) reduction(+ : nnz)
+    for (idxT i = 0; i < nrows; i++) {
+        idxT row_nnz = 0;
+        idxT A_cidx_start = A_indptr[i];
+        idxT A_cidx_end = A_indptr[i + 1];
+        for (idxT A_cidx = A_cidx_start; A_cidx < A_cidx_end; ++A_cidx) {
+            idxT j = A_indices[A_cidx];
+            row_nnz += (B_indptr[j + 1] - B_indptr[j]);
+        }
+        nnz += std::min(top_n, row_nnz);
+    }
+    return nnz;
+}
+
 /**
  * \brief Compute A.dot(B) keeping only the top n results.
  *
