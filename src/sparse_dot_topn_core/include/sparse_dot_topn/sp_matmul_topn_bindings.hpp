@@ -73,17 +73,21 @@ inline nb::tuple sp_matmul_topn(
     const nb_vec<idxT>& B_indptr,
     const nb_vec<idxT>& B_indices
 ) {
-    auto pre_alloc_size = static_cast<int64_t>(ceil(density * top_n * nrows));
+    idxT result_size;
     eT local_threshold;
     if (threshold.has_value()) {
+        result_size = static_cast<idxT>(ceil(density * top_n * nrows));
         local_threshold = threshold.value();
     } else {
+        result_size = core::sp_matmul_topn_size(
+            top_n, nrows, A_indptr.data(), A_indices.data(), B_indptr.data()
+        );
         local_threshold = std::numeric_limits<eT>::min();
     }
     std::vector<eT> C_data;
-    C_data.reserve(pre_alloc_size);
+    C_data.reserve(result_size);
     std::vector<idxT> C_indices;
-    C_indices.reserve(pre_alloc_size);
+    C_indices.reserve(result_size);
     std::vector<idxT> C_indptr(nrows + 1);
     core::sp_matmul_topn<eT, idxT, insertion_sort>(
         top_n,
