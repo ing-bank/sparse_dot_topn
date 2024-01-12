@@ -17,7 +17,10 @@
 #pragma once
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/optional.h>
 
+#include <limits>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -61,7 +64,7 @@ inline nb::tuple sp_matmul_topn(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
-    const eT threshold,
+    std::optional<eT> threshold,
     const double density,
     const nb_vec<eT>& A_data,
     const nb_vec<idxT>& A_indptr,
@@ -71,6 +74,12 @@ inline nb::tuple sp_matmul_topn(
     const nb_vec<idxT>& B_indices
 ) {
     auto pre_alloc_size = static_cast<int64_t>(ceil(density * top_n * nrows));
+    eT local_threshold;
+    if (threshold.has_value()) {
+        local_threshold = threshold.value();
+    } else {
+        local_threshold = std::numeric_limits<eT>::min();
+    }
     std::vector<eT> C_data;
     C_data.reserve(pre_alloc_size);
     std::vector<idxT> C_indices;
@@ -80,7 +89,7 @@ inline nb::tuple sp_matmul_topn(
         top_n,
         nrows,
         ncols,
-        threshold,
+        local_threshold,
         A_data.data(),
         A_indptr.data(),
         A_indices.data(),
@@ -108,7 +117,7 @@ inline nb::tuple sp_matmul_topn_mt(
     const idxT top_n,
     const idxT nrows,
     const idxT ncols,
-    const eT threshold,
+    std::optional<eT> threshold,
     const int n_threads,
     const nb_vec<eT>& A_data,
     const nb_vec<idxT>& A_indptr,
@@ -117,12 +126,13 @@ inline nb::tuple sp_matmul_topn_mt(
     const nb_vec<idxT>& B_indptr,
     const nb_vec<idxT>& B_indices
 ) {
+    eT local_threshold = threshold.value_or(std::numeric_limits<eT>::min());
     auto [total_nonzero, C_data, C_indices, C_indptr]
         = core::sp_matmul_topn_mt<eT, idxT, insertion_sort>(
             top_n,
             nrows,
             ncols,
-            threshold,
+            local_threshold,
             n_threads,
             A_data.data(),
             A_indptr.data(),
