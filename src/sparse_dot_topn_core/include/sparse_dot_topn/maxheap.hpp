@@ -96,7 +96,7 @@ class MaxHeap {
     }
 
     /**
-     * \brief Sort the heap accoring to the insertion order.
+     * \brief Sort the heap according to the insertion order.
      *
      * \details Note that calling `insertion_sort` invalidates the heap.
      * Calls should be followed by a call to `reset`.
@@ -106,7 +106,7 @@ class MaxHeap {
     }
 
     /**
-     * \brief Sort the heap accoring to values.
+     * \brief Sort the heap according to values.
      *
      * \details Note that calling `value_sort` invalidates the heap.
      * Calls should be followed by a call to `reset`.

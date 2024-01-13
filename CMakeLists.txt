@@ -42,6 +42,7 @@ set(SDTN_SRC_FILES
     ${SDTN_SRC_PREF}/extension.cpp
     ${SDTN_SRC_PREF}/sp_matmul_bindings.cpp
     ${SDTN_SRC_PREF}/sp_matmul_topn_bindings.cpp
+    ${SDTN_SRC_PREF}/zip_sp_matmul_topn_bindings.cpp
 )
 
 include(FindDependencies)

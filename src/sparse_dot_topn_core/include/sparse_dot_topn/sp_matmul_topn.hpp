@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <tuple>

@@ -135,8 +135,8 @@ select = [
   "RSE",
   # flynt
   "FLY",
-  "CPY001"
 ]
+
 ignore = [
   "E501", # line length
   "PLR0913", # too many arguments
