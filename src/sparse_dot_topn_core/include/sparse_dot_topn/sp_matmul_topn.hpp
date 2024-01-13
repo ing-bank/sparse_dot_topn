@@ -311,4 +311,86 @@ inline std::tuple<size_t, eT*, idxT*, idxT*> sp_matmul_topn_mt(
 }  // sp_matmul_topn_mt
 #endif  // SDTN_OMP_ENABLED
 
+/**
+ * \brief Zip and compute Z = zip_j C_j = zip_j A.dot(B_j) keeping only the top-n of the zipped results.
+ *
+ * \details This function will return a zipped matrix Z in CSR format, zip_j C_j, where
+ * Z = [sorted top n results > lower_bound for each row of C_j], where C_j = A.dot(B_j) and where B
+ * has been split row-wise into sub-matrices B_j. Note that `C_j` must be `CSR` format where the nonzero
+ * elements of the `i`th row are located in ``data[indptr[i]:indptr[i+1]]``.
+ * The column indices for row `i` are stored in
+ * ``indices[indptr[i]:indptr[i+1]]``.
+ *
+ * \tparam eT   element type of the matrices
+ * \tparam idxT integer type of the index arrays, must be at least 32 bit int
+ * \param[in] top_n the top n values to store
+ * \param[in] nrowsA the number of rows in A
+ * \param[in] ncolsB_vec the number of columns in each B_i sub-matrix
+ * \param[in] C_data_vec vector of the nonzero elements of each C_data_j sub-matrix
+ * \param[in] C_indptr_vec vector of arrays containing the row indices for `C_data_j` sub-matrices
+ * \param[in] C_indices_vec vector of arrays containing the column indices for the C_j sub-matrices
+ * \param[out] Z_data the nonzero elements of zipped Z matrix
+ * \param[out] Z_indptr array containing the row indices for zipped `Z_data`
+ * \param[out] Z_indices array containing the zipped column indices
+ */
+template <typename eT, typename idxT, bool insertion_sort, iffInt<idxT> = true>
+inline void sp_matzip_topn(
+    const idxT top_n,
+    const idxT nrowsA,
+    const std::vector<idxT>& ncolsB_vec,
+    const std::vector<eT*>& C_data_vec,
+    const std::vector<idxT*>& C_indptr_vec,
+    const std::vector<idxT*>& C_indices_vec,
+    std::vector<eT>& Z_data,
+    std::vector<idxT>& Z_indptr,
+    std::vector<idxT>& Z_indices
+) {
+    int n_set(0);
+    idxT nnz = 0;
+    Z_indptr[0] = 0;
+    const int n_mat = C_data_vec.size();
+
+    // threshold is already consistent between matrices, so accept every line.
+    auto max_heap = MaxHeap<eT, idxT>(top_n, eT(-999));
+
+    // offset the index when concatenating the C sub-matrices (split by row)
+    std::vector<idxT> offset(n_mat, idxT(0));
+    for (int i = 0; i < n_mat - 1; ++i) {
+        for (int j = i; j < n_mat - 1; ++j) {
+            offset[j + 1] += ncolsB_vec[i];
+        }
+    }
+
+    // concatenate the results of each row, apply top_n and add that to the C matrix
+    for (int i = 0; i < nrowsA; ++i) {
+
+        eT min = max_heap.reset();
+
+        // keep topn of stacked lines for each row
+        for (int j = 0; j < n_mat; ++j) {
+            for (int k = (*C_indptr_vec[j])[i]; k < (*C_indptr_vec[j])[i + 1]; ++k) {
+                min = max_heap.push_pop( offset[j] + (*C_indices_vec[j])[k], (*C_data_vec[j])[k] );
+            }
+        }
+
+        // sorting of the stacked lines for each row
+        if constexpr (insertion_sort) {
+            // sort the heap s.t. the original matrix order is maintained
+            max_heap.insertion_sort();
+        } else {
+            // sort the heap s.t. the first value is the largest
+            max_heap.value_sort();
+        }
+
+        // fill the zipped sparse matrix C.
+        int n_set = max_heap.get_n_set();
+        for (int ii = 0; ii < n_set; ++ii) {
+            Z_indices.push_back(max_heap.heap[ii].idx);
+            Z_data.push_back(max_heap.heap[ii].val);
+        }
+        nnz += n_set;
+        Z_indptr[i + 1] = nnz;
+    }
+}
+
 }  // namespace sdtn::core
