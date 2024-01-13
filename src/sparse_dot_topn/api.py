@@ -282,3 +282,60 @@ def sp_matmul_topn(
             msg = "sparse_dot_topn: extension was compiled without parallelisation (OpenMP) support, ignoring ``n_threads``"
             warnings.warn(msg, stacklevel=1)
     return csr_matrix(func(**kwargs), shape=(A_nrows, B_ncols))
+
+
+def zip_sp_matmul_topn(top_n: int, C_mats: list[csr_matrix]) -> csr_matrix:
+    """Compute zip-matrix C = zip_i C_i = zip_i A * B_i = A * B whilst only storing the `top_n` elements.
+
+    Combine the sub-matrices together and keep only the `top_n` elements per row.
+
+    Pre-calling this function, matrix B has been split row-wise into chunks B_i, and C_i = A * B_i have been calculated.
+    This function computes C = zip_i C_i, which is equivalent to A * B when only keeping the `top_n` elements.
+    It allows very large matrices to be split and multiplied with a limited memory footprint.
+
+    Args:
+        top_n: the number of results to retain; should be smaller or equal to top_n used to obtain C_mats.
+        C_mats: a list with each C_i sub-matrix, with format csr_matrix.
+
+    Returns:
+        C: zipped result matrix
+
+    Raises:
+        TypeError: when not all elements of `C_mats` is a csr_matrix or trivially convertable
+        ValueError: when not all elements of `C_mats` has the same number of rows
+    """
+    _nrows = []
+    ncols = []
+    data = []
+    indptr = []
+    indices = []
+    for C in C_mats:
+        # check correct type of each C
+        if isinstance(C, (coo_matrix, csc_matrix)):
+            C = C.tocsr(False)
+        elif not isinstance(C, csr_matrix):
+            msg = f"type of `C` must be one of `csr_matrix`, `csc_matrix` or `csr_matrix`, got `{type(C)}`"
+            raise TypeError(msg)
+
+        nrows, c_nc = C.shape
+        _nrows.append(nrows)
+        ncols.append(c_nc)
+        data.append(C.data)
+        indptr.append(C.indptr)
+        indices.append(C.indices)
+
+    if not np.all(np.diff(_nrows) == 0):
+        msg = "Each `C` in `C_mats` should have the same number of rows."
+        raise ValueError(msg)
+
+    return csr_matrix(
+        _core.zip_sp_matmul_topn(
+            top_n=top_n,
+            Z_max_nnz=nrows * top_n,
+            nrows=nrows,
+            B_ncols=np.asarray(ncols, int),
+            data=data,
+            indptr=indptr,
+            indices=indices,
+        )
+    )

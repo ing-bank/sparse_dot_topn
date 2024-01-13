@@ -17,6 +17,7 @@
 #include <nanobind/nanobind.h>
 #include <sparse_dot_topn/sp_matmul_bindings.hpp>
 #include <sparse_dot_topn/sp_matmul_topn_bindings.hpp>
+#include <sparse_dot_topn/zip_sp_matmul_topn_bindings.hpp>
 
 namespace sdtn::bindings {
 
@@ -24,6 +25,7 @@ NB_MODULE(_sparse_dot_topn_core, m) {
     bind_sp_matmul(m);
     bind_sp_matmul_topn(m);
     bind_sp_matmul_topn_sorted(m);
+    bind_zip_sp_matmul_topn(m);
 #ifdef SDTN_OMP_ENABLED
     bind_sp_matmul_mt(m);
     bind_sp_matmul_topn_mt(m);

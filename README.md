@@ -80,6 +80,47 @@ pip install sparse_dot_topn --no-binary sparse_dot_topn
 Building from source can enable architecture specific optimisations and is recommended for those that have a C++ compiler installed.
 See INSTALLATION.md for details.
 
+## Distributing the top-n multiplication of two large O(10M+) sparse matrices over a cluster
+
+The top-n multiplication of two large O(10M+) sparse matrices can be broken down into smaller chunks.
+For example, one may want to split sparse matrices into matrices with just 1M rows, and do the
+the (top-n) multiplication of all those matrix pairs.
+Reasons to do this are to reduce the memory footprint of each pair, and to employ available distributed computing power.
+
+The pairs can be distributed and calculated over a cluster (eg. we use a spark cluster).
+The resulting matrix-products are then zipped and stacked in order to reproduce the full matrix product.
+
+Here's an example how to do this, where we are matching 1000 rows in sparse matrix A against 600 rows in sparse matrix B,
+and both A and B are split into chunks.
+
+```python
+import numpy as np
+import scipy.sparse as sparse
+from sparse_dot_topn import sp_matmul_topn, zip_sp_matmul_topn
+
+# 1a. Example matching 1000 rows in sparse matrix A against 600 rows in sparse matrix B.
+A = sparse.random(1000, 2000, density=0.1, format="csr", dtype=np.float32, random_state=rng)
+B = sparse.random(600, 2000, density=0.1, format="csr", dtype=np.float32, random_state=rng)
+
+# 1b. Reference full matrix product with top-n
+C_ref = sp_matmul_topn(A, B.T, top_n=10, threshold=0.01, sort=True)
+
+# 2a. Split the sparse matrices. Here A is split into three parts, and B into five parts.
+As = [A[i*200:(i+1)*200] for i in range(5)]
+Bs = [B[:100], B[100:300], B[300:]]
+
+# 2b. Perform the top-n multiplication of all sub-matrix pairs, here in a double loop.
+# E.g. all sub-matrix pairs could be distributed over a cluster and multiplied there.
+Cs = [[sp_matmul_topn(Aj, Bi.T, top_n=10, threshold=0.01, sort=True) for Bi in Bs] for Aj in As]
+
+# 2c. top-n zipping of the C-matrices, done over the index of the B sub-matrices.
+Czip = [zip_sp_matmul_topn(top_n=10, C_mats=Cis) for Cis in Cs]
+
+# 2d. stacking over zipped C-matrices, done over the index of the A sub-matrices
+# The resulting matrix C equals C_ref.
+C = sparse.vstack(Czip, dtype=np.float32)
+```
+
 ## Migrating to v1.
 
 **sparse\_dot\_topn** v1 is a significant change from `v0.*` with a new bindings and API.
@@ -147,4 +188,5 @@ You can read about it in a [blog](https://medium.com/@ingwbaa/https-medium-com-i
 * [Stephane Collet](https://github.com/stephanecollot)
 * [Particular Miner](https://github.com/ParticularMiner) (no ING affiliation)
 * [Ralph Urlus](https://github.com/RUrlus)
+* [Max Baak](https://github.com/mbaak)
 
