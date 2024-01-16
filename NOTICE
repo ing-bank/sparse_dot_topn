@@ -1,0 +1,30 @@
+################################################################################################
+#
+# NOTICE: pass-through licensing of bundled components
+#
+# Sparse-dot-topn depends on a number of pre-existing third-party open-source software components.
+# These software components are governed by their own licenses which Sparse-dot-topn does not
+# modify or supersede, please consult the originating authors.
+# These components altogether have a mixture of the following licenses: Apache 2.0, MIT, BSD2,
+# BSD3 licenses.
+#
+# Although we have examined the licenses to verify acceptance of commercial and non-commercial
+# use, please see and consult the original licenses or authors.
+#
+# Here is the full list of license dependencies:
+#
+# numpy: https://github.com/numpy/numpy/blob/master/LICENSE.txt
+# scipy: https://github.com/scipy/scipy/blob/master/LICENSE.txt
+# psutil: https://github.com/giampaolo/psutil/blob/master/LICENSE
+#
+# There are several popmon functions/classes where code or techniques have been reproduced and/or modified
+# from existing open-source packages. We list these here:
+#
+# Package: scipy
+# file: src/sparse_dot_topn_core/include/sparse_dot_topn/sp_matmul_topn.hpp
+#    Functions: sp_matmul_topn(), sp_matmul_topn_mt()
+#    Reference: scsr_binop_csr_general at cipy/sparse/sparsetools/csr.h#L692
+# License: BSD3
+#    For details see: https://github.com/scipy/scipy/blob/master/LICENSE.txt
+#
+################################################################################################

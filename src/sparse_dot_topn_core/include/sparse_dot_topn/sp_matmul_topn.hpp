@@ -62,6 +62,11 @@ inline idxT sp_matmul_topn_size(
  * The column indices for row `i` are stored in
  * ``indices[indptr[i]:indptr[i+1]]``.
  *
+ *  Copyright Scipy:
+ *  This function is a modified version of `csr_binop_csr_general`
+ *  Source: scipy/sparse/sparsetools/csr.h#L692
+ *  License: BSD 3 https://github.com/scipy/scipy/blob/main/LICENSE.txt
+ *  All modifications copyright INGA WB.
  *
  * \tparam eT   element type of the matrices
  * \tparam idxT integer type of the index arrays, must be at least 32 bit int
@@ -203,6 +208,11 @@ inline idxT sp_matmul_topn_size_mt(
  * The column indices for row `i` are stored in
  * ``indices[indptr[i]:indptr[i+1]]``.
  *
+ *  Copyright Scipy:
+ *  This function is a modified version of `csr_binop_csr_general`
+ *  Source: scipy/sparse/sparsetools/csr.h#L692
+ *  License: BSD 3 https://github.com/scipy/scipy/blob/main/LICENSE.txt
+ *  All modifications copyright INGA WB.
  *
  * \tparam eT   element type of the matrices
  * \tparam idxT integer type of the index arrays, must be at least 32 bit int
