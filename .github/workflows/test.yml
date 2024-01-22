@@ -1,4 +1,4 @@
-name: Test
+name: Build & Test
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build with Pip
+    name: Build
     runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
@@ -30,9 +30,11 @@ jobs:
         echo "MACOS_DEPLOYMENT_TARGET=10.14" >> $GITHUB_ENV
 
     - name: Build and install
-      run: pip install --verbose ".[test]"
+      run: |
+        pip install pip --upgrade
+        pip install ".[test]" --verbose 
 
     - name: Test
       run: |
         cd tests
-        pyest -vv
+        pytest -vv
