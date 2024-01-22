@@ -44,14 +44,6 @@ jobs:
         submodules: true
 
     - uses: pypa/cibuildwheel@v2.16.2
-      env:
-        CIBW_BUILD: 'cp38-* cp39-* cp310-* cp311-* cp312-*'
-        CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET="10.14" SKBUILD_CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON"
-        CIBW_ARCHS: "auto64"
-        # Cross-compile on macOS
-        CIBW_ARCHS_MACOS: "x86_64 arm64"
-        # Skip 32-bit builds
-        CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_x86_64"
 
     - name: Verify clean directory
       run: git diff --exit-code
