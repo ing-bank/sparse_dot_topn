@@ -63,6 +63,8 @@ environment = {CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON
 # Run pytest to ensure that the package was correctly built
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
+# Skip trying to test arm64 builds on Intel Macs
+test-skip = "*-macosx_arm64 *-macosx_universal2:arm64"
 
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
