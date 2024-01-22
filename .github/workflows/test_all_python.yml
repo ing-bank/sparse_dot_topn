@@ -1,0 +1,32 @@
+name: Build & Test CPython
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Build and install
+      run: |
+        pip install pip --upgrade
+        pip install ".[test]" --verbose 
+
+    - name: Test
+      run: |
+        cd tests
+        pytest -vv
