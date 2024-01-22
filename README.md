@@ -12,7 +12,7 @@ Please see the Migrating section below.
 
 Comparing very large feature vectors and picking the best matches, in practice often results in performing a sparse matrix multiplication followed by selecting the top-n multiplication results.
 
-**sparse\_dot\_topn** provides an sparse matrix multiplication implementation that integrates selecting the top-n values, resulting in a significantly lower memory footprint and improved performance.
+**sparse\_dot\_topn** provides a (parallelised) sparse matrix multiplication implementation that integrates selecting the top-n values, resulting in a significantly lower memory footprint and improved performance.
 
 ## Usage
 
@@ -44,11 +44,10 @@ Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `A.dot(B)`.
 pip install sparse_dot_topn
 ```
 
-The wheel versions do not have native parallelisation support, see below on how to enable it.
-
-### Source build
-
 **sparse\_dot\_topn** relies on a C++ extension for the computationally intensive multiplication routine.
+Note that the wheels vendor/ships OpenMP with the extension to provide parallelisation out-of-the-box.
+If you run into issues with OpenMP see INSTALLATION.md for help.
+
 Installing from source requires a C++17 compatible compiler.
 If you have a compiler available it is advised to install without the wheel as this enables architecture specific optimisations.
 
@@ -58,42 +57,11 @@ You can install from source using:
 pip install sparse_dot_topn --no-binary sparse_dot_topn
 ```
 
-### Native builds
+### Build configuration
 
-When you're building from source we assume that the target architecture is the one you are building on, aka a native build.
-This generally results in faster binaries at the cost that they cannot be used on different systems.
-Native architecture flags are enabled and the CPU is checked for support of SSE3, SSE4, AVX and AX2.
-
-If you are building from source for a different system, you can disable this with:
-
-```shell
-SKBUILD_CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF" pip install sparse_dot_topn --no-binary sparse_dot_topn
-```
-
-### Multithreading
-
-Parallelisation is supported and automatically enabled if OpenMP can be found.
-
-You can either explicitly enable OpenMP, which will now raise an exception if it cannot be found:
-
-```shell
-SKBUILD_CMAKE_ARGS="-DSDTN_ENABLE_OPENMP=ON" pip install sparse_dot_topn --no-binary sparse_dot_topn
-```
-or explicitly disable it:
-
-```shell
-SKBUILD_CMAKE_ARGS="-DSDTN_DISABLE_OPENMP=ON" pip install sparse_dot_topn --no-binary sparse_dot_topn
-```
-
-#### Finding OpenMP
-
-If OpenMP cannot be found you can pass it's root directory using the `OpenMP_ROOT` definition.
-For example, for Homebrew users on Apple silicon: 
-
-```shell
-SKBUILD_CMAKE_ARGS="-DSDTN_ENABLE_OPENMP=ON -DOpenMP_ROOT=$(brew --prefix)/opt/libomp" \
-pip install sparse_dot_topn --no-binary sparse_dot_topn
-```
+**sparse\_dot\_topn** provides some configuration options when building from source.
+Building from source can enable architecture specific optimisations and is recommended for those that have a C++ compiler installed.
+See INSTALLATION.md for details.
 
 ## Migrating to v1.
 
@@ -152,7 +120,8 @@ Contributions are very welcome, please see CONTRIBUTING for details.
 ### Contributors
 
 This package was developed and is maintained by authors (previously) affiliated with ING Analytics Wholesale Banking Advanced Analytics.
-You can read about the original implementation in a [blog](https://medium.com/@ingwbaa/https-medium-com-ingwbaa-boosting-selection-of-the-most-similar-entities-in-large-scale-datasets-450b3242e618) [(mirror)](https://www.sun-analytics.nl/posts/2017-07-26-boosting-selection-of-most-similar-entities-in-large-scale-datasets/) written by Zhe Sun.
+The original implementation was based on modified version of Scipy's CSR multiplication implementation.
+You can read about it in a [blog](https://medium.com/@ingwbaa/https-medium-com-ingwbaa-boosting-selection-of-the-most-similar-entities-in-large-scale-datasets-450b3242e618) [(mirror)](https://www.sun-analytics.nl/posts/2017-07-26-boosting-selection-of-most-similar-entities-in-large-scale-datasets/) written by Zhe Sun.
 
 * [Zhe Sun](https://github.com/ymwdalex/)
 * [Ahmet Erdem](https://github.com/aerdem4)
