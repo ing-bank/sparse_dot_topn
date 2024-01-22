@@ -46,6 +46,7 @@ sdist.include = [
 wheel.py-api = "cp312"
 
 [tool.scikit-build.cmake.define]
+CMAKE_OSX_DEPLOYMENT_TARGET="10.14"
 SDTN_CPP_STANDARD = "17"
 SDTN_ENABLE_DEVMODE = false
 SDTN_ENABLE_DEBUG = false
