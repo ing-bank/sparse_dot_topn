@@ -18,6 +18,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstring>
 #include <memory>
 #include <numeric>
 #include <tuple>
