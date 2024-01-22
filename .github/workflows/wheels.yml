@@ -25,8 +25,9 @@ jobs:
     - name: Check metadata
       run: pipx run twine check dist/*
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: artifact-sdist
         path: dist/*.tar.gz
 
 
@@ -44,29 +45,91 @@ jobs:
         submodules: true
 
     - uses: pypa/cibuildwheel@v2.16.2
+      env:
+        CIBW_ENVIRONMENT: CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
+        CIBW_TEST_COMMAND: pytest {project}/tests && python -c "from sparse_dot_topn import _has_openmp_support;assert _has_openmp_support"
+        # only build for x86_64; ARM wheels are build seperately
+        CIBW_ARCHS_MACOS: "x86_64"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="10.14" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
 
     - name: Verify clean directory
       run: git diff --exit-code
       shell: bash
 
     - name: Upload wheels
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
+        name: artifact-${{ matrix.os }}
         path: wheelhouse/*.whl
 
+  build_arm_wheels:
+    name: MacOS ARM wheels
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Cache OpenMP repo
+      id: clone-openmp
+      uses: actions/cache@v4
+      with:
+        path: llvm-project
+        key: macos-arm-openmp
+
+    - name: Clone OpenMP repo
+      if: steps.clone-openmp.outputs.cache-hit != 'true'
+      run: |
+        git clone --depth 1 --branch llvmorg-17.0.6 https://github.com/llvm/llvm-project
+
+    - name: Build OpenMP
+      shell: bash
+      run: |
+        mv llvm-project/openmp ./openmp
+        mv llvm-project/cmake ./cmake
+        rm -rf llvm-project
+        mkdir openmp_build
+        cmake -S openmp -B openmp_build \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_INSTALL_PREFIX="/usr/local"
+        cmake --build openmp_build --target install --config Release
+
+    - uses: pypa/cibuildwheel@v2.16.2
+      env:
+        # only build for ARM; x86_64wheels are build seperately
+        CIBW_ARCHS: "arm64"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="10.14" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/usr/local"
+
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
+
+    - name: Upload wheels
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact-macos-arm
+        path: wheelhouse/*.whl
 
   upload_all:
     name: Upload if release
-    needs: [build_wheels, build_sdist]
+    needs: [build_sdist, build_wheels, build_arm_wheels]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
     - uses: actions/setup-python@v4
 
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
-        name: artifact
+        pattern: artifact-*
+        merge-multiple: true
         path: dist
 
     - uses: pypa/gh-action-pypi-publish@release/v1
