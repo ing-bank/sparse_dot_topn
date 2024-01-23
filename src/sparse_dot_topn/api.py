@@ -14,7 +14,7 @@ from sparse_dot_topn.types import assert_idx_dtype, assert_supported_dtype, ensu
 if TYPE_CHECKING:
     from numpy.types import DTypeLike
 
-__all__ = ["sp_matmul_topn", "awesome_cossim_topn"]
+__all__ = ["sp_matmul", "sp_matmul_topn", "awesome_cossim_topn"]
 
 
 _N_CORES = psutil.cpu_count(logical=False) - 1
@@ -73,9 +73,97 @@ def awesome_cossim_topn(
     return C
 
 
-def sp_matmul(*args, **kwargs):
-    msg = "Sparse Matrix Multiplication is not yet implemented."
-    raise NotImplementedError(msg)
+def sp_matmul(
+    A: csr_matrix | csc_matrix | coo_matrix,
+    B: csr_matrix | csc_matrix | coo_matrix,
+    n_threads: int | None = None,
+    idx_dtype: DTypeLike | None = None,
+) -> csr_matrix:
+    """Compute A * B whilst only storing the `top_n` elements.
+
+    This functions allows large matrices to multiplied with a limited memory footprint.
+
+    Args:
+        A: LHS of the multiplication, the number of columns of A determines the orientation of B.
+            `A` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `B`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
+        B: RHS of the multiplication, the number of rows of B must match the number of columns of A or the shape of B.T should be match A.
+            `B` must be have an {32, 64}bit {int, float} dtype that is of the same kind as `A`.
+            Note the matrix is converted (copied) to CSR format if a CSC or COO matrix.
+        n_threads: number of threads to use, `None` implies sequential processing, -1 will use all but one of the available cores.
+        idx_dtype: dtype to use for the indices, defaults to 32bit integers
+
+    Throws:
+        TypeError: when A, B are not trivially convertable to a `CSR matrix`
+
+    Returns:
+        C: result matrix
+
+    """
+    idx_dtype = assert_idx_dtype(idx_dtype)
+    n_threads: int = n_threads or 1
+    if n_threads < 0:
+        n_threads = _N_CORES
+
+    if isinstance(A, csc_matrix) and isinstance(B, csc_matrix) and A.shape[0] == B.shape[1]:
+        A = A.transpose()
+        B = B.transpose()
+    elif isinstance(A, (coo_matrix, csc_matrix)):
+        A = A.tocsr(False)
+    elif not isinstance(A, csr_matrix):
+        msg = f"type of `A` must be one of `csr_matrix`, `csc_matrix` or `csr_matrix`, got `{type(A)}`"
+        raise TypeError(msg)
+
+    if not isinstance(B, (csr_matrix, coo_matrix, csc_matrix)):
+        msg = f"type of `B` must be one of `csr_matrix`, `csc_matrix` or `csr_matrix`, got `{type(B)}`"
+        raise TypeError(msg)
+
+    A_nrows, A_ncols = A.shape
+    B_nrows, B_ncols = B.shape
+
+    if A_ncols == B_nrows:
+        if isinstance(B, (coo_matrix, csc_matrix)):
+            B = B.tocsr(False)
+    elif A_ncols == B_ncols:
+        B = B.transpose() if isinstance(B, csc_matrix) else B.transpose().tocsr(False)
+        B_nrows, B_ncols = B.shape
+    else:
+        msg = (
+            "Matrices `A` and `B` have incompatible shapes. `A.shape[1]` must be equal to `B.shape[0]` or `B.shape[1]`."
+        )
+        raise ValueError(msg)
+
+    assert_supported_dtype(A)
+    assert_supported_dtype(B)
+    ensure_compatible_dtype(A, B)
+
+    # basic check. if A or B are all zeros matrix, return all zero matrix directly
+    if A.indices.size == 0 or B.indices.size == 0:
+        C_indptr = np.zeros(A_nrows + 1, dtype=idx_dtype)
+        C_indices = np.zeros(1, dtype=idx_dtype)
+        C_data = np.zeros(1, dtype=A.dtype)
+        return csr_matrix((C_data, C_indices, C_indptr), shape=(A_nrows, B_ncols))
+
+    kwargs = {
+        "nrows": A_nrows,
+        "ncols": B_ncols,
+        "A_data": A.data,
+        "A_indptr": A.indptr if idx_dtype is None else A.indptr.astype(idx_dtype),
+        "A_indices": A.indices if idx_dtype is None else A.indices.astype(idx_dtype),
+        "B_data": B.data,
+        "B_indptr": B.indptr if idx_dtype is None else B.indptr.astype(idx_dtype),
+        "B_indices": B.indices if idx_dtype is None else B.indices.astype(idx_dtype),
+    }
+
+    func = _core.sp_matmul
+    if n_threads > 1:
+        if _core._has_openmp_support:
+            kwargs["n_threads"] = n_threads
+            func = _core.sp_matmul_mt
+        else:
+            msg = "sparse_dot_topn: extension was compiled without parallelisation (OpenMP) support, ignoring ``n_threads``"
+            warnings.warn(msg, stacklevel=1)
+    return csr_matrix(func(**kwargs), shape=(A_nrows, B_ncols))
 
 
 def sp_matmul_topn(
@@ -148,6 +236,9 @@ def sp_matmul_topn(
             "Matrices `A` and `B` have incompatible shapes. `A.shape[1]` must be equal to `B.shape[0]` or `B.shape[1]`."
         )
         raise ValueError(msg)
+
+    if B_ncols == top_n and (sort is False) and (threshold is None):
+        return sp_matmul(A, B, n_threads)
 
     assert_supported_dtype(A)
     assert_supported_dtype(B)
