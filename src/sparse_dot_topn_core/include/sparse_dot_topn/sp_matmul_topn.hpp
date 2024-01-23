@@ -24,12 +24,10 @@
 #include <tuple>
 #include <vector>
 
+#include <sparse_dot_topn/common.hpp>
 #include <sparse_dot_topn/maxheap.hpp>
 
 namespace sdtn::core {
-
-template <typename T>
-using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
 
 template <typename idxT, iffInt<idxT> = true>
 inline idxT sp_matmul_topn_size(

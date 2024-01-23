@@ -24,36 +24,14 @@
 #include <utility>
 #include <vector>
 
+#include <sparse_dot_topn/common.hpp>
 #include <sparse_dot_topn/sp_matmul_topn.hpp>
-#include <sparse_dot_topn/sp_matmul_topn_bindings.hpp>
 
 namespace sdtn {
 
 namespace nb = nanobind;
 
 namespace api {
-
-template <typename eT>
-using nb_vec
-    = nb::ndarray<nb::numpy, eT, nb::ndim<1>, nb::c_contig, nb::device::cpu>;
-
-template <typename eT>
-inline nb_vec<eT> to_nbvec(std::vector<eT>&& seq) {
-    std::vector<eT>* seq_ptr = new std::vector<eT>(std::move(seq));
-    eT* data = seq_ptr->data();
-    auto capsule = nb::capsule(seq_ptr, [](void* p) noexcept {
-        delete reinterpret_cast<std::vector<eT>*>(p);
-    });
-    return nb_vec<eT>(data, {seq_ptr->size()}, capsule);
-}
-
-template <typename eT>
-inline nb_vec<eT> to_nbvec(eT* data, size_t size) {
-    auto capsule = nb::capsule(data, [](void* p) noexcept {
-        delete[] reinterpret_cast<eT*>(p);
-    });
-    return nb_vec<eT>(data, {size}, capsule);
-}
 
 template <
     typename eT,
