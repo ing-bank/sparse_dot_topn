@@ -58,7 +58,13 @@ inline nb::tuple sp_matmul_topn(
         local_threshold = threshold.value();
     } else {
         result_size = core::sp_matmul_topn_size(
-            top_n, nrows, A_indptr.data(), A_indices.data(), B_indptr.data()
+            top_n,
+            nrows,
+            ncols,
+            A_indptr.data(),
+            A_indices.data(),
+            B_indptr.data(),
+            B_indices.data()
         );
         local_threshold = std::numeric_limits<eT>::min();
     }

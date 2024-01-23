@@ -33,18 +33,27 @@ template <typename idxT, iffInt<idxT> = true>
 inline idxT sp_matmul_topn_size(
     const idxT top_n,
     const idxT nrows,
+    const idxT ncols,
     const idxT* __restrict A_indptr,
     const idxT* __restrict A_indices,
-    const idxT* __restrict B_indptr
+    const idxT* __restrict B_indptr,
+    const idxT* __restrict B_indices
 ) {
     idxT nnz = 0;
+    std::vector<idxT> mask(ncols, -1);
     for (idxT i = 0; i < nrows; i++) {
         idxT row_nnz = 0;
         idxT A_cidx_start = A_indptr[i];
         idxT A_cidx_end = A_indptr[i + 1];
         for (idxT A_cidx = A_cidx_start; A_cidx < A_cidx_end; ++A_cidx) {
             idxT j = A_indices[A_cidx];
-            row_nnz += (B_indptr[j + 1] - B_indptr[j]);
+            for (idxT kk = B_indptr[j]; kk < B_indptr[j + 1]; ++kk) {
+                idxT k = B_indices[kk];
+                if (mask[k] != i) {
+                    mask[k] = i;
+                    row_nnz++;
+                }
+            }
         }
         nnz += std::min(top_n, row_nnz);
     }
@@ -193,6 +202,42 @@ inline idxT sp_matmul_topn_size_mt(
             row_nnz += (B_indptr[j + 1] - B_indptr[j]);
         }
         nnz += std::min(top_n, row_nnz);
+    }
+    return nnz;
+}
+
+template <typename idxT, iffInt<idxT> = true>
+inline idxT sp_matmul_topn_size_mt(
+    const idxT top_n,
+    const idxT nrows,
+    const idxT ncols,
+    const idxT* __restrict A_indptr,
+    const idxT* __restrict A_indices,
+    const idxT* __restrict B_indptr,
+    const idxT* __restrict B_indices
+) {
+    idxT nnz = 0;
+#pragma omp parallel default(none) \
+    shared(top_n, nrows, ncols, A_indptr, A_indices, B_indptr)
+    {
+        std::vector<idxT> mask(ncols, -1);
+#pragma omp for reduction(+ : nnz)
+        for (idxT i = 0; i < nrows; i++) {
+            idxT row_nnz = 0;
+            idxT A_cidx_start = A_indptr[i];
+            idxT A_cidx_end = A_indptr[i + 1];
+            for (idxT A_cidx = A_cidx_start; A_cidx < A_cidx_end; ++A_cidx) {
+                idxT j = A_indices[A_cidx];
+                for (idxT kk = B_indptr[j]; kk < B_indptr[j + 1]; ++kk) {
+                    idxT k = B_indices[kk];
+                    if (mask[k] != i) {
+                        mask[k] = i;
+                        row_nnz++;
+                    }
+                }
+            }
+            nnz += std::min(top_n, row_nnz);
+        }
     }
     return nnz;
 }
