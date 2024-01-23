@@ -13,24 +13,30 @@ Please see the Migrating section below.
 Comparing very large feature vectors and picking the best matches, in practice often results in performing a sparse matrix multiplication followed by selecting the top-n multiplication results.
 
 **sparse\_dot\_topn** provides a (parallelised) sparse matrix multiplication implementation that integrates selecting the top-n values, resulting in a significantly lower memory footprint and improved performance.
+On Apple M2 Pro over two 20k x 193k TF-IDF matrices **sparse\_dot\_topn** can be up to 6 times faster when retaining the top 10 values per row and utilising 8 cores.
+See the benchmark directory for details.
 
 ## Usage
 
 ```python
 import scipy.sparse as sparse
-from sparse_dot_topn import sp_matmul_topn
+from sparse_dot_topn import sp_matmul, sp_matmul_topn
 
 A = sparse.random(1000, 100, density=0.1, format="csr")
 B = sparse.random(100, 2000, density=0.1, format="csr")
 
+# Compute C and retain the top 10 values per row
 C = sp_matmul_topn(A, B, top_n=10)
+
+# or paralleslised matrix multiplication without top-n selection
+C = sp_matmul(A, B, n_threads=2)
 ```
 
 `sp_matmul_topn` supports `{CSR, CSC, COO}` matrices with `{32, 64}bit {int, float}` data.
 Note that `COO` and `CSC` inputs are converted to the `CSR` format and are therefore slower.
 Two options to further reduce memory requirements are `threshold` and `density`.
 Optionally, the values can be sorted such that the first column for a given row contains the largest value.
-Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `A.dot(B)`.
+Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `sp_matmul(A, B)` and `A.dot(B)`.
 
 ## Installation
 
