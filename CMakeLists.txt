@@ -40,7 +40,8 @@ set(SDTN_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/sparse_dot_topn_core/include")
 set(SDTN_SRC_PREF "${PROJECT_SOURCE_DIR}/src/sparse_dot_topn_core/src/")
 set(SDTN_SRC_FILES
     ${SDTN_SRC_PREF}/extension.cpp
-    ${SDTN_SRC_PREF}/bindings.cpp
+    ${SDTN_SRC_PREF}/sp_matmul_bindings.cpp
+    ${SDTN_SRC_PREF}/sp_matmul_topn_bindings.cpp
 )
 
 include(FindDependencies)
