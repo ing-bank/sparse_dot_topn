@@ -46,7 +46,7 @@ if (SDTN_ENABLE_ARCH_FLAGS AND "${CMAKE_CXX_FLAGS}" STREQUAL "${CMAKE_CXX_FLAGS_
 
     if (NOT ${SDTN_ARCHITECTURE_FLAGS} STREQUAL "")
         string(STRIP ${SDTN_ARCHITECTURE_FLAGS} SDTN_ARCHITECTURE_FLAGS)
-        message(STATUS "sparse-dot-topn: Enabled arch flags: ${SDTN_ARCHITECTURE_FLAGS}")
+        message(STATUS "sparse-dot-topn | Enabled arch flags: ${SDTN_ARCHITECTURE_FLAGS}")
         if (MSVC)
             separate_arguments(SDTN_ARCHITECTURE_FLAGS WINDOWS_COMMAND "${SDTN_ARCHITECTURE_FLAGS}")
         else()

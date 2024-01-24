@@ -8,7 +8,7 @@ function(SDTN_CHECK_FOR_AVX)
 
   include(CheckCXXSourceRuns)
 
-  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     # Setting -march & -mtune just as required flags for check_cxx_source_runs,
     # and CMAKE_REQUIRED_FLAGS will be restored after test runs.
     set(CMAKE_REQUIRED_FLAGS "-march=native -mtune=native")
@@ -40,7 +40,7 @@ function(SDTN_CHECK_FOR_AVX)
 
   # Setting the -mavx/-mavx2 defines __AVX(2)__, see here https://stackoverflow.com/a/28939692
   # and this allows the compiler to use the codes for AVX behind code guards.
-  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     if(HAVE_AVX2)
       set(AVX_FLAGS "-mavx2" PARENT_SCOPE)
     elseif(HAVE_AVX)
