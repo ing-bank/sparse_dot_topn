@@ -18,6 +18,12 @@ See the benchmark directory for details.
 
 ## Usage
 
+`sp_matmul_topn` supports `{CSR, CSC, COO}` matrices with `{32, 64}bit {int, float}` data.
+Note that `COO` and `CSC` inputs are converted to the `CSR` format and are therefore slower.
+Two options to further reduce memory requirements are `threshold` and `density`.
+Optionally, the values can be sorted such that the first column for a given row contains the largest value.
+Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `sp_matmul(A, B)` and `A.dot(B)`.
+
 ```python
 import scipy.sparse as sparse
 from sparse_dot_topn import sp_matmul, sp_matmul_topn
@@ -30,13 +36,18 @@ C = sp_matmul_topn(A, B, top_n=10)
 
 # or paralleslised matrix multiplication without top-n selection
 C = sp_matmul(A, B, n_threads=2)
-```
+# or with top-n selection
+C = sp_matmul_topn(A, B, top_n=10, n_threads=2)
 
-`sp_matmul_topn` supports `{CSR, CSC, COO}` matrices with `{32, 64}bit {int, float}` data.
-Note that `COO` and `CSC` inputs are converted to the `CSR` format and are therefore slower.
-Two options to further reduce memory requirements are `threshold` and `density`.
-Optionally, the values can be sorted such that the first column for a given row contains the largest value.
-Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `sp_matmul(A, B)` and `A.dot(B)`.
+# If you are only interested in values above a certain threshold
+C = sp_matmul_topn(A, B, top_n=10, threshold=0.8)
+
+# If you set the threshold we cannot easily determine the number of non-zero
+# entries beforehand. Therefore, we allocate memory for `ceil(top_n * A.shap[0] * density)`
+# non-zero entries. You can set the expected density to reduce the amount pre-allocated
+# entries. Note that if we allocate too little an expensive copy(ies) will need to hapen.
+C = sp_matmul_topn(A, B, top_n=10, threshold=0.8, density=0.1)
+```
 
 ## Installation
 
@@ -72,7 +83,9 @@ See INSTALLATION.md for details.
 ## Migrating to v1.
 
 **sparse\_dot\_topn** v1 is a significant change from `v0.*` with a new bindings and API.
-
+The new version adds support for CPython 3.12 and now supports both ints as well as floats.
+Internally we switched to a max-heap to collect the top-n values which significantly reduces memory-footprint.
+The former implementation had `O(n_columns)` complexity for the top-n selection where we now have `O(top-n)` complexity.
 **`awesome_cossim_topn` has been deprecated and will be removed in a future version.**
 
 Users should switch to `sp_matmul_topn` which is largely compatible:
@@ -90,7 +103,6 @@ C = sp_matmul_topn(A, B, top_n=10, threshold=0.0, sort=True)
 ```
 
 ### API changes
-
 1. `ntop` has been renamed to `topn`
 2. `lower_bound` has been renamed to `threshold`
 3. `use_threads` and `n_jobs` have been combined into `n_threads`
@@ -112,6 +124,7 @@ best_ntop = np.diff(C.indptr).max()
 This enables proper functioning for matrices that contain negative values.
 Additionally a different data-structure is used internally when collecting non-zero results that has a much lower memory-footprint than previously.
 This means that the effect of the `threshold` parameter on performance and memory requirements is negligible. 
+If the `threshold` is `None` we pre-compute the number of `non-zero` entries, this can significantly reduce the required memory at a mild (~10%) performance penalty.
 
 2. `sort = False`, the result matrix is no longer sorted by default
 
