@@ -3,9 +3,31 @@ from itertools import product
 import numpy as np
 import pytest
 from scipy import sparse
-from sparse_dot_topn import _has_openmp_support, sp_matmul_topn
+from sparse_dot_topn import _has_openmp_support, sp_matmul, sp_matmul_topn
 
 from ._resources import _assert_array_equal, _assert_smat_equal, _get_topn_elements
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
+def test_sp_matmul_default(rng, dtype):
+    A = sparse.random(100, 100, density=0.1, format="csr", dtype=dtype, random_state=rng)
+    B = sparse.random(100, 100, density=0.1, format="csr", dtype=dtype, random_state=rng)
+    C = sp_matmul(A, B)
+    C_ref = A.dot(B)
+    _assert_smat_equal(C, C_ref)
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
+def test_sp_matmul_nthreads(rng, dtype):
+    A = sparse.random(100, 10, density=0.5, format="csr", dtype=dtype, random_state=rng)
+    B = sparse.random(10, 100, density=0.5, format="csr", dtype=dtype, random_state=rng)
+    C_ref = A.dot(B)
+    if not _has_openmp_support:
+        with pytest.warns(UserWarning):
+            C = sp_matmul(A, B, n_threads=2)
+    else:
+        C = sp_matmul(A, B, n_threads=2)
+    _assert_smat_equal(C, C_ref)
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
