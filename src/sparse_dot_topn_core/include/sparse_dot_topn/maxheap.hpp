@@ -86,13 +86,13 @@ class MaxHeap {
      * \param val value to store
      */
     eT push_pop(const idxT idx, const eT val) {
+        std::pop_heap(heap.begin(), heap.end(), compare());
         heap.back().order = n_set;
         heap.back().idx = idx;
         heap.back().val = val;
         n_set++;
         std::push_heap(heap.begin(), heap.end(), compare());
-        std::pop_heap(heap.begin(), heap.end(), compare());
-        return heap.back().val;
+        return heap.front().val;
     }
 
     /**
