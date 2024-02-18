@@ -1,0 +1,34 @@
+name: Bug Report
+description: Create a report to help us improve sparse-dot-topn
+title: "BUG: <Please write a comprehensive title after the 'BUG: ' prefix>"
+
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to file a bug report.
+  - type: textarea
+    attributes:
+      label: Describe your issue.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproducing Code Example
+      description: 'Paste the Reproducing code example and it will be rendered as a code block.'
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Error message
+      description: 'If any, paste the *full* error message as above (starting from line Traceback) and it will be rendered as a code block'
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: SciPy/NumPy/Python version and system information
+      description: 'Please run the following and paste the result here - `import sys, scipy, numpy, sparse_dot_topn; print(scipy.__version__, numpy.__version__, sparse_dot_topn.__version__, sys.version_info); scipy.show_config()`'
+      render: shell
+    validations:
+      required: true
