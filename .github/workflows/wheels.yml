@@ -107,7 +107,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="/usr/local"
         cmake --build openmp_build --target install --config Release
 
-    - uses: pypa/cibuildwheel@v2.16.2
+    - uses: pypa/cibuildwheel@v2.16.5
       env:
         # only build for ARM; x86_64wheels are build seperately
         CIBW_ARCHS: "arm64"
