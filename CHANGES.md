@@ -1,5 +1,14 @@
 # Release history:
 
+## v1.1.0
+
+Add new function to select top-n from blocks of a sparse matrix matmul.
+Function will return a zipped matrix Z, where Z = [sorted top n results > lower_bound for each row of C_j], where C_j = A.dot(B_j) and where B has been split row-wise into sub-matrices B_j.
+
+### API
+
+- ENH: new function zip_sp_matmul_topn can zip matrices zip_j A.dot(B_j)
+
 ## v1.0.0
 
 This introduces major and potentially breaking changes to the API.
