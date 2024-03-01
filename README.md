@@ -1,12 +1,15 @@
 # sparse\_dot\_topn
 
--------------------------------**WARNING**-------------------------------
+[![MacOS](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/macos.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/macos.yml)
+[![Linux](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/linux.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/linux.yml)
+[![Windows](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/windows.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/windows.yml)
+[![License](https://img.shields.io/github/license/ing-bank/sparse_dot_topn)](https://github.com/ing-bank/sparse_dot_topn/blob/master/LICENSE)
+[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 
-Version 1.0 introduces major and potentially breaking changes to the API.
 
-Please see the Migrating section below.
-
--------------------------------**WARNING**-------------------------------
+[![Release_date](https://img.shields.io/github/release-date/ing-bank/sparse_dot_topn)](https://github.com/ing-bank/sparse_dot_topn/releases)
+[![PyPi](https://img.shields.io/pypi/v/sparse-dot-topn.svg)](https://pypi.org/project/sparse-dot-topn/)
+[![Downloads](https://pepy.tech/badge/sparse_dot_topn)](https://pepy.tech/project/sparse_dot_topn)
 
 **sparse\_dot\_topn** provides a fast way to performing a sparse matrix multiplication followed by top-n multiplication result selection.
 
@@ -23,6 +26,8 @@ Note that `COO` and `CSC` inputs are converted to the `CSR` format and are there
 Two options to further reduce memory requirements are `threshold` and `density`.
 Optionally, the values can be sorted such that the first column for a given row contains the largest value.
 Note that `sp_matmul_topn(A, B, top_n=B.shape[1])` is equal to `sp_matmul(A, B)` and `A.dot(B)`.
+
+**If you are migrating from `v0.*` please see the migration guide below for details.**
 
 ```python
 import scipy.sparse as sparse
@@ -189,4 +194,3 @@ You can read about it in a [blog](https://medium.com/@ingwbaa/https-medium-com-i
 * [Particular Miner](https://github.com/ParticularMiner) (no ING affiliation)
 * [Ralph Urlus](https://github.com/RUrlus)
 * [Max Baak](https://github.com/mbaak)
-
