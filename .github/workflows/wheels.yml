@@ -44,7 +44,7 @@ jobs:
       with:
         submodules: true
 
-    - uses: actions/setup-python@v3
+    - uses: actions/setup-python@v5
 
     - name: Install cibuildwheel
       run: python -m pip install cibuildwheel==2.16.5
@@ -107,7 +107,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="/usr/local"
         cmake --build openmp_build --target install --config Release
 
-    - uses: pypa/cibuildwheel@v2.16.2
+    - uses: pypa/cibuildwheel@v2.16.5
       env:
         # only build for ARM; x86_64wheels are build seperately
         CIBW_ARCHS: "arm64"
@@ -130,7 +130,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
 
     - uses: actions/download-artifact@v4
       with:
