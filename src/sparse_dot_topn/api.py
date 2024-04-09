@@ -324,18 +324,15 @@ def zip_sp_matmul_topn(top_n: int, C_mats: list[csr_matrix]) -> csr_matrix:
         indptr.append(C.indptr)
         indices.append(C.indices)
 
+    ncols = np.asarray(ncols, int)
+    total_cols = ncols.sum()
     if not np.all(np.diff(_nrows) == 0):
         msg = "Each `C` in `C_mats` should have the same number of rows."
         raise ValueError(msg)
 
     return csr_matrix(
         _core.zip_sp_matmul_topn(
-            top_n=top_n,
-            Z_max_nnz=nrows * top_n,
-            nrows=nrows,
-            B_ncols=np.asarray(ncols, int),
-            data=data,
-            indptr=indptr,
-            indices=indices,
-        )
+            top_n=top_n, Z_max_nnz=nrows * top_n, nrows=nrows, B_ncols=ncols, data=data, indptr=indptr, indices=indices
+        ),
+        shape=(nrows, total_cols),
     )
