@@ -224,7 +224,7 @@ def test_stack_zip_sp_matmul_topn(rng, dtype):
     C_ref = sp_matmul_topn(A, B.T, top_n=10, threshold=0.01, sort=True)
 
     # zipped C-matrix
-    As = [A[i*200:(i+1)*200] for i in range(5)]  # names-to-match split
+    As = [A[i * 200 : (i + 1) * 200] for i in range(5)]  # names-to-match split
     Bs = [B[:100], B[100:300], B[300:]]  # GT split
 
     Cs = [[sp_matmul_topn(Aj, Bi.T, top_n=10, threshold=0.01, sort=True) for Bi in Bs] for Aj in As]
