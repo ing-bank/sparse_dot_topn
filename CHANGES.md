@@ -1,5 +1,11 @@
 # Release history:
 
+## v1.1.1
+
+### Internal
+
+- FIX: Prevent Scipy from dropping columns that are all zero for sub-matrices
+
 ## v1.1.0
 
 Add new function to select top-n from blocks of a sparse matrix matmul.
