@@ -67,8 +67,9 @@ pip install sparse_dot_topn
 ```
 
 **sparse\_dot\_topn** relies on a C++ extension for the computationally intensive multiplication routine.
-Note that the wheels vendor/ships OpenMP with the extension to provide parallelisation out-of-the-box.
-If you run into issues with OpenMP see INSTALLATION.md for help.
+**Note that the wheels vendor/ships OpenMP with the extension to provide parallelisation out-of-the-box.**
+**This may cause issues when used in combination with other libraries that ship OpenMP like PyTorch.**
+If you run into any issues with OpenMP see INSTALLATION.md for help or run the function without specifying the `n_threads` argument.
 
 Installing from source requires a C++17 compatible compiler.
 If you have a compiler available it is advised to install without the wheel as this enables architecture specific optimisations.
