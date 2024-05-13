@@ -56,7 +56,7 @@ jobs:
         CIBW_TEST_COMMAND: pytest {project}/tests && python -c "from sparse_dot_topn import _has_openmp_support;assert _has_openmp_support"
         # only build for x86_64; ARM wheels are build seperately
         CIBW_ARCHS_MACOS: "x86_64"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="10.14" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -100,7 +100,7 @@ jobs:
         mkdir openmp_build
         cmake -S openmp -B openmp_build \
             -DCMAKE_OSX_ARCHITECTURES="arm64" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="12.0" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang \
             -DCMAKE_CXX_COMPILER=clang++ \
@@ -111,7 +111,7 @@ jobs:
       env:
         # only build for ARM; x86_64wheels are build seperately
         CIBW_ARCHS: "arm64"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="10.14" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/usr/local"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/usr/local"
 
     - name: Verify clean directory
       run: git diff --exit-code
