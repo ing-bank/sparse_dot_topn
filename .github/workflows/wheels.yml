@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -45,6 +45,37 @@ jobs:
         submodules: true
 
     - uses: actions/setup-python@v5
+
+    - name: Cache OpenMP repo
+      if: matrix.os == 'macos-latest'
+      id: clone-openmp
+      uses: actions/cache@v4
+      with:
+        path: llvm-project
+        key: macos-arm-openmp
+
+    - name: Clone OpenMP repo
+      if: matrix.os == 'macos-latest' && steps.clone-openmp.outputs.cache-hit != 'true'
+      run: |
+        git clone --depth 1 --branch llvmorg-17.0.6 https://github.com/llvm/llvm-project
+
+    - name: Build OpenMP
+      if: matrix.os == 'macos-latest'
+      shell: bash
+      run: |
+        mv llvm-project/openmp ./openmp
+        mv llvm-project/cmake ./cmake
+        rm -rf llvm-project
+        mkdir openmp_build
+        mkdir ~/libomp
+        cmake -S openmp -B openmp_build \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="12.0" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_INSTALL_PREFIX="~/libomp"
+        cmake --build openmp_build --target install --config Release
 
     - name: Install cibuildwheel
       run: python -m pip install cibuildwheel==2.17.0
@@ -56,7 +87,7 @@ jobs:
         CIBW_TEST_COMMAND: pytest {project}/tests && python -c "from sparse_dot_topn import _has_openmp_support;assert _has_openmp_support"
         # only build for arm; x86_64 wheels are build seperately
         CIBW_ARCHS_MACOS: "arm64"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/Users/runner/libomp"
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -79,11 +110,40 @@ jobs:
       with:
         submodules: true
 
+    - name: Cache OpenMP repo
+      id: clone-openmp
+      uses: actions/cache@v4
+      with:
+        path: llvm-project
+        key: macos-arm-openmp
+
+    - name: Clone OpenMP repo
+      if: steps.clone-openmp.outputs.cache-hit != 'true'
+      run: |
+        git clone --depth 1 --branch llvmorg-17.0.6 https://github.com/llvm/llvm-project
+
+    - name: Build OpenMP
+      shell: bash
+      run: |
+        mv llvm-project/openmp ./openmp
+        mv llvm-project/cmake ./cmake
+        rm -rf llvm-project
+        mkdir openmp_build
+        mkdir ~/libomp
+        cmake -S openmp -B openmp_build \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="12.0" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_INSTALL_PREFIX="~/libomp"
+        cmake --build openmp_build --target install --config Release
+
     - uses: pypa/cibuildwheel@v2.17.0
       env:
         # only build for x86_64, arm wheels are build seperately
         CIBW_ARCHS: "x86_64"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/Users/runner/libomp"
 
     - name: Verify clean directory
       run: git diff --exit-code
