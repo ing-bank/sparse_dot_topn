@@ -191,7 +191,7 @@ You can read about it in a [blog](https://medium.com/@ingwbaa/https-medium-com-i
 
 * [Zhe Sun](https://github.com/ymwdalex/)
 * [Ahmet Erdem](https://github.com/aerdem4)
-* [Stephane Collet](https://github.com/stephanecollot)
+* [Stephane Collot](https://github.com/stephanecollot)
 * [Particular Miner](https://github.com/ParticularMiner) (no ING affiliation)
 * [Ralph Urlus](https://github.com/RUrlus)
 * [Max Baak](https://github.com/mbaak)
