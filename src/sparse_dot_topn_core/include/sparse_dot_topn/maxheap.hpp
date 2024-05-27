@@ -59,7 +59,7 @@ class MaxHeap {
      * \param initial initial `val` to set for all the entries
      */
     explicit MaxHeap(int n, eT initial) : heap_size{n}, init{initial} {
-        heap.reserve(n);
+        heap.reserve(n + 1);
         for (int i = 0; i < heap_size; i++) {
             heap.push_back({max_order, -1, initial});
         }
