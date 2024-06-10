@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "sparse_dot_topn"
-version = "1.1.1"
+version = "1.1.2"
 description = "This package boosts a sparse matrix multiplication followed by selecting the top-n multiplication"
 readme = "README.md"
 requires-python = ">=3.8"
