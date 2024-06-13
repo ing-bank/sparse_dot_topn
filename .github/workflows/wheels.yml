@@ -185,7 +185,7 @@ jobs:
     name: Publish release on PyPi
     needs: [build_sdist, build_wheels, build_macos_intel, publish-to-testpypi]
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published' && github.event.prerelease == false
     environment: release
     permissions:
       id-token: write
