@@ -39,29 +39,27 @@ void bind_sp_matmul_topn(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    top_n (int): the number of results to retain\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    density (float): the expected density of the result"
-            " considering `top_n`\n"
-            "    threshold (float): only store values greater than\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    top_n (int): the number of results to retain\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    density (float): the expected density of the result"
+         " considering `top_n`\n"
+         "    threshold (float): only store values greater than\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul_topn",
@@ -185,29 +183,27 @@ void bind_sp_matmul_topn_sorted(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    top_n (int): the number of results to retain\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    threshold (float): only store values greater than\n"
-            "    density (float): the expected density of the result"
-            " considering `top_n`\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    top_n (int): the number of results to retain\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    threshold (float): only store values greater than\n"
+         "    density (float): the expected density of the result"
+         " considering `top_n`\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul_topn_sorted",
@@ -332,27 +328,25 @@ void bind_sp_matmul_topn_mt(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    top_n (int): the number of results to retain\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    threshold (float): only store values greater than\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    top_n (int): the number of results to retain\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    threshold (float): only store values greater than\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul_topn_mt",
@@ -476,27 +470,25 @@ void bind_sp_matmul_topn_sorted_mt(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    top_n (int): the number of results to retain\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    threshold (float): only store values greater than\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    top_n (int): the number of results to retain\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    threshold (float): only store values greater than\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul_topn_sorted_mt",

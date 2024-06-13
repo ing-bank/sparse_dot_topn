@@ -35,28 +35,26 @@ void bind_zip_sp_matmul_topn(nb::module_& m) {
         "data"_a.noconvert(),
         "indptr"_a.noconvert(),
         "indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    top_n (int): the number of results to retain\n"
-            "    Z_max_nnz (int): the maximum number of non-zero values in Z\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    B_ncols (NDArray[int]): the number of columns in each block "
-            "of `B`\n"
-            "    data (list[NDArray[int | float]]): the non-zero elements of "
-            "each C\n"
-            "    indptr (list[NDArray[int]]): the row indices for each "
-            "`C_data`\n"
-            "    indices (list[NDArray[int]]): the column indices for each "
-            "`C_data`\n"
-            "\n"
-            "Returns:\n"
-            "    Z_data (NDArray[int | float]): the non-zero elements of Z\n"
-            "    Z_indptr (NDArray[int]): the row indices for `Z_data`\n"
-            "    Z_indices (NDArray[int]): the column indices for `Z_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    top_n (int): the number of results to retain\n"
+         "    Z_max_nnz (int): the maximum number of non-zero values in Z\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    B_ncols (NDArray[int]): the number of columns in each block "
+         "of `B`\n"
+         "    data (list[NDArray[int | float]]): the non-zero elements of "
+         "each C\n"
+         "    indptr (list[NDArray[int]]): the row indices for each "
+         "`C_data`\n"
+         "    indices (list[NDArray[int]]): the column indices for each "
+         "`C_data`\n"
+         "\n"
+         "Returns:\n"
+         "    Z_data (NDArray[int | float]): the non-zero elements of Z\n"
+         "    Z_indptr (NDArray[int]): the row indices for `Z_data`\n"
+         "    Z_indices (NDArray[int]): the column indices for `Z_data`\n"
+         "\n")
     );
     m.def(
         "zip_sp_matmul_topn",

@@ -36,25 +36,23 @@ void bind_sp_matmul(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul",
@@ -156,25 +154,23 @@ void bind_sp_matmul_mt(nb::module_& m) {
         "B_data"_a.noconvert(),
         "B_indptr"_a.noconvert(),
         "B_indices"_a.noconvert(),
-        nb::raw_doc(
-            "Compute sparse dot product and keep top n.\n"
-            "\n"
-            "Args:\n"
-            "    nrows (int): the number of rows in `A`\n"
-            "    ncols (int): the number of columns in `B`\n"
-            "    A_data (NDArray[int | float]): the non-zero elements of A\n"
-            "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
-            "    A_indices (NDArray[int]): the column indices for `A_data`\n"
-            "    B_data (NDArray[int | float]): the non-zero elements of B\n"
-            "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
-            "    B_indices (NDArray[int]): the column indices for `B_data`\n"
-            "\n"
-            "Returns:\n"
-            "    C_data (NDArray[int | float]): the non-zero elements of C\n"
-            "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
-            "    C_indices (NDArray[int]): the column indices for `C_data`\n"
-            "\n"
-        )
+        ("Compute sparse dot product and keep top n.\n"
+         "\n"
+         "Args:\n"
+         "    nrows (int): the number of rows in `A`\n"
+         "    ncols (int): the number of columns in `B`\n"
+         "    A_data (NDArray[int | float]): the non-zero elements of A\n"
+         "    A_indptr (NDArray[int]): the row indices for `A_data`\n"
+         "    A_indices (NDArray[int]): the column indices for `A_data`\n"
+         "    B_data (NDArray[int | float]): the non-zero elements of B\n"
+         "    B_indptr (NDArray[int]): the row indices for `B_data`\n"
+         "    B_indices (NDArray[int]): the column indices for `B_data`\n"
+         "\n"
+         "Returns:\n"
+         "    C_data (NDArray[int | float]): the non-zero elements of C\n"
+         "    C_indptr (NDArray[int]): the row indices for `C_data`\n"
+         "    C_indices (NDArray[int]): the column indices for `C_data`\n"
+         "\n")
     );
     m.def(
         "sp_matmul_mt",
