@@ -1,0 +1,32 @@
+name: Test NumPy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-latest, ubuntu-latest]
+        numpy-version: ["numpy<2.0.0", "numpy~=2.0.0rc2"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Build and install
+      run: |
+        pip install pip --upgrade
+        pip install "${{ matrix.numpy-version }}"
+        pip install ".[test]" --verbose 
+
+    - name: Test
+      run: |
+        cd tests
+        pytest -vv
