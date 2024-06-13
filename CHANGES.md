@@ -1,5 +1,27 @@
 # Release history:
 
+## v1.1.3
+
+### Changes
+
+BLD: Unrestrict nanobind by @RUrlus in #112
+
+### Internal
+
+FIX: [C++] Remove usage of nb::raw_doc
+
+## v1.1.2
+
+### Changes
+
+BLD: Restrict nanobind version to <2.0 by @RUrlus in #111
+
+### Internal
+
+CICD: Add trusted publishing and updated MacOS runners by @RUrlus in #108
+MAINT: Correct name typo in readme by @mmtevelde in #110
+CICD: Bump pypa/cibuildwheel from 2.18.0 to 2.18.1 by @dependabot in #109
+
 ## v1.1.1
 
 ### Internal
