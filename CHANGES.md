@@ -1,5 +1,11 @@
 # Release history:
 
+## v1.1.4
+
+### Changes
+
+PKG: Suppress error for double initialisation of OpenMP
+
 ## v1.1.3
 
 ### Changes
