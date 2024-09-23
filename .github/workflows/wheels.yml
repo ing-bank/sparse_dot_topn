@@ -81,7 +81,7 @@ jobs:
         cmake --build openmp_build --target install --config Release
 
     - name: Install cibuildwheel
-      run: python -m pip install cibuildwheel==2.21.0
+      run: python -m pip install cibuildwheel==2.21.1
 
     - name: Build wheels
       run: python -m cibuildwheel --output-dir wheelhouse
