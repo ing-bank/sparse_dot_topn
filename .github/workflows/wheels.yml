@@ -59,7 +59,7 @@ jobs:
     - name: Clone OpenMP repo
       if: matrix.os == 'macos-latest' && steps.clone-openmp.outputs.cache-hit != 'true'
       run: |
-        git clone --depth 1 --branch llvmorg-17.0.6 https://github.com/llvm/llvm-project
+        git clone --depth 1 --branch llvmorg-19.1.1 https://github.com/llvm/llvm-project
 
 
     - name: Build OpenMP
