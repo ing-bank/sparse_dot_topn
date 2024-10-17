@@ -1,4 +1,4 @@
-###############################################################################
+# ##############################################################################
 # Check for the presence of AVX and figure out the flags to use for it.
 # This routine is a modified version of `PCL_CHECK_FOR_AVX`
 # Reference: https://github.com/PointCloudLibrary/pcl/blob/master/cmake/pcl_find_avx.cmake
