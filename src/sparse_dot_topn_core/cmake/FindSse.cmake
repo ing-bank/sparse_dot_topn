@@ -1,4 +1,4 @@
-###############################################################################
+# ##############################################################################
 # Check for the presence of SSE and figure out the flags to use for it.
 # This routine is a modified version of `PCL_CHECK_FOR_SSE`
 # https://github.com/PointCloudLibrary/pcl/blob/master/cmake/pcl_find_sse.cmake
