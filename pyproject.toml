@@ -77,6 +77,7 @@ repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
 # Needed for full C++17 support
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --exclude libomp.dylib"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
