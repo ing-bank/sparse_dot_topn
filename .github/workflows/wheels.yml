@@ -81,7 +81,7 @@ jobs:
         cmake --build openmp_build --target install --config Release
 
     - name: Install cibuildwheel
-      run: python -m pip install cibuildwheel==2.21.2
+      run: python -m pip install cibuildwheel==2.21.3
 
     - name: Build wheels
       run: python -m cibuildwheel --output-dir wheelhouse
@@ -90,7 +90,7 @@ jobs:
         CIBW_TEST_COMMAND: pytest {project}/tests && python -c "from sparse_dot_topn import _has_openmp_support;assert _has_openmp_support"
         # only build for arm; x86_64 wheels are build seperately
         CIBW_ARCHS_MACOS: "arm64"
-        CIBW_ENVIRONMENT_MACOS: PATH="$HOME/.local/:$PATH" MACOSX_DEPLOYMENT_TARGET="12.0" DYLD_LIBRARY_PATH="$HOME/.local/libomp/lib" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=$HOME/.local/libomp"
+        CIBW_ENVIRONMENT_MACOS: PATH="$HOME/.local/:$PATH" MACOSX_DEPLOYMENT_TARGET=12.0 DYLD_LIBRARY_PATH="$HOME/.local/libomp/lib" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_VENDOR_OPENMP=ON -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=$HOME/.local/libomp"
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -123,7 +123,7 @@ jobs:
     - name: Clone OpenMP repo
       if: steps.clone-openmp.outputs.cache-hit != 'true'
       run: |
-        git clone --depth 1 --branch llvmorg-17.0.6 https://github.com/llvm/llvm-project
+        git clone --depth 1 --branch llvmorg-19.1.1 https://github.com/llvm/llvm-project
 
     - name: Build OpenMP
       shell: bash
@@ -141,11 +141,11 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="/usr/local"
         cmake --build openmp_build --target install --config Release
 
-    - uses: pypa/cibuildwheel@v2.21.2
+    - uses: pypa/cibuildwheel@v2.21.3
       env:
         # only build for x86_64, arm wheels are build seperately
         CIBW_ARCHS: "x86_64"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/usr/local"
+        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=12.0 CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_VENDOR_OPENMP=ON -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF -DOpenMP_ROOT=/usr/local"
 
     - name: Verify clean directory
       run: git diff --exit-code
