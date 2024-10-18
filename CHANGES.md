@@ -1,5 +1,11 @@
 # Release history:
 
+## v1.1.5
+
+### Changes
+
+BLD: Set rpath for libomp on MacOS to fix compatibility with latest XGBoost version
+
 ## v1.1.4
 
 ### Changes
