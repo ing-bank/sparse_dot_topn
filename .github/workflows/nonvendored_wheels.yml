@@ -49,10 +49,12 @@ jobs:
         python-version: "3.10"
 
     - name: Install cibuildwheel
-      run: python -m pip install cibuildwheel==2.18.0
+      run: python -m pip install cibuildwheel==2.21.3
 
     - name: Build wheels
       run: python -m cibuildwheel --output-dir wheelhouse
+      env:
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
 
     - name: Verify clean directory
       run: git diff --exit-code
