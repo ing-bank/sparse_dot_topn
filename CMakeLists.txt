@@ -36,6 +36,10 @@ if (NOT SKBUILD)
   after editing C++ files.")
 endif()
 
+if(SDTN_MBUILD)
+  set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/src")
+endif()
+
 set(SDTN_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/sparse_dot_topn_core/include")
 set(SDTN_SRC_PREF "${PROJECT_SOURCE_DIR}/src/sparse_dot_topn_core/src/")
 set(SDTN_SRC_FILES
@@ -49,6 +53,7 @@ include(FindDependencies)
 include(ConfigureBuildType)
 # -- target
 nanobind_add_module(_sparse_dot_topn_core STABLE_ABI NB_STATIC LTO NOMINSIZE ${SDTN_SRC_FILES})
+
 include(ConfigureTarget)
-include(InstallTarget)
+install(TARGETS _sparse_dot_topn_core LIBRARY DESTINATION "${PROJECT_NAME}/lib")
 include(CleanUp)

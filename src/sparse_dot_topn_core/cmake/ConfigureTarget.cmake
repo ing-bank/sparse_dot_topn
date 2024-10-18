@@ -40,18 +40,39 @@ if(OpenMP_CXX_FOUND)
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMENT "Replacing hard-coded OpenMP install_name with '@rpath/${OpenMP_LIBRARY_NAME}'..."
       )
-    # add RPATH entries to ensure the loader looks in the following, in the following order:
-    #
-    #   - /opt/homebrew/opt/libomp/lib (where 'brew install' / 'brew link' puts libomp.dylib)
-    #   - ${OpenMP_LIBRARY_DIR}        (wherever find_package(OpenMP) found OpenMP at build time)
-    #
-    set_target_properties(
-        _sparse_dot_topn_core
-        PROPERTIES
-          BUILD_WITH_INSTALL_RPATH TRUE
-          INSTALL_RPATH "/opt/homebrew/opt/libomp/lib;${OpenMP_LIBRARY_DIR}"
-          INSTALL_RPATH_USE_LINK_PATH FALSE
+    if (SDTN_VENDOR_OPENMP)
+      set(OpenMP_target_location ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/.dylibs/${OpenMP_LIBRARY_NAME})
+
+      message(STATUS "Copying ${OpenMP_LIBRARY_NAME} to ${OpenMP_target_location}")
+      add_custom_command(
+          TARGET _sparse_dot_topn_core
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          ${OpenMP_LIBRARY_LOCATION}
+          ${OpenMP_target_location}
       )
+      # add RPATH entries to ensure the loader looks in the following, in the following order:
+      #   - @loader_path/../.dylibs/     the dylib we're shipping alongside
+      set_target_properties(
+          _sparse_dot_topn_core
+          PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "@loader_path/../.dylibs/"
+            INSTALL_RPATH_USE_LINK_PATH FALSE
+        )
+    else()
+      # add RPATH entries to ensure the loader looks in the following, in the following order:
+      #   - ${OpenMP_LIBRARY_DIR}        (wherever find_package(OpenMP) found OpenMP at build time)
+      #   - /opt/homebrew/opt/libomp/lib (where 'brew install' / 'brew link' puts libomp.dylib)
+      set_target_properties(
+          _sparse_dot_topn_core
+          PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "${OpenMP_LIBRARY_DIR};/opt/homebrew/opt/libomp/lib"
+            INSTALL_RPATH_USE_LINK_PATH FALSE
+        )
+
+    endif()
   endif()
 endif()
 
