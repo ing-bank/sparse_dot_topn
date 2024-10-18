@@ -18,3 +18,4 @@ mprofile_*.dat
 .python-version
 .pymon
 .cache
+*.dylib
