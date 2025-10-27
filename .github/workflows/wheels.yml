@@ -166,7 +166,7 @@ jobs:
     - uses: actions/setup-python@v6
       with:
         python-version: "3.11"
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         pattern: artifact-*
         merge-multiple: true
@@ -191,7 +191,7 @@ jobs:
       with:
         python-version: "3.11"
 
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         pattern: artifact-*
         merge-multiple: true
