@@ -80,7 +80,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="$HOME/.local/libomp"
         cmake --build openmp_build --target install --config Release
 
-    - uses: pypa/cibuildwheel@v3.2.1
+    - uses: pypa/cibuildwheel@v3.3.0
       env:
         CIBW_ENVIRONMENT: CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_ENABLE_OPENMP=ON -DSDTN_DISABLE_OPENMP=OFF"
         CIBW_TEST_COMMAND: pytest {project}/tests && python -c "from sparse_dot_topn import _has_openmp_support;assert _has_openmp_support"
@@ -137,7 +137,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="/usr/local"
         cmake --build openmp_build --target install --config Release
 
-    - uses: pypa/cibuildwheel@v3.2.1
+    - uses: pypa/cibuildwheel@v3.3.0
       env:
         # only build for x86_64, arm wheels are build seperately
         CIBW_ARCHS: "x86_64"
