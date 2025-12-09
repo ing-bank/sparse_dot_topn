@@ -7,7 +7,7 @@ name = "sparse_dot_topn"
 version = "1.1.5"
 description = "This package boosts a sparse matrix multiplication followed by selecting the top-n multiplication"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     {name = "ING Analytics Wholesale Banking", email = "wbaa@ing.com"},
 ]
