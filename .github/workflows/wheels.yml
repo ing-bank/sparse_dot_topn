@@ -100,7 +100,7 @@ jobs:
 
   build_macos_intel:
     name: MacOS x86_64 wheels
-    runs-on: macos-13
+    runs-on: macos-15-intel
     strategy:
       fail-fast: false
 
