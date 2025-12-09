@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [windows-latest, macos-latest, ubuntu-latest]
-        numpy-version: ["numpy<2.0.0", "numpy~=2.0.0rc2"]
+        numpy-version: ["numpy<2.0.0", "numpy>=2.0.0"]
 
     steps:
     - uses: actions/checkout@v6
