@@ -1,5 +1,12 @@
 # Release history:
 
+## v1.2.0
+
+### Changes
+
+DEP: Drop support for CPython 3.8
+CICD: Add wheels for CPython 3.14
+
 ## v1.1.5
 
 ### Changes
