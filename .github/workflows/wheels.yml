@@ -22,6 +22,28 @@ jobs:
     - name: Build SDist
       run: pipx run build --sdist
 
+    - name: Normalize sdist filename
+      shell: bash
+      run: |
+        shopt -s nullglob
+        cd dist
+
+        for f in *.tar.gz; do
+          if [[ "$f" =~ ^([a-zA-Z0-9-]+)-([0-9].*)$ ]]; then
+            name_part="${BASH_REMATCH[1]}"
+            version_part="${BASH_REMATCH[2]}"
+
+            normalized_name="${name_part//-/_}"
+            new_filename="${normalized_name}-${version_part}"
+
+            if [[ "$f" != "$new_filename" ]]; then
+              echo "Renaming '$f' -> '$new_filename'"
+              mv "$f" "$new_filename"
+            fi
+          fi
+        done
+        ls -la .
+
     - name: Check metadata
       run: pipx run twine check dist/*
 
@@ -29,7 +51,6 @@ jobs:
       with:
         name: artifact-sdist
         path: dist/*.tar.gz
-
 
   build_wheels:
     name: Wheels on ${{ matrix.os }}
