@@ -4,10 +4,10 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "sparse_dot_topn"
-version = "1.2.0"
+version = "1.2.1"
 description = "This package boosts a sparse matrix multiplication followed by selecting the top-n multiplication"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     {name = "ING Analytics Wholesale Banking", email = "wbaa@ing.com"},
 ]
@@ -57,7 +57,7 @@ SDTN_ENABLE_ARCH_FLAGS = true
 [tool.cibuildwheel]
 archs = ["auto64"]
 skip = ["*-win32", "*-manylinux_i686", "*-musllinux_x86_64"]
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 
 # make sure to build generic wheels
 environment = {CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON"}

@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-     - main
+      - main
   release:
     types:
       - published
@@ -15,21 +15,20 @@ jobs:
     name: Build SDist
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-      with:
-        submodules: true
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
 
-    - name: Build SDist
-      run: pipx run build --sdist
+      - name: Build SDist
+        run: pipx run build --sdist
 
-    - name: Check metadata
-      run: pipx run twine check dist/*
+      - name: Check metadata
+        run: pipx run twine check dist/*
 
-    - uses: actions/upload-artifact@v7
-      with:
-        name: artifact-sdist
-        path: dist/*.tar.gz
-
+      - uses: actions/upload-artifact@v7
+        with:
+          name: artifact-sdist
+          path: dist/*.tar.gz
 
   build_wheels:
     name: Wheels on ${{ matrix.os }}
@@ -40,33 +39,32 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v7
-      with:
-        submodules: true
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
 
-    - uses: actions/setup-python@v7
-      with:
-        python-version: "3.11"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
 
-    - name: Install cibuildwheel
-      run: python -m pip install cibuildwheel>=3.3.0
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel>=3.3.0
 
-    - name: Build wheels
-      run: python -m cibuildwheel --output-dir wheelhouse
-      env:
-        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
-        CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=12.0 CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON"
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
+          CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=12.0 CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON"
 
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
+      - name: Verify clean directory
+        run: git diff --exit-code
+        shell: bash
 
-    - name: Upload wheels
-      uses: actions/upload-artifact@v7
-      with:
-        name: artifact-${{ matrix.os }}
-        path: wheelhouse/*.whl
-
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
+        with:
+          name: artifact-${{ matrix.os }}
+          path: wheelhouse/*.whl
 
   upload_all:
     name: Upload if release
@@ -74,8 +72,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/download-artifact@v8
-      with:
-        pattern: artifact-*
-        merge-multiple: true
-        path: dist
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: artifact-*
+          merge-multiple: true
+          path: dist
