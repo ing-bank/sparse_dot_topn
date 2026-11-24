@@ -118,7 +118,14 @@ def sp_matmul(
     if n_threads < 0:
         n_threads = _N_CORES
 
-    if isinstance(A, csc_matrix) and isinstance(B, csc_matrix) and A.shape[0] == B.shape[1]:
+    # `A.T` and `B.T` given as CSC: compute `A * B` as `(A.T).T * (B.T).T`,
+    # but only when `A * B` itself is not defined
+    if (
+        isinstance(A, csc_matrix)
+        and isinstance(B, csc_matrix)
+        and A.shape[1] != B.shape[0]
+        and A.shape[0] == B.shape[1]
+    ):
         A = A.transpose()
         B = B.transpose()
     elif isinstance(A, (coo_matrix, csc_matrix)):
@@ -222,7 +229,14 @@ def sp_matmul_topn(
     density: float = density or 1.0
     idx_dtype = assert_idx_dtype(idx_dtype)
 
-    if isinstance(A, csc_matrix) and isinstance(B, csc_matrix) and A.shape[0] == B.shape[1]:
+    # `A.T` and `B.T` given as CSC: compute `A * B` as `(A.T).T * (B.T).T`,
+    # but only when `A * B` itself is not defined
+    if (
+        isinstance(A, csc_matrix)
+        and isinstance(B, csc_matrix)
+        and A.shape[1] != B.shape[0]
+        and A.shape[0] == B.shape[1]
+    ):
         A = A.transpose()
         B = B.transpose()
     elif isinstance(A, (coo_matrix, csc_matrix)):
