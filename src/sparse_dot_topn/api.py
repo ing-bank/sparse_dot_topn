@@ -155,7 +155,7 @@ def sp_matmul(
 
     assert_supported_dtype(A)
     assert_supported_dtype(B)
-    ensure_compatible_dtype(A, B)
+    A, B = ensure_compatible_dtype(A, B)
 
     # basic check. if A or B are all zeros matrix, return all zero matrix directly
     if A.indices.size == 0 or B.indices.size == 0:
@@ -269,7 +269,7 @@ def sp_matmul_topn(
 
     assert_supported_dtype(A)
     assert_supported_dtype(B)
-    ensure_compatible_dtype(A, B)
+    A, B = ensure_compatible_dtype(A, B)
 
     # guard against top_n larger than number of cols
     top_n = min(top_n, B_ncols)

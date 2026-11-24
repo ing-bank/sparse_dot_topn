@@ -42,14 +42,10 @@ def ensure_compatible_dtype(
     """
     if a.dtype == b.dtype:
         return a, b
-    if a.dtype.itemsize > b.dtype.itemsize:
-        lhs = b
-        rhs = a
-    else:
-        lhs = a
-        rhs = b
-    if np.issubdtype(lhs.dtype, rhs.dtype):
-        return lhs.astype(rhs.dtype), rhs
+    if a.dtype.kind == b.dtype.kind:
+        if a.dtype.itemsize < b.dtype.itemsize:
+            return a.astype(b.dtype), b
+        return a, b.astype(a.dtype)
     msg = "`a` and `b` do not have the same dtype and cannot be safely cast"
     raise TypeError(msg)
 
