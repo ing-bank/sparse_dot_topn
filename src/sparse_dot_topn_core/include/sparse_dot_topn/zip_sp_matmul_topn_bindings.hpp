@@ -58,8 +58,8 @@ inline nb::tuple zip_sp_matmul_topn(
     }
 
     auto Z_indptr = std::unique_ptr<idxT[]>(new idxT[nrows + 1]);
-    auto Z_indices = std::unique_ptr<idxT>(new idxT[Z_max_nnz]);
-    auto Z_data = std::unique_ptr<eT>(new eT[Z_max_nnz]);
+    auto Z_indices = std::unique_ptr<idxT[]>(new idxT[Z_max_nnz]);
+    auto Z_data = std::unique_ptr<eT[]>(new eT[Z_max_nnz]);
 
     core::zip_sp_matmul_topn<eT, idxT>(
         top_n,
