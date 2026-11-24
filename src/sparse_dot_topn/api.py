@@ -246,8 +246,8 @@ def sp_matmul_topn(
         )
         raise ValueError(msg)
 
-    if B_ncols == top_n and (sort is False) and (threshold is None):
-        return sp_matmul(A, B, n_threads)
+    if top_n >= B_ncols and (sort is False) and (threshold is None):
+        return sp_matmul(A, B, n_threads, idx_dtype)
 
     assert_supported_dtype(A)
     assert_supported_dtype(B)
