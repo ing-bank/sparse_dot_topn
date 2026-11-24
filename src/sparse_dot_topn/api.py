@@ -17,7 +17,16 @@ if TYPE_CHECKING:
 __all__ = ["sp_matmul", "sp_matmul_topn", "awesome_cossim_topn"]
 
 
-_N_CORES = psutil.cpu_count(logical=False) - 1
+def _default_n_threads() -> int:
+    """All but one of the physical cores, at least one.
+
+    `psutil.cpu_count` returns None when the count cannot be determined, e.g. in some containers.
+    """
+    n_cores = psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True) or 1
+    return max(n_cores - 1, 1)
+
+
+_N_CORES = _default_n_threads()
 
 _SUPPORTED_DTYPES = {np.dtype("int32"), np.dtype("int64"), np.dtype("float32"), np.dtype("float64")}
 

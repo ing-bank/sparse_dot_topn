@@ -1,14 +1,12 @@
 # Copyright (c) 2023 ING Analytics Wholesale Banking
 from __future__ import annotations
 
-import psutil
 from scipy.sparse import csr_matrix
 
+from sparse_dot_topn.api import _N_CORES
 from sparse_dot_topn.lib import _sparse_dot_topn_core as _core
 
 __all__ = ["sp_matmul_topn"]
-
-_N_CORES = psutil.cpu_count(logical=False) - 1
 
 
 def sp_matmul_topn(
