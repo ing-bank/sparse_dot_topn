@@ -19,6 +19,8 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/optional.h>
 
+#include <limits>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -27,6 +29,22 @@ namespace core {
 
 template <typename T>
 using iffInt = std::enable_if_t<std::is_integral_v<T>, bool>;
+
+/**
+ * \brief Threshold that every value passes when none is set.
+ *
+ * \details Values are kept if they are strictly greater than the threshold,
+ * so use -inf for floating point types; note that
+ * `std::numeric_limits<eT>::min()` is the smallest positive value for those.
+ */
+template <typename eT>
+constexpr eT no_threshold() {
+    if constexpr (std::numeric_limits<eT>::has_infinity) {
+        return -std::numeric_limits<eT>::infinity();
+    } else {
+        return std::numeric_limits<eT>::lowest();
+    }
+}
 
 }  // namespace core
 

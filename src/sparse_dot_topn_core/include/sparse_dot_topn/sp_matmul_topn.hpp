@@ -152,7 +152,7 @@ inline void sp_matmul_topn(
 
         for (idxT jj = 0; jj < length; jj++) {
             // length = number of columns set (may include 0s)
-            if (sums[head] > min) {
+            if (sums[head] > min && sums[head] != 0) {
                 min = max_heap.push_pop(head, sums[head]);
             }
 
@@ -354,7 +354,7 @@ inline std::tuple<size_t, eT*, idxT*, idxT*> sp_matmul_topn_mt(
 
             for (idxT jj = 0; jj < length; jj++) {
                 // length = number of columns set (may include 0s)
-                if (sums[head] > min) {
+                if (sums[head] > min && sums[head] != 0) {
                     min = max_heap.push_pop(head, sums[head]);
                 }
 
