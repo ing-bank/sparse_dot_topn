@@ -73,7 +73,11 @@ def awesome_cossim_topn(
         " See the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#readme'."
     )
     if test_nnz_max is not None:
-        raise DeprecationWarning(msg)
+        msg = (
+            "`test_nnz_max` is no longer supported by `awesome_cossim_topn`,"
+            " see the migration guide at 'https://github.com/ing-bank/sparse_dot_topn#readme'."
+        )
+        raise TypeError(msg)
     warnings.warn(msg, DeprecationWarning, stacklevel=2)
     n_threads = n_jobs if use_threads is True else None
     C = sp_matmul_topn(A=A, B=B, top_n=ntop, threshold=lower_bound, sort=True, n_threads=n_threads)
