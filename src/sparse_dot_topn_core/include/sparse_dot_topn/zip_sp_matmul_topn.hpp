@@ -70,7 +70,7 @@ inline void zip_sp_matmul_topn(
     const int n_mat = C_data.size();
 
     // threshold is already consistent between matrices, so accept every line.
-    auto max_heap = MaxHeap<eT, idxT>(top_n, std::numeric_limits<eT>::min());
+    auto max_heap = MaxHeap<eT, idxT>(top_n, no_threshold<eT>());
 
     // offset the index when concatenating the C sub-matrices (split by row)
     std::vector<idxT> offset(n_mat, idxT(0));
