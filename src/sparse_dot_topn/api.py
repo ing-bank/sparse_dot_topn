@@ -313,6 +313,10 @@ def zip_sp_matmul_topn(top_n: int, C_mats: list[csr_matrix]) -> csr_matrix:
         TypeError: when not all elements of `C_mats` is a csr_matrix or trivially convertable
         ValueError: when not all elements of `C_mats` has the same number of rows
     """
+    if len(C_mats) == 0:
+        msg = "`C_mats` must contain at least one matrix."
+        raise ValueError(msg)
+
     _nrows = []
     ncols = []
     data = []
@@ -333,11 +337,16 @@ def zip_sp_matmul_topn(top_n: int, C_mats: list[csr_matrix]) -> csr_matrix:
         indptr.append(C.indptr)
         indices.append(C.indices)
 
-    ncols = np.asarray(ncols, int)
-    total_cols = ncols.sum()
     if not np.all(np.diff(_nrows) == 0):
         msg = "Each `C` in `C_mats` should have the same number of rows."
         raise ValueError(msg)
+
+    # the extension requires a single index dtype for all matrices
+    idx_dtype = np.result_type(*indptr, *indices)
+    indptr = [x.astype(idx_dtype, copy=False) for x in indptr]
+    indices = [x.astype(idx_dtype, copy=False) for x in indices]
+    ncols = np.asarray(ncols, idx_dtype)
+    total_cols = ncols.sum()
 
     return csr_matrix(
         _core.zip_sp_matmul_topn(
