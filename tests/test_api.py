@@ -2,9 +2,10 @@ import sys
 from itertools import product
 
 import numpy as np
+import psutil
 import pytest
 from scipy import sparse
-from sparse_dot_topn import _has_openmp_support, sp_matmul, sp_matmul_topn, zip_sp_matmul_topn
+from sparse_dot_topn import _has_openmp_support, api, awesome_cossim_topn, sp_matmul, sp_matmul_topn, zip_sp_matmul_topn
 
 from ._resources import _assert_array_equal, _assert_smat_equal, _get_topn_elements
 
@@ -241,3 +242,35 @@ def test_stack_zip_sp_matmul_topn(rng, dtype):
     # the insertion order in the maxheap is leading, which is impossible to replicate in zip_sp_matmul_topn,
     # as the B matrices are have been split and get inserted in separate maxheap objects.
     _assert_array_equal(C_stack.indices, C_ref.indices)
+
+
+def test_zip_sp_matmul_topn_empty():
+    with pytest.raises(ValueError, match="at least one"):
+        zip_sp_matmul_topn(top_n=10, C_mats=[])
+
+
+def test_zip_sp_matmul_topn_mixed_index_dtypes(rng):
+    A = sparse.random(20, 50, density=0.2, format="csr", random_state=rng)
+    B = sparse.random(30, 50, density=0.2, format="csr", random_state=rng)
+    C_ref = sp_matmul_topn(A, B.T, top_n=5, sort=True)
+
+    Cs = [sp_matmul_topn(A, Bi.T, top_n=5, sort=True) for Bi in (B[:10], B[10:])]
+    # scipy downcasts index arrays in the constructor, so set them directly
+    Cs[1].indptr = Cs[1].indptr.astype(np.int64)
+    Cs[1].indices = Cs[1].indices.astype(np.int64)
+
+    C_zip = zip_sp_matmul_topn(top_n=5, C_mats=Cs)
+    _assert_array_equal(C_zip.toarray(), C_ref.toarray())
+
+
+@pytest.mark.parametrize(("physical", "logical", "expected"), [(8, 16, 7), (None, 4, 3), (None, None, 1), (1, 2, 1)])
+def test_default_n_threads(monkeypatch, physical, logical, expected):
+    counts = {False: physical, True: logical}
+    monkeypatch.setattr(psutil, "cpu_count", lambda logical=True: counts[logical])
+    assert api._default_n_threads() == expected
+
+
+def test_awesome_cossim_topn_test_nnz_max_raises(rng):
+    A = sparse.random(10, 10, density=0.5, format="csr", random_state=rng)
+    with pytest.raises(TypeError, match="awesome_cossim_topn"):
+        awesome_cossim_topn(A, A, ntop=5, test_nnz_max=10)
