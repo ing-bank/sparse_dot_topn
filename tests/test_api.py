@@ -1,4 +1,3 @@
-import sys
 from itertools import product
 
 import numpy as np
@@ -214,7 +213,6 @@ def test_zip_sp_matmul_topn(rng, dtype):
     _assert_array_equal(C_zip.indices, C_ref.indices)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="not all dtypes supported in scipy vstack for python 3.8")
 @pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
 def test_stack_zip_sp_matmul_topn(rng, dtype):
     # matching 1000 names against 600 gt-names,
