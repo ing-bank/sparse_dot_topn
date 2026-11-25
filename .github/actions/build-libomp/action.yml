@@ -51,7 +51,9 @@ runs:
         src="${RUNNER_TEMP}/llvm-project"
         git clone --quiet --depth 1 --branch "${LLVM_TAG}" --filter=blob:none --sparse \
             https://github.com/llvm/llvm-project "${src}"
-        git -C "${src}" sparse-checkout set runtimes cmake openmp llvm/cmake
+        # libomp always configures its unit tests, which need GTest from
+        # third-party/unittest, even with LLVM_INCLUDE_TESTS=OFF
+        git -C "${src}" sparse-checkout set runtimes cmake openmp llvm/cmake third-party/unittest
 
         # LLVM 23 removed the standalone openmp build, so use the runtimes build
         cmake -S "${src}/runtimes" -B "${RUNNER_TEMP}/libomp-build" \
