@@ -1,8 +1,6 @@
 # sparse\_dot\_topn
 
-[![MacOS](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/macos.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/macos.yml)
-[![Linux](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/linux.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/linux.yml)
-[![Windows](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/windows.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/windows.yml)
+[![CI](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/ci.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/ing-bank/sparse_dot_topn)](https://github.com/ing-bank/sparse_dot_topn/blob/master/LICENSE)
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 
