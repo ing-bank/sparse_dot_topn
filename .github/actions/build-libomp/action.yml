@@ -1,0 +1,77 @@
+name: Build libomp
+description: >
+  Build libomp from the latest LLVM release for macOS and install it in `prefix`.
+  The installed library is cached per LLVM release, so it is only rebuilt when LLVM publishes a new release.
+
+inputs:
+  arch:
+    description: Value for CMAKE_OSX_ARCHITECTURES
+    default: arm64
+  deployment-target:
+    description: Value for CMAKE_OSX_DEPLOYMENT_TARGET, must match the wheels
+    default: "12.0"
+  prefix:
+    description: Install prefix of libomp
+    required: true
+
+outputs:
+  llvm-tag:
+    description: LLVM release tag that libomp was built from
+    value: ${{ steps.release.outputs.tag }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find latest LLVM release
+      id: release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tag=$(gh api repos/llvm/llvm-project/releases/latest --jq .tag_name)
+        echo "Building libomp from ${tag}"
+        echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+    - name: Cache libomp
+      id: cache
+      uses: actions/cache@v6
+      with:
+        path: ${{ inputs.prefix }}
+        key: libomp-${{ runner.os }}-${{ inputs.arch }}-${{ inputs.deployment-target }}-${{ steps.release.outputs.tag }}
+
+    - name: Build libomp
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        LLVM_TAG: ${{ steps.release.outputs.tag }}
+        OSX_ARCH: ${{ inputs.arch }}
+        OSX_TARGET: ${{ inputs.deployment-target }}
+        PREFIX: ${{ inputs.prefix }}
+      run: |
+        src="${RUNNER_TEMP}/llvm-project"
+        git clone --quiet --depth 1 --branch "${LLVM_TAG}" --filter=blob:none --sparse \
+            https://github.com/llvm/llvm-project "${src}"
+        git -C "${src}" sparse-checkout set runtimes cmake openmp llvm/cmake
+
+        # LLVM 23 removed the standalone openmp build, so use the runtimes build
+        cmake -S "${src}/runtimes" -B "${RUNNER_TEMP}/libomp-build" \
+            -DLLVM_ENABLE_RUNTIMES=openmp \
+            -DLLVM_INCLUDE_TESTS=OFF \
+            -DLIBOMP_INSTALL_ALIASES=OFF \
+            -DLIBOMP_FORTRAN_MODULES=OFF \
+            -DOPENMP_ENABLE_OMPT_TOOLS=OFF \
+            -DCMAKE_OSX_ARCHITECTURES="${OSX_ARCH}" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${OSX_TARGET}" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_INSTALL_PREFIX="${PREFIX}"
+        cmake --build "${RUNNER_TEMP}/libomp-build" --target install --parallel
+
+    - name: Check libomp
+      shell: bash
+      env:
+        PREFIX: ${{ inputs.prefix }}
+      run: |
+        ls -l "${PREFIX}/include/omp.h" "${PREFIX}/lib/libomp.dylib"
+        otool -l "${PREFIX}/lib/libomp.dylib" | grep -A4 LC_BUILD_VERSION
