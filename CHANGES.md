@@ -1,16 +1,16 @@
 # Release history:
 
-## Unreleased
+## v1.2.1
 
 ### Changes
 
 API: `awesome_cossim_topn` raises `TypeError` instead of `DeprecationWarning` when `test_nnz_max` is passed
-BUG: Fix import failure when `psutil.cpu_count` cannot determine the number of cores
-BUG: `zip_sp_matmul_topn` raises `ValueError` for an empty `C_mats` and accepts matrices with different index dtypes
-BUG: `sp_matmul_topn` respects `idx_dtype` when it falls back to `sp_matmul`, now also for `top_n > B.shape[1]`
-BUG: [C++] Keep non-positive values when no `threshold` is given; previously float results <= 0 were dropped
-BUG: Compute `A * B` for CSC inputs `A`, `B` when `A.shape[0] == B.shape[1]`; previously `A.T * B.T` was returned
-BUG: Cast the lower-precision operand when mixing 32 and 64 bit dtypes of the same kind instead of raising `TypeError`
+FIX: Fix import failure when `psutil.cpu_count` cannot determine the number of cores
+FIX: `zip_sp_matmul_topn` raises `ValueError` for an empty `C_mats` and accepts matrices with different index dtypes
+FIX: `sp_matmul_topn` respects `idx_dtype` when it falls back to `sp_matmul`, now also for `top_n > B.shape[1]`
+FIX: [C++] Keep non-positive values when no `threshold` is given; previously float results <= 0 were dropped
+FIX: Compute `A * B` for CSC inputs `A`, `B` when `A.shape[0] == B.shape[1]`; previously `A.T * B.T` was returned
+CHG: Cast the lower-precision operand when mixing 32 and 64 bit dtypes of the same kind instead of raising `TypeError`
 
 ### Internal
 
