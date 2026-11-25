@@ -84,6 +84,10 @@ before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
 
 [tool.ruff]
+target-version = "py38"
+line-length = 120
+
+[tool.ruff.lint]
 extend-select = [
     "E", # pyflakes `E`
     "W", # pyflakes `W`
@@ -105,8 +109,6 @@ extend-select = [
     "PERF", # perflint
     "FURB", # refurb
 ]
-target-version = "py38"
-line-length = 120
 select = [
   # Enable Pyflakes `E`, `F` and `W` codes
   "F",
@@ -142,6 +144,7 @@ ignore = [
   "PLR2004", # magic value
   "PLR0912", # too many branches
   "PLR0915", # too many statements
+  "PLR0917", # too many positional arguments, changing the public signatures would break callers
   "PLR0911", # too many return statements
   "PLR6301", # method could be function/staticmethod
   # Only lint existing docstrings
@@ -163,18 +166,18 @@ ignore = [
   "PLC1901"
 ]
 
-[tool.ruff.flake8-copyright]
+[tool.ruff.lint.flake8-copyright]
 notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+"""
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "PLR2004", "CPY001", "ANN001"]
 "docs/sphinx/source/conf.py" = ["INP", "CPY001"]
 "example.py" = ["T201", "CPY001"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 split-on-trailing-comma = false
 
 [tool.ruff.format]
