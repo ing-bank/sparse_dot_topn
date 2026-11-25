@@ -319,9 +319,11 @@ def test_sp_matmul_topn_mixed_sign(rng, dtype, n_threads):
 
     # integer products have ties, so only compare when all values are kept
     top_ns = [B.shape[1]] if np.issubdtype(dtype, np.integer) else [5, B.shape[1]]
+    # mixed signs cancel to small values whose float32 rounding differs from scipy's when FMA is used
+    atol = 1e-5 if dtype == np.float32 else 1e-8
     for top_n in top_ns:
         C = sp_matmul_topn(A, B, top_n=top_n, sort=True, n_threads=n_threads)
-        _assert_array_equal(C.toarray(), _dense_topn(C_ref, top_n))
+        _assert_array_equal(C.toarray(), _dense_topn(C_ref, top_n), atol=atol)
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
