@@ -1,10 +1,10 @@
-import sys
 from itertools import product
 
 import numpy as np
 import psutil
 import pytest
 from scipy import sparse
+
 from sparse_dot_topn import _has_openmp_support, api, awesome_cossim_topn, sp_matmul, sp_matmul_topn, zip_sp_matmul_topn
 
 from ._resources import _assert_array_equal, _assert_smat_equal, _get_topn_elements
@@ -25,7 +25,7 @@ def test_sp_matmul_nthreads(rng, dtype):
     B = sparse.random(10, 100, density=0.5, format="csr", dtype=dtype, random_state=rng)
     C_ref = A.dot(B)
     if not _has_openmp_support:
-        with pytest.warns(UserWarning):
+        with pytest.warns(UserWarning, match="compiled without parallelisation"):
             C = sp_matmul(A, B, n_threads=2)
     else:
         C = sp_matmul(A, B, n_threads=2)
@@ -59,7 +59,7 @@ def test_sp_matmul_topn_nthreads(rng, dtype):
     B = sparse.random(10, 100, density=0.5, format="csr", dtype=dtype, random_state=rng)
     C_ref = A.dot(B)
     if not _has_openmp_support:
-        with pytest.warns(UserWarning):
+        with pytest.warns(UserWarning, match="compiled without parallelisation"):
             C = sp_matmul_topn(A, B, top_n=B.shape[1], n_threads=2)
     else:
         C = sp_matmul_topn(A, B, top_n=B.shape[1], n_threads=2)
@@ -213,7 +213,6 @@ def test_zip_sp_matmul_topn(rng, dtype):
     _assert_array_equal(C_zip.indices, C_ref.indices)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="not all dtypes supported in scipy vstack for python 3.8")
 @pytest.mark.parametrize("dtype", [np.float32, np.float64, np.int32, np.int64])
 def test_stack_zip_sp_matmul_topn(rng, dtype):
     # matching 1000 names against 600 gt-names,

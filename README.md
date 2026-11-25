@@ -56,11 +56,13 @@ C = sp_matmul_topn(A, B, top_n=10, threshold=0.8, density=0.1)
 
 ## Installation
 
-**sparse\_dot\_topn** provides wheels for CPython 3.9 to 3.14 for:
+**sparse\_dot\_topn** provides wheels for CPython 3.10 to 3.14 for:
 
 * Windows (64bit)
 * Linux (64bit)
-* MacOS (x86 and ARM)
+* MacOS (ARM)
+
+On other platforms, such as MacOS on Intel, pip builds the package from source.
 
 ```shell
 pip install sparse_dot_topn

@@ -1,10 +1,17 @@
 # Release history:
 
+## v1.3.0
+
+### Changes
+
+DEP: Drop support for CPython 3.9
+DEP: Require numpy >= 1.21.3 and scipy >= 1.7.3, the oldest versions with CPython 3.10 wheels
+PKG: Drop the MacOS x86_64 wheels and the wheels without bundled OpenMP
+
 ## v1.2.1
 
 ### Changes
 
-API: `awesome_cossim_topn` raises `TypeError` instead of `DeprecationWarning` when `test_nnz_max` is passed
 FIX: Fix import failure when `psutil.cpu_count` cannot determine the number of cores
 FIX: `zip_sp_matmul_topn` raises `ValueError` for an empty `C_mats` and accepts matrices with different index dtypes
 FIX: `sp_matmul_topn` respects `idx_dtype` when it falls back to `sp_matmul`, now also for `top_n > B.shape[1]`
@@ -15,6 +22,8 @@ CHG: Cast the lower-precision operand when mixing 32 and 64 bit dtypes of the sa
 ### Internal
 
 FIX: [C++] Use the array form of `std::unique_ptr` for the `zip_sp_matmul_topn` output buffers
+CICD: Consolidate the workflows into `ci.yml` and `wheels.yml`, add lint, sanitizer and minimum-dependency jobs
+CICD: Build the vendored libomp for MacOS from the latest LLVM release
 
 ## v1.2.0
 

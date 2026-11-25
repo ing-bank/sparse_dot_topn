@@ -1,10 +1,12 @@
 ## Installation
 
-**sparse\_dot\_topn** provides wheels for CPython 3.9 to 3.14 for:
+**sparse\_dot\_topn** provides wheels for CPython 3.10 to 3.14 for:
 
 * Windows (64bit)
 * Linux (64bit)
-* MacOS (x86 and ARM)
+* MacOS (ARM)
+
+On other platforms, such as MacOS on Intel, pip builds the package from source.
 
 ```shell
 pip install sparse_dot_topn
@@ -12,16 +14,6 @@ pip install sparse_dot_topn
 
 **sparse\_dot\_topn** relies on a C++ extension for the computationally intensive multiplication routine.
 Note that the wheels vendor/ships OpenMP with the extension to provide parallelisation out-of-the-box.
-
-### Non-bundled wheels
-
-We provide the same wheels without OpenMP bundled here: https://github.com/ing-bank/sparse_dot_topn/releases 
-You than install the wheel that corresponds to your Python and OS.
-For example, for CPython 3.11 and MacOS ARM:
-
-```shell
-pip install sparse_dot_topn-1.0.0-cp311-cp311-macosx_11_0_arm64.whl
-```
 
 ### Building from source
 

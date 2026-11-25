@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 23 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install linters
+        run: python -m pip install ruff==0.17.6 clang-format==23.1.5
+
+      - name: ruff check
+        run: ruff check --output-format=github src tests
+
+      - name: ruff format
+        run: ruff format --check src tests
+
+      - name: clang-format
+        run: git ls-files -z '*.cpp' '*.hpp' | xargs -0 clang-format --dry-run --Werror
+
+  tests:
+    name: Tests ${{ matrix.os }} CPython ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # oldest and newest supported version on PRs, all versions on push and in the weekly run
+        python-version: ${{ fromJSON(github.event_name == 'pull_request' && '["3.10", "3.14"]' || '["3.10", "3.11", "3.12", "3.13", "3.14"]') }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/install
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Test
+        working-directory: tests
+        run: python -m pytest
+
+  min-deps:
+    name: Tests with minimum dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # keep in sync with requires-python and dependencies in pyproject.toml
+      - uses: ./.github/actions/install
+        with:
+          python-version: "3.10"
+          pip-args: numpy==1.21.3 scipy==1.7.3
+
+      - name: Test
+        working-directory: tests
+        run: python -m pytest
+
+  sanitizers:
+    name: AddressSanitizer and UndefinedBehaviorSanitizer
+    runs-on: ubuntu-latest
+    env:
+      # signed-integer-overflow is disabled for now: the integer kernels wrap around like numpy
+      # on the full-range random integers in the tests, which is undefined behaviour in C++
+      CMAKE_ARGS: >-
+        -DSDTN_ENABLE_OPENMP=ON
+        -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-sanitize=signed-integer-overflow
+        -fno-sanitize-recover=all -fno-omit-frame-pointer'
+    steps:
+      - uses: actions/checkout@v7
+
+      # RelWithDebInfo keeps line numbers in the reports and skips LTO
+      - uses: ./.github/actions/install
+        with:
+          python-version: "3.14"
+          pip-args: --config-settings=cmake.build-type=RelWithDebInfo
+
+      - name: Test
+        working-directory: tests
+        env:
+          # objects that CPython keeps alive until exit would be reported as leaks
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: print_stacktrace=1
+        # --capture=sys leaves stderr alone, so the sanitizer report is not lost when the process aborts
+        run: LD_PRELOAD="$(gcc -print-file-name=libasan.so)" python -m pytest --capture=sys

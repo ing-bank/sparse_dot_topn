@@ -14,7 +14,7 @@ from sparse_dot_topn.types import assert_idx_dtype, assert_supported_dtype, ensu
 if TYPE_CHECKING:
     from numpy.types import DTypeLike
 
-__all__ = ["sp_matmul", "sp_matmul_topn", "awesome_cossim_topn"]
+__all__ = ["awesome_cossim_topn", "sp_matmul", "sp_matmul_topn"]
 
 
 def _default_n_threads() -> int:

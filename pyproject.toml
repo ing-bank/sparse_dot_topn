@@ -7,7 +7,7 @@ name = "sparse_dot_topn"
 version = "1.2.1"
 description = "This package boosts a sparse matrix multiplication followed by selecting the top-n multiplication"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     {name = "ING Analytics Wholesale Banking", email = "wbaa@ing.com"},
 ]
@@ -17,8 +17,8 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy>=1.18.0",
-    "scipy>=1.4.1",
+    "numpy>=1.21.3",
+    "scipy>=1.7.3",
     "psutil",
 ]
 
@@ -57,7 +57,7 @@ SDTN_ENABLE_ARCH_FLAGS = true
 [tool.cibuildwheel]
 archs = ["auto64"]
 skip = ["*-win32", "*-manylinux_i686", "*-musllinux_x86_64"]
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 
 # make sure to build generic wheels
 environment = {CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON"}
@@ -65,8 +65,6 @@ environment = {CMAKE_ARGS="-DSDTN_ENABLE_ARCH_FLAGS=OFF -DSDTN_DISABLE_OPENMP=ON
 # Run pytest to ensure that the package was correctly built
 test-command = "pytest {project}/tests"
 test-requires = "pytest"
-# Skip trying to test arm64 builds on Intel Macs
-test-skip = "*-macosx_arm64 *-macosx_universal2:arm64"
 
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
@@ -75,7 +73,7 @@ build-verbosity = 1
 repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
+archs = ["arm64"]
 # Needed for full C++17 support
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --exclude libomp.dylib"
 
@@ -84,6 +82,10 @@ before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
 
 [tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
 extend-select = [
     "E", # pyflakes `E`
     "W", # pyflakes `W`
@@ -105,8 +107,6 @@ extend-select = [
     "PERF", # perflint
     "FURB", # refurb
 ]
-target-version = "py38"
-line-length = 120
 select = [
   # Enable Pyflakes `E`, `F` and `W` codes
   "F",
@@ -142,6 +142,7 @@ ignore = [
   "PLR2004", # magic value
   "PLR0912", # too many branches
   "PLR0915", # too many statements
+  "PLR0917", # too many positional arguments, changing the public signatures would break callers
   "PLR0911", # too many return statements
   "PLR6301", # method could be function/staticmethod
   # Only lint existing docstrings
@@ -163,18 +164,18 @@ ignore = [
   "PLC1901"
 ]
 
-[tool.ruff.flake8-copyright]
+[tool.ruff.lint.flake8-copyright]
 notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+"""
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "PLR2004", "CPY001", "ANN001"]
 "docs/sphinx/source/conf.py" = ["INP", "CPY001"]
 "example.py" = ["T201", "CPY001"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 split-on-trailing-comma = false
 
 [tool.ruff.format]
