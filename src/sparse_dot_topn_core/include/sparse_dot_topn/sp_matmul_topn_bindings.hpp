@@ -66,7 +66,7 @@ inline nb::tuple sp_matmul_topn(
             B_indptr.data(),
             B_indices.data()
         );
-        local_threshold = std::numeric_limits<eT>::min();
+        local_threshold = core::no_threshold<eT>();
     }
     std::vector<eT> C_data;
     C_data.reserve(result_size);
@@ -114,7 +114,7 @@ inline nb::tuple sp_matmul_topn_mt(
     const nb_vec<idxT>& B_indptr,
     const nb_vec<idxT>& B_indices
 ) {
-    eT local_threshold = threshold.value_or(std::numeric_limits<eT>::min());
+    eT local_threshold = threshold.value_or(core::no_threshold<eT>());
     auto [total_nonzero, C_data, C_indices, C_indptr]
         = core::sp_matmul_topn_mt<eT, idxT, insertion_sort>(
             top_n,
