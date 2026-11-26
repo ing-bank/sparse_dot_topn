@@ -3,8 +3,6 @@
 [![CI](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/ci.yml/badge.svg)](https://github.com/ing-bank/sparse_dot_topn/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/ing-bank/sparse_dot_topn)](https://github.com/ing-bank/sparse_dot_topn/blob/master/LICENSE)
 [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
-
-
 [![Release_date](https://img.shields.io/github/release-date/ing-bank/sparse_dot_topn)](https://github.com/ing-bank/sparse_dot_topn/releases)
 [![PyPi](https://img.shields.io/pypi/v/sparse-dot-topn.svg)](https://pypi.org/project/sparse-dot-topn/)
 [![Downloads](https://pepy.tech/badge/sparse_dot_topn)](https://pepy.tech/project/sparse_dot_topn)
